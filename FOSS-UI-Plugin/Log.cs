@@ -1,6 +1,6 @@
 ﻿using BepInEx.Logging;
 
-namespace ExamplePlugin
+namespace FOSSUI
 {
     internal static class Log
     {

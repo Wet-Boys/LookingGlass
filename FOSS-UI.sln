@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FOSS-UI", "FOSS-UI-Plugin\FOSS-UI.csproj", "{7E9C1B55-787B-4197-B59F-97B600B0FF20}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FOSSUI", "FOSS-UI-Plugin\FOSSUI.csproj", "{7E9C1B55-787B-4197-B59F-97B600B0FF20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
