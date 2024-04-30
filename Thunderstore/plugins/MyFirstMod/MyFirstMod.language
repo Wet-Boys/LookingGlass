@@ -1,0 +1,20 @@
+{
+  "strings": {
+    "EXAMPLE_CLOAKONKILL_NAME": "FALLBACK DEFAULT LANGUAGE Cuthroat's Garb",
+    "EXAMPLE_CLOAKONKILL_PICKUP": "FALLBACK DEFAULT LANGUAGE Chance to cloak on kill",
+    "EXAMPLE_CLOAKONKILL_DESC": "FALLBACK DEFAULT LANGUAGE Whenever you <style=cIsDamage>kill an enemy</style>, you have a <style=cIsUtility>50%</style> chance to cloak for <style=cIsUtility>4s</style> <style=cStack>(+1s per stack)</style>.",
+    "EXAMPLE_CLOAKONKILL_LORE": "FALLBACK DEFAULT LANGUAGE Those who visit in the night are either praying for a favour, or preying on a neighbour."
+  },
+  "FR": {
+    "EXAMPLE_CLOAKONKILL_NAME": "FRENCH Cuthroat's Garb",
+    "EXAMPLE_CLOAKONKILL_PICKUP": "FRENCH Chance to cloak on kill",
+    "EXAMPLE_CLOAKONKILL_DESC": "FRENCH Whenever you <style=cIsDamage>kill an enemy</style>, you have a <style=cIsUtility>50%</style> chance to cloak for <style=cIsUtility>4s</style> <style=cStack>(+1s per stack)</style>.",
+    "EXAMPLE_CLOAKONKILL_LORE": "FRENCH Those who visit in the night are either praying for a favour, or preying on a neighbour."
+  },
+  "en": {
+    "EXAMPLE_CLOAKONKILL_NAME": "ENGLISH Cuthroat's Garb",
+    "EXAMPLE_CLOAKONKILL_PICKUP": "ENGLISH Chance to cloak on kill",
+    "EXAMPLE_CLOAKONKILL_DESC": "ENGLISH Whenever you <style=cIsDamage>kill an enemy</style>, you have a <style=cIsUtility>50%</style> chance to cloak for <style=cIsUtility>4s</style> <style=cStack>(+1s per stack)</style>.",
+    "EXAMPLE_CLOAKONKILL_LORE": "ENGLISH Those who visit in the night are either praying for a favour, or preying on a neighbour."
+  }
+}
