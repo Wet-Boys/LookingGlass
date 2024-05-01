@@ -1,0 +1,6 @@
+<Project>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /y &quot;J:\FOSS-UI\FOSS-UI-Plugin\bin\Debug\netstandard2.0\FOSSUI.dll&quot; &quot;C:\Users\Bigma Male\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\UI test\BepInEx\plugins\FOSSUI.dll&quot;" />
+    <Exec Command="copy /y &quot;J:\FOSS-UI\FOSS-UI-Plugin\bin\Debug\netstandard2.0\FOSSUI.pdb&quot; &quot;C:\Users\Bigma Male\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\UI test\BepInEx\plugins\FOSSUI.pdb&quot;" />
+  </Target>
+</Project>

@@ -1,5 +1,6 @@
 using BepInEx;
 using FOSSUI.AutoSortItems;
+using FOSSUI.CommandWindowBlur;
 using RoR2;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -19,7 +20,7 @@ namespace FOSSUI
             Log.Init(Logger);
             instance = this;
             AutoSortItemsClass thing = new AutoSortItemsClass();
-            thing.Setup();
+            NoWindowBlur thing2 = new NoWindowBlur();
         }
 
         private void Update()

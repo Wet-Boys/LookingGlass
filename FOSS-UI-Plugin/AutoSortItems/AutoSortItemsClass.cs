@@ -28,8 +28,13 @@ namespace FOSSUI.AutoSortItems
         private static Hook overrideHook;
         bool initialized = false;
 
+        public AutoSortItemsClass()
+        {
+            Setup();
+        }
         public void Setup()
         {
+
             instance = this;
             SeperateScrap = BasePlugin.instance.Config.Bind<bool>("Settings", "Seperate Scrap", true, "Sort's by Scrap");
             SortByTier = BasePlugin.instance.Config.Bind<bool>("Settings", "Tier Sort", true, "Sort's by Tier");
