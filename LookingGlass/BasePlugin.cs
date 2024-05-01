@@ -3,6 +3,7 @@ using LookingGlass.AutoSortItems;
 using LookingGlass.CommandWindowBlur;
 using LookingGlass.EscapeToCloseMenu;
 using LookingGlass.HidePickupNotifs;
+using LookingGlass.ItemStatsNameSpace;
 using RoR2;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -21,6 +22,7 @@ namespace LookingGlass
         internal NoWindowBlur noWindowBlur;
         internal ButtonsToCloseMenu buttonsToCloseMenu;
         internal HidePickupNotifications hidePickupNotifications;
+        internal ItemStats itemStats;
         public void Awake()
         {
             Log.Init(Logger);
@@ -29,6 +31,7 @@ namespace LookingGlass
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();
             hidePickupNotifications = new HidePickupNotifications();
+            itemStats = new ItemStats();
         }
 
         private void Update()
