@@ -2,6 +2,7 @@ using BepInEx;
 using LookingGlass.AutoSortItems;
 using LookingGlass.CommandWindowBlur;
 using LookingGlass.EscapeToCloseMenu;
+using LookingGlass.HidePickupNotifs;
 using RoR2;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -19,6 +20,7 @@ namespace LookingGlass
         internal AutoSortItemsClass autoSortItems;
         internal NoWindowBlur noWindowBlur;
         internal ButtonsToCloseMenu buttonsToCloseMenu;
+        internal HidePickupNotifications hidePickupNotifications;
         public void Awake()
         {
             Log.Init(Logger);
@@ -26,6 +28,7 @@ namespace LookingGlass
             autoSortItems = new AutoSortItemsClass();
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();
+            hidePickupNotifications = new HidePickupNotifications();
         }
 
         private void Update()
