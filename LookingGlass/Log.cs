@@ -1,6 +1,6 @@
 ﻿using BepInEx.Logging;
 
-namespace FOSSUI
+namespace LookingGlass
 {
     internal static class Log
     {

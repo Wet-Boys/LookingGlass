@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FOSSUI.Base
+namespace LookingGlass.Base
 {
     internal interface BaseThing
     {

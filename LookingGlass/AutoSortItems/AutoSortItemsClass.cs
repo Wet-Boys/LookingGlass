@@ -1,5 +1,5 @@
 ﻿using BepInEx.Configuration;
-using FOSSUI.Base;
+using LookingGlass.Base;
 using MonoMod.RuntimeDetour;
 using RoR2;
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace FOSSUI.AutoSortItems
+namespace LookingGlass.AutoSortItems
 {
     internal class AutoSortItemsClass : BaseThing
     {

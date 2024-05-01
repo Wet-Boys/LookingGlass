@@ -1,13 +1,14 @@
 ﻿using BepInEx.Configuration;
-using FOSSUI.Base;
+using LookingGlass.Base;
 using LeTai.Asset.TranslucentImage;
 using MonoMod.RuntimeDetour;
 using RoR2;
+using RoR2.UI;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace FOSSUI.CommandWindowBlur
+namespace LookingGlass.CommandWindowBlur
 {
     internal class NoWindowBlur : BaseThing
     {
@@ -36,6 +37,7 @@ namespace FOSSUI.CommandWindowBlur
             {
                 t.enabled = !disable.Value;
             }
+            BasePlugin.instance.buttonsToCloseMenu.OnDisplayBeginStuff(self);
         }
     }
 }
