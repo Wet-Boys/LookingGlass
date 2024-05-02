@@ -31,7 +31,10 @@ namespace LookingGlass
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();
             hidePickupNotifications = new HidePickupNotifications();
-            itemStats = new ItemStats();
+            ItemCatalog.availability.CallWhenAvailable(() =>
+            {
+                itemStats = new ItemStats();
+            });
         }
 
         private void Update()
