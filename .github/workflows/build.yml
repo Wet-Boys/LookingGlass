@@ -1,34 +1,33 @@
 name: Build
 
 on:
-    push:
-        branches: [ main ]
-    pull_request:
-        branches: [ main ]
+  push:
+    branches: [ main ]
+  pull_request:
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout Repo
-          uses: actions/checkout@v4
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
         
-        - name: Setup .NET
-          uses: actions/setup-dotnet@v4
-          with:
-            dotnet-version: 8.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
         
-        - name: Restore project
-          run: |
-            dotnet restore
-            dotnet tool restore
+      - name: Restore project
+        run: |
+          dotnet restore
+          dotnet tool restore
 
-        - name: Build project
-          run: dotnet build -C Release
+      - name: Build project
+        run: dotnet build -C Release
         
-        - name: Upload Artifacts
-          uses: actions/upload-artifact@v4
-          with:
-            name: build-artifacts
-            path: ./dist/*.zip
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./dist/*.zip
         
