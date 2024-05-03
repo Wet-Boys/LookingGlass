@@ -38,6 +38,7 @@ namespace LookingGlass.CommandWindowBlur
                 t.enabled = !disable.Value;
             }
             BasePlugin.instance.buttonsToCloseMenu.OnDisplayBeginStuff(self);
+            BasePlugin.instance.resizeCommandWindowClass.ResizeWindow(self);
         }
     }
 }

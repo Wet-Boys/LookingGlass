@@ -1,9 +1,11 @@
 using BepInEx;
 using LookingGlass.AutoSortItems;
+using LookingGlass.CommandItemCount;
 using LookingGlass.CommandWindowBlur;
 using LookingGlass.EscapeToCloseMenu;
 using LookingGlass.HidePickupNotifs;
 using LookingGlass.ItemStatsNameSpace;
+using LookingGlass.ResizeCommandWindow;
 using RoR2;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -23,6 +25,8 @@ namespace LookingGlass
         internal ButtonsToCloseMenu buttonsToCloseMenu;
         internal HidePickupNotifications hidePickupNotifications;
         internal ItemStats itemStats;
+        internal CommandItemCountClass commandItemCountClass;
+        internal ModifyCommandWindow resizeCommandWindowClass;
         public void Awake()
         {
             Log.Init(Logger);
@@ -31,6 +35,8 @@ namespace LookingGlass
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();
             hidePickupNotifications = new HidePickupNotifications();
+            commandItemCountClass = new CommandItemCountClass();
+            resizeCommandWindowClass = new ModifyCommandWindow();
             ItemCatalog.availability.CallWhenAvailable(() =>
             {
                 itemStats = new ItemStats();

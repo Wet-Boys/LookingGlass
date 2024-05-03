@@ -3,8 +3,9 @@ using System.Collections.Generic;
 
 namespace LookingGlass.ItemStatsNameSpace
 {
-    internal class ItemStatsDef
+    public class ItemStatsDef
     {
+        //Much thanks to https://github.com/ontrigger/ItemStatsMod for being a great guidline for setting item calculations up
         public enum ValueType
         {
             Healing,
@@ -23,6 +24,14 @@ namespace LookingGlass.ItemStatsNameSpace
         public List<string> descriptions = new List<string>();
         public List<ValueType> valueTypes = new List<ValueType>();
         public List<MeasurementUnits> measurementUnits = new List<MeasurementUnits>();
-        public Func<int, List<float>> CalculateValues;
+        public Func<int, List<float>> calculateValues;
+        public ItemStatsDef(List<string> descriptions, List<ValueType> valueTypes, List<MeasurementUnits> measurementUnits, Func<int, List<float>> calculateValues)
+        {
+            this.descriptions = descriptions;
+            this.valueTypes = valueTypes;
+            this.measurementUnits = measurementUnits;
+            this.calculateValues = calculateValues;
+        }
+        public ItemStatsDef() { }
     }
 }
