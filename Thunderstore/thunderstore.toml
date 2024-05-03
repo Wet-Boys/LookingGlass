@@ -1,0 +1,43 @@
+[config]
+schemaVerison = "0.0.1"
+
+[general]
+repository = "https://thunderstore.io"
+
+[package]
+namespace = "DropPod"
+name = "LookingGlass"
+description = "A QoL UI mod that exposes statistics for items and the player, adjusts the size and features of command and scrapper menus, and much more. Fully open source and compatible with RiskUI!"
+websiteUrl = "https://github.com/Wet-Boys/LookingGlass/"
+containsNsfwContent = false
+
+[package.dependencies]
+bbepis-BepInExPack = "5.4.2113"
+Rune580-Risk_Of_Options = "2.7.1"
+
+[build]
+icon = "icons/looking-glass-icon-static.png"
+readme = "../README.md"
+outdir = "../dist"
+
+[[build.copy]]
+source = "../LookingGlass/bin/Release/netstandard2.0/LookingGlass.dll"
+target = "plugins/LookingGlass/"
+
+[[build.copy]]
+source = "../LookingGlass/bin/Release/netstandard2.0/LookingGlass.pdb"
+target = "plugins/LookingGlass/"
+
+[[build.copy]]
+source = "../CHANGELOG.md"
+target = "/"
+
+[[build.copy]]
+source = "../LICENSE"
+target = "/"
+
+[publish]
+communities = [ "riskofrain2" ]
+
+[publish.categories]
+riskofrain2 = [ "mods", "tweaks", "client-side" ]

@@ -14,7 +14,7 @@ using UnityEngine.AddressableAssets;
 
 namespace LookingGlass
 {
-    [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class BasePlugin : BaseUnityPlugin
     {
         public const string PluginGUID = $"{PluginAuthor}.{PluginName}";
@@ -30,6 +30,7 @@ namespace LookingGlass
         internal CommandItemCountClass commandItemCountClass;
         internal ModifyCommandWindow resizeCommandWindowClass;
         internal StatsDisplayClass statsDisplayClass;
+        
         public void Awake()
         {
             Log.Init(Logger);
@@ -55,6 +56,7 @@ namespace LookingGlass
                 ButtonsToCloseMenu.CloseMenuAfterFrame();
             }
         }
+        
         IEnumerator CheckPlayerStats()
         {
             yield return new WaitForSeconds(.33f);
