@@ -61,7 +61,7 @@ namespace LookingGlass.StatsDisplay
         {
             if (!statsDisplay.Value)
                 return;
-            if (cachedUserBody is null)
+            if (!cachedUserBody)
             {
                 try
                 {
@@ -71,14 +71,14 @@ namespace LookingGlass.StatsDisplay
                 {
                 }
             }
-            if (cachedUserBody is not null)
+            if (cachedUserBody)
             {
                 string stats = statsDisplayString.Value;
                 foreach (var item in statDictionary.Keys)
                 {
                     stats = Regex.Replace(stats, $@"(?<!\\)\[{item}\]", statDictionary[item](cachedUserBody));
                 }
-                if (statTracker is null)
+                if (!statTracker)
                 {
                     foreach (var item in RoR2.Run.instance.uiInstance.GetComponentsInChildren<VerticalLayoutGroup>())
                     {
@@ -88,11 +88,11 @@ namespace LookingGlass.StatsDisplay
                             g.transform.parent = item.transform.Find("ObjectivePanel").parent.transform;
                             g.name = "PlayerStats";
 
-                            if (g.transform.Find("StripContainer") is not null)
+                            if (g.transform.Find("StripContainer"))
                                 GameObject.Destroy(g.transform.Find("StripContainer").gameObject);
-                            if (g.GetComponent<HudObjectiveTargetSetter>() is not null)
+                            if (g.GetComponent<HudObjectiveTargetSetter>())
                                 UnityEngine.Object.Destroy(g.GetComponent<HudObjectiveTargetSetter>());
-                            if (g.GetComponent<ObjectivePanelController>() is not null)
+                            if (g.GetComponent<ObjectivePanelController>())
                                 UnityEngine.Object.Destroy(g.GetComponent<ObjectivePanelController>());
 
                             RectTransform r = g.GetComponent<RectTransform>();
@@ -108,7 +108,7 @@ namespace LookingGlass.StatsDisplay
                             textComponent.color = Color.white;
                             layoutElement = g.GetComponentInChildren<LayoutElement>();
 
-                            if (g.transform.Find("Seperator") is not null)
+                            if (g.transform.Find("Seperator"))
                             {
                                 g.transform.Find("Seperator").GetComponent<VerticalLayoutGroup>().padding.top = -100;
                             }
@@ -116,7 +116,7 @@ namespace LookingGlass.StatsDisplay
                         }
                     }
                 }
-                if (textComponent is not null && layoutElement is not null)
+                if (textComponent && layoutElement)
                 {
                     textComponent.text = stats;
                     layoutElement.preferredHeight = textComponent.fontSize * (stats.Split('\n').Length + 1);
