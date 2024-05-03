@@ -4,6 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>LookingGlass</AssemblyName>
+    <Product>LookingGlass</Product>
+    <BepInExPluginGuid>droppod.lookingglass</BepInExPluginGuid>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,8 +21,31 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="BepInEx.Core" Version="5.4.21" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*"/>
     <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.4-r.0" />
     <PackageReference Include="Rune580-Risk_Of_Options" Version="2.7.1" />
     <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />
   </ItemGroup>
+  
+  <Target Name="SetPluginVersion" BeforeTargets="AddGeneratedFile" DependsOnTargets="MinVer">
+    <PropertyGroup>
+      <PlainVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PlainVersion>
+      <BepInExPluginVersion>$(PlainVersion)</BepInExPluginVersion>
+    </PropertyGroup>
+  </Target>
+  
+  <Target Name="PackageThunderstoreArtifact" DependsOnTargets="SetPluginVersion" AfterTargets="PostBuildEvent" Condition="$(Configuration) == 'Release'">
+    <Exec Command="dotnet tcli build --config-path $(ProjectDir)../Thunderstore/thunderstore.toml --package-version $(PlainVersion)" />
+    
+    <ItemGroup>
+      <FilesToRename Include="$(ProjectDir)../dist/*-$(PlainVersion).zip" />
+    </ItemGroup>
+    
+    <Move SourceFiles="@(FilesToRename)" DestinationFiles="@(FilesToRename -&gt; Replace($(PlainVersion), $(MinVerVersion)))" />
+  </Target>
+  
+  <Target Name="PublishThunderstoreArtifact" DependsOnTargets="SetPluginVersion">
+    <Exec Command="dotnet tcli publish --config-path $(ProjectDir)../Thunderstore/thunderstore.toml --file $(ProjectDir)../dist/*-$(MinVerVersion).zip" />
+  </Target>
+
 </Project>
