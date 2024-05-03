@@ -6,7 +6,9 @@ using LookingGlass.EscapeToCloseMenu;
 using LookingGlass.HidePickupNotifs;
 using LookingGlass.ItemStatsNameSpace;
 using LookingGlass.ResizeCommandWindow;
+using LookingGlass.StatsDisplay;
 using RoR2;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -27,6 +29,7 @@ namespace LookingGlass
         internal ItemStats itemStats;
         internal CommandItemCountClass commandItemCountClass;
         internal ModifyCommandWindow resizeCommandWindowClass;
+        internal StatsDisplayClass statsDisplayClass;
         public void Awake()
         {
             Log.Init(Logger);
@@ -37,6 +40,8 @@ namespace LookingGlass
             hidePickupNotifications = new HidePickupNotifications();
             commandItemCountClass = new CommandItemCountClass();
             resizeCommandWindowClass = new ModifyCommandWindow();
+            statsDisplayClass = new StatsDisplayClass();
+            StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
             {
                 itemStats = new ItemStats();
@@ -49,6 +54,12 @@ namespace LookingGlass
             {
                 ButtonsToCloseMenu.CloseMenuAfterFrame();
             }
+        }
+        IEnumerator CheckPlayerStats()
+        {
+            yield return new WaitForSeconds(.25f);
+            statsDisplayClass.CalculateStuff();
+            StartCoroutine(CheckPlayerStats());
         }
     }
 }

@@ -7,6 +7,9 @@ using RoR2.UI;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using RiskOfOptions.OptionConfigs;
+using RiskOfOptions.Options;
+using RiskOfOptions;
 
 namespace LookingGlass.CommandWindowBlur
 {
@@ -20,8 +23,13 @@ namespace LookingGlass.CommandWindowBlur
         }
         public void Setup()
         {
-            disable = BasePlugin.instance.Config.Bind<bool>("Settings", "Disable Command Window Blur", true, "Disable the background blur effect from the command window");
+            disable = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Disable Command Window Blur", true, "Disable the background blur effect from the command window");
             InitHooks();
+            SetupRiskOfOptions();
+        }
+        public void SetupRiskOfOptions()
+        {
+            ModSettingsManager.AddOption(new CheckBoxOption(disable, new CheckBoxConfig() { restartRequired = false }));
         }
         void InitHooks()
         {

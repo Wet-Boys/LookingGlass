@@ -1,6 +1,9 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
 using MonoMod.RuntimeDetour;
+using RiskOfOptions.OptionConfigs;
+using RiskOfOptions.Options;
+using RiskOfOptions;
 using RoR2;
 using RoR2.UI;
 using System;
@@ -23,7 +26,12 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             InitHooks();
             ItemDefinitions.RegisterAll();
-            itemStats = BasePlugin.instance.Config.Bind<bool>("Settings", "Item Stats", true, "Shows item descriptions plus calculations");
+            itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows item descriptions plus calculations");
+            SetupRiskOfOptions();
+        }
+        public void SetupRiskOfOptions()
+        {
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
         }
         void InitHooks()
         {

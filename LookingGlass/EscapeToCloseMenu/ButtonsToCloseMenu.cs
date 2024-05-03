@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using System.Collections;
+using RiskOfOptions.OptionConfigs;
+using RiskOfOptions.Options;
+using RiskOfOptions;
 
 namespace LookingGlass.EscapeToCloseMenu
 {
@@ -24,7 +27,12 @@ namespace LookingGlass.EscapeToCloseMenu
         }
         public void Setup()
         {
-            turnOffCommandMenu = BasePlugin.instance.Config.Bind<bool>("Settings", "Input Disables Command Prompt", true, "Makes any keyboard/mouse input disable the command prompt. Doesn't work with controllers because you wouldn't be able to use the menu.");
+            turnOffCommandMenu = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Input Disables Command Prompt", true, "Makes any keyboard/mouse input disable the command prompt. Doesn't work with controllers because you wouldn't be able to use the menu.");
+            SetupRiskOfOptions();
+        }
+        public void SetupRiskOfOptions()
+        {
+            ModSettingsManager.AddOption(new CheckBoxOption(turnOffCommandMenu, new CheckBoxConfig() { restartRequired = false }));
         }
         public void OnDisplayBeginStuff(PickupPickerController self)
         {

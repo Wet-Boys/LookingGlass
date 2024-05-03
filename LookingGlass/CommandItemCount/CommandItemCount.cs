@@ -9,6 +9,9 @@ using System.Collections.ObjectModel;
 using UnityEngine;
 using BepInEx.Configuration;
 using LookingGlass.ItemStatsNameSpace;
+using RiskOfOptions.OptionConfigs;
+using RiskOfOptions.Options;
+using RiskOfOptions;
 
 namespace LookingGlass.CommandItemCount
 {
@@ -27,11 +30,15 @@ namespace LookingGlass.CommandItemCount
             var targetMethod = typeof(RoR2.UI.PickupPickerPanel).GetMethod(nameof(RoR2.UI.PickupPickerPanel.SetPickupOptions), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(CommandItemCountClass).GetMethod(nameof(PickupPickerPanel), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-            commandItemCount = BasePlugin.instance.Config.Bind<bool>("Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
-            commandToolTips = BasePlugin.instance.Config.Bind<bool>("Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
-
+            commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
+            commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
+            SetupRiskOfOptions();
         }
-
+        public void SetupRiskOfOptions()
+        {
+            ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { restartRequired = false }));
+        }
 
         //Largely copied from https://github.com/Vl4dimyr/CommandItemCount/blob/master/CommandItemCountPlugin.cs#L191
         void PickupPickerPanel(Action<PickupPickerPanel, PickupPickerController.Option[]> orig, PickupPickerPanel self, PickupPickerController.Option[] options)

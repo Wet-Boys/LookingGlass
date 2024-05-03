@@ -1,6 +1,9 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
 using MonoMod.RuntimeDetour;
+using RiskOfOptions.OptionConfigs;
+using RiskOfOptions.Options;
+using RiskOfOptions;
 using RoR2;
 using System;
 using System.Collections.Generic;
@@ -36,16 +39,11 @@ namespace LookingGlass.AutoSortItems
         {
 
             instance = this;
-            SeperateScrap = BasePlugin.instance.Config.Bind<bool>("Settings", "Seperate Scrap", true, "Sort's by Scrap");
-            SortByTier = BasePlugin.instance.Config.Bind<bool>("Settings", "Tier Sort", true, "Sort's by Tier");
-            DescendingTier = BasePlugin.instance.Config.Bind<bool>("Settings", "Descending Tier Sort", true, "Sort's by Tier Descending");
-            SortByStackSize = BasePlugin.instance.Config.Bind<bool>("Settings", "Stack Size Sort", true, "Sort's by Stack Size");
-            DescendingStackSize = BasePlugin.instance.Config.Bind<bool>("Settings", "Descending Stack Size Sort", true, "Sort's by Stack Size Descending");
-
-            //if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.rune580.riskofoptions"))
-            //{
-            //    ROO.rooooooo();
-            //}
+            SeperateScrap = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Seperate Scrap", true, "Sort's by Scrap");
+            SortByTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Tier Sort", true, "Sort's by Tier");
+            DescendingTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Tier Sort", true, "Sort's by Tier Descending");
+            SortByStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Stack Size Sort", true, "Sort's by Stack Size");
+            DescendingStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Stack Size Sort", true, "Sort's by Stack Size Descending");
             SeperateScrap.SettingChanged += SettingsChanged;
             SortByTier.SettingChanged += SettingsChanged;
             DescendingTier.SettingChanged += SettingsChanged;
@@ -53,6 +51,15 @@ namespace LookingGlass.AutoSortItems
             DescendingStackSize.SettingChanged += SettingsChanged;
 
             InitHooks();
+            SetupRiskOfOptions();
+        }
+        public void SetupRiskOfOptions()
+        {
+            ModSettingsManager.AddOption(new CheckBoxOption(SeperateScrap, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortByTier, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DescendingTier, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortByStackSize, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(DescendingStackSize, new CheckBoxConfig() { restartRequired = false }));
         }
         void InitHooks()
         {

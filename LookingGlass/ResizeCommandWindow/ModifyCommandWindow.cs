@@ -1,5 +1,8 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using RiskOfOptions.OptionConfigs;
+using RiskOfOptions.Options;
+using RiskOfOptions;
 using RoR2;
 using System;
 using System.Collections.Generic;
@@ -21,10 +24,15 @@ namespace LookingGlass.ResizeCommandWindow
         }
         public void Setup()
         {
-            resize = BasePlugin.instance.Config.Bind<bool>("Settings", "Resize Command Window", true, "Resizes the command window to fit modded items");
-            opacity = BasePlugin.instance.Config.Bind<float>("Settings", "Command Window Opacity", .5f, "Changes the Opacity of the regular command window");
+            resize = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Resize Command Window", true, "Resizes the command window to fit modded items");
+            opacity = BasePlugin.instance.Config.Bind<float>("Command Settings", "Command Window Opacity", 50f, "Changes the Opacity of the regular command window");
+            SetupRiskOfOptions();
         }
-
+        public void SetupRiskOfOptions()
+        {
+            ModSettingsManager.AddOption(new CheckBoxOption(resize, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new SliderOption(opacity, new SliderConfig() { restartRequired = false }));
+        }
         internal void ResizeWindow(PickupPickerController panel)
         {
 
@@ -35,7 +43,7 @@ namespace LookingGlass.ResizeCommandWindow
                 if (background is not null)
                 {
 
-                    background.GetComponent<Image>().color = new Color(1, 1, 1, opacity.Value);
+                    background.GetComponent<Image>().color = new Color(1, 1, 1, opacity.Value / 100f);
                 }
             }
             if (!resize.Value)
@@ -53,7 +61,7 @@ namespace LookingGlass.ResizeCommandWindow
                 float height = Mathf.Min(value, maxHeight) * (r.sizeDelta.x / 8f);
                 value = value <= maxHeight ? value : value + 1 + value - maxHeight;
                 float width = (value) * (r.sizeDelta.x / 8f);
-                r.sizeDelta = new Vector2(width, height);
+                r.sizeDelta = new Vector2(width, height); //Ugh, this is all kinda jank but it works 95%, just come back to this at some point
             }
         }
     }
