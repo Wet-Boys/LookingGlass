@@ -48,8 +48,8 @@ namespace LookingGlass.ResizeCommandWindow
             {
                 RectTransform r = t.GetComponent<RectTransform>();
                 int maxHeight = 12;
-                gridLayoutGroup.constraintCount = maxHeight - 2;
                 int value = Mathf.CeilToInt((Mathf.Sqrt(itemCount) + 2));
+                gridLayoutGroup.constraintCount = Mathf.Min(maxHeight, value) - 2;
                 float height = Mathf.Min(value, maxHeight) * (r.sizeDelta.x / 8f);
                 value = value <= maxHeight ? value : value + 1 + value - maxHeight;
                 float width = (value) * (r.sizeDelta.x / 8f);
