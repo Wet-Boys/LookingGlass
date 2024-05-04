@@ -39,20 +39,26 @@ namespace LookingGlass
         {
             Log.Init(Logger);
             instance = this;
-            string folderName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Info.Location), "LookingGlassAssets");
-            int i = UnityEngine.Random.Range(0, Directory.GetFiles(folderName).Length);
-            int i2 = 0;
-            foreach (var file in Directory.GetFiles(folderName))
+            try
             {
-                if (i2 == i)
+                string folderName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Info.Location), "icons");
+                int i = UnityEngine.Random.Range(0, Directory.GetFiles(folderName).Length);
+                int i2 = 0;
+                foreach (var file in Directory.GetFiles(folderName))
                 {
-                    logo = File.ReadAllBytes(file);
+                    if (i2 == i)
+                    {
+                        logo = File.ReadAllBytes(file);
+                    }
+                    i2++;
                 }
-                i2++;
+                Texture2D t = LoadTexture(logo, 256, 256);
+                logo2 = Sprite.Create(t, new Rect(0.00f, 0.00f, t.width, t.height), new Vector2(0, 0), 100, 1, SpriteMeshType.Tight, new Vector4(0, 0, 0, 0), true);
+                ModSettingsManager.SetModIcon(logo2);
             }
-            Texture2D t = LoadTexture(logo, 256, 256);
-            logo2 = Sprite.Create(t, new Rect(0.00f, 0.00f, t.width, t.height), new Vector2(0, 0), 100, 1, SpriteMeshType.Tight, new Vector4(0, 0, 0, 0), true);
-            ModSettingsManager.SetModIcon(logo2);
+            catch (System.Exception)
+            {
+            }
 
 
             autoSortItems = new AutoSortItemsClass();
