@@ -63,7 +63,7 @@ jobs:
             -f tag_name="${RELEASE_VERSION}" \
             --jq ".body" > "${CHANGELOG_FILE}"
           cat "${CHANGELOG_FILE}"
-          gh release create "${RELEASE_VERSION}" -F "${CHANGELOG_FILE}" thunderstore-build/dist/*.zip
+          gh release create "${RELEASE_VERSION}" -F "${CHANGELOG_FILE}" thunderstore-build/*.zip
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

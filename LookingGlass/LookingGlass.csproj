@@ -39,7 +39,7 @@
   </Target>
   
   <Target Name="PublishThunderstoreArtifact" DependsOnTargets="SetPluginVersion">
-    <Exec Command="dotnet tcli publish --config-path $(ProjectDir)../Thunderstore/thunderstore.toml --file $(ProjectDir)../dist/*-$(MinVerVersion).zip" />
+    <Exec Command="dotnet tcli publish --config-path $(ProjectDir)../Thunderstore/thunderstore.toml --file $(ProjectDir)../*-$(MinVerVersion).zip" />
   </Target>
 
 </Project>
