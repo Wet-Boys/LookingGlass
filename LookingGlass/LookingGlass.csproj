@@ -8,13 +8,7 @@
     <Product>LookingGlass</Product>
     <BepInExPluginGuid>droppod.lookingglass</BepInExPluginGuid>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="libs\**" />
-    <EmbeddedResource Remove="libs\**" />
-    <None Remove="libs\**" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.0.*">
       <PrivateAssets>all</PrivateAssets>

@@ -36,6 +36,10 @@ target = "/"
 source = "../LICENSE"
 target = "/"
 
+[[build.copy]]
+source = "./icons/looking-glass-icon-static.png"
+target = "plugins/LookingGlass/icons/"
+
 [publish]
 communities = [ "riskofrain2" ]
 

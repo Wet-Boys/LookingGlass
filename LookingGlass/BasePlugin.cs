@@ -13,17 +13,12 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using static RoR2.Console;
 
 namespace LookingGlass
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class BasePlugin : BaseUnityPlugin
     {
-        public const string PluginGUID = $"{PluginAuthor}.{PluginName}";
-        public const string PluginAuthor = "Balls";
-        public const string PluginName = "InYourMouth";
-        public const string PluginVersion = "1.0.0";
         internal static BasePlugin instance;
         internal AutoSortItemsClass autoSortItems;
         internal NoWindowBlur noWindowBlur;
@@ -35,6 +30,7 @@ namespace LookingGlass
         internal StatsDisplayClass statsDisplayClass;
         public static byte[] logo;
         public static Sprite logo2;
+        
         public void Awake()
         {
             Log.Init(Logger);
