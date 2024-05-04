@@ -21,7 +21,7 @@ namespace LookingGlass.StatsDisplay
         public static ConfigEntry<bool> statsDisplay;
         public static ConfigEntry<string> statsDisplayString;
         public static Dictionary<string, Func<CharacterBody, string>> statDictionary = new Dictionary<string, Func<CharacterBody, string>>();
-        CharacterBody cachedUserBody = null;
+        internal static CharacterBody cachedUserBody = null;
         Transform statTracker = null;
         TextMeshProUGUI textComponent;
         LayoutElement layoutElement;
@@ -45,7 +45,8 @@ namespace LookingGlass.StatsDisplay
                 "Speed: [speed]\n" +
                 "Jumps: [availableJumps]/[maxJumps]\n" +
                 "Kills: [killCount]\n" +
-                "Mountain Shrines: [mountainShrines]"
+                "Mountain Shrines: [mountainShrines]\n" +
+                "DPS: [dps]"
                 , "String for the stats display");
             StatsDisplayDefinitions.SetupDefs();
         }

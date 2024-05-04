@@ -2,6 +2,7 @@ using BepInEx;
 using LookingGlass.AutoSortItems;
 using LookingGlass.CommandItemCount;
 using LookingGlass.CommandWindowBlur;
+using LookingGlass.DPSMeterStuff;
 using LookingGlass.EscapeToCloseMenu;
 using LookingGlass.HidePickupNotifs;
 using LookingGlass.ItemStatsNameSpace;
@@ -28,6 +29,7 @@ namespace LookingGlass
         internal CommandItemCountClass commandItemCountClass;
         internal ModifyCommandWindow resizeCommandWindowClass;
         internal StatsDisplayClass statsDisplayClass;
+        internal DPSMeter dpsMeter;
         public static byte[] logo;
         public static Sprite logo2;
         
@@ -64,6 +66,7 @@ namespace LookingGlass
             commandItemCountClass = new CommandItemCountClass();
             resizeCommandWindowClass = new ModifyCommandWindow();
             statsDisplayClass = new StatsDisplayClass();
+            dpsMeter = new DPSMeter();
             StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
             {
@@ -77,6 +80,7 @@ namespace LookingGlass
             {
                 ButtonsToCloseMenu.CloseMenuAfterFrame();
             }
+            dpsMeter.Update();
         }
         
         IEnumerator CheckPlayerStats()

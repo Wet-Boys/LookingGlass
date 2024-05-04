@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using LookingGlass.DPSMeterStuff;
+using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -44,6 +45,10 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"<style=\"cIsUtility>{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnGoldshoresPortal.ToString() : "Not Applicable")}</style>"; });
             StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"<style=\"cIsUtility>{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnMSPortal.ToString() : "Not Applicable")}</style>"; });
             StatsDisplayClass.statDictionary.Add("shopPortal", cachedUserBody => { return $"<style=\"cIsUtility>{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnShopPortal.ToString() : "Not Applicable")}</style>"; });
+            StatsDisplayClass.statDictionary.Add("dps", cachedUserBody => {return $"<style=\"cIsDamage>{BasePlugin.instance.dpsMeter.damageDealtSincePeriod / DPSMeter.DPS_MAX_TIME}</style>"; });
+            StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"<style=\"cIsDamage>{BasePlugin.instance.dpsMeter.currentCombatDamage}</style>"; });
+            StatsDisplayClass.statDictionary.Add("remainingComboDuration", cachedUserBody => { return $"<style=\"cIsUtility>{(int)BasePlugin.instance.dpsMeter.timer + 1}</style>"; });
+            StatsDisplayClass.statDictionary.Add("maxCombo", cachedUserBody => { return $"<style=\"cIsDamage>{BasePlugin.instance.dpsMeter.maxCombo}</style>"; });
 
         }
     }
