@@ -1,3 +1,0 @@
-# My first mod
-
-Description.

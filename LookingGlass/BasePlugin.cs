@@ -17,7 +17,7 @@ using static RoR2.Console;
 
 namespace LookingGlass
 {
-    [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class BasePlugin : BaseUnityPlugin
     {
         public const string PluginGUID = $"{PluginAuthor}.{PluginName}";
@@ -76,6 +76,7 @@ namespace LookingGlass
                 ButtonsToCloseMenu.CloseMenuAfterFrame();
             }
         }
+        
         IEnumerator CheckPlayerStats()
         {
             yield return new WaitForSeconds(.33f);

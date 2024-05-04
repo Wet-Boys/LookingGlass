@@ -1,0 +1,22 @@
+<Project>
+    <PropertyGroup>
+        <Authors>DropPod</Authors>
+        <PackageLicenseExpression>LGPL-3.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Wet-Boys/LookingGlass</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Wet-Boys/LookingGlass</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
+    <!-- MinVer -->
+    <PropertyGroup>
+        <MinVerDefaultPreReleaseIdentifiers>dev</MinVerDefaultPreReleaseIdentifiers>
+        <MinVerTagPrefix>v</MinVerTagPrefix>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="MinVer" Version="5.0.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+</Project>

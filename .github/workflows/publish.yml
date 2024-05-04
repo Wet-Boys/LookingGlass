@@ -1,0 +1,76 @@
+name: Publish
+
+on:
+  release:
+    types: [ released ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with: ${{ github.event.release.tag_name }}
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore project
+        run: |
+          dotnet restore
+          dotnet tool restore
+
+      - name: Build project
+        run: dotnet build -C Release
+      
+      - name: Upload Thunderstore artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: thunderstore-build
+          path: ./dist/*.zip
+
+  upload-release-artifacts:
+    name: Upload Release Artifacts
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Upload artifacts to Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} thunderstore-build/dist/*.zip
+  
+  deploy-to-thunderstore:
+    name: Deploy to Thunderstore
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v4
+
+      - name: Download Thunderstore artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: thunderstore-build
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore project tools
+        run: dotnet tool restore
+    
+      - name: Publish to Thunderstore
+        env:
+          TCLI_AUTH_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+        run: |
+          dotnet build -target:PublishThunderstoreArtifact
