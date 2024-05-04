@@ -1,8 +1,12 @@
 name: Publish
 
 on:
-  release:
-    types: [ released ]
+  push:
+    tags: [ '*' ]
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   build:
@@ -11,7 +15,6 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
-        with: ${{ github.event.release.tag_name }}
       
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -36,24 +39,41 @@ jobs:
     name: Upload Release Artifacts
     needs: build
     runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ github.ref_name }}
     steps:
-      - name: Fetch Sources
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
-
-      - name: Upload artifacts to Release
+      
+      - name: Delete old release if it already exists
+        run: gh release delete --yes "${RELEASE_VERSION}"
+        continue-on-error: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} thunderstore-build/dist/*.zip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Release under current tag
+        run: |
+          export "CHANGELOG_FILE=$(mktemp --suffix=.md)"
+          echo "CHANGELOG_FILE=${CHANGELOG_FILE}" >> $GITHUB_ENV
+          gh api --method POST -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/releases/generate-notes" \
+            -f tag_name="${RELEASE_VERSION}" \
+            --jq ".body" > "${CHANGELOG_FILE}"
+          cat "${CHANGELOG_FILE}"
+          gh release create "${RELEASE_VERSION}" -F "${CHANGELOG_FILE}" thunderstore-build/dist/*.zip
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   deploy-to-thunderstore:
     name: Deploy to Thunderstore
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch Sources
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
       - name: Download Thunderstore artifact
