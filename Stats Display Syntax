@@ -48,3 +48,7 @@ healthPercentage
 goldPortal
 msPortal
 shopPortal
+dps
+currentCombatDamage
+remainingComboDuration
+maxCombo
