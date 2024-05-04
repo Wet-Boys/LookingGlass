@@ -23,6 +23,12 @@ A fully open source UI mod, compatible with RiskUI
 ![Vanilla Stats Display](https://i.imgur.com/z6P9rYb.png)
 ![RiskUI Stats Display](https://i.imgur.com/iYrnF6I.png)
 
+## Number Go Up
+
+- DPS meter and combo counter (Part of stats display)
+
+![Number go Up](https://i.imgur.com/kHdyCqe.png)
+
 ## Command Window Tweaks
 
 - Various tweaks to the command window, such as resizing, removing the blur, and adding item counters to your existing items.
@@ -36,8 +42,6 @@ A fully open source UI mod, compatible with RiskUI
 - Fully compatible with RiskUI
 
 # Planned features
-
-- DPS meter
 
 - Item counters in the tab menu
 

@@ -46,7 +46,10 @@ namespace LookingGlass.StatsDisplay
                 "Jumps: [availableJumps]/[maxJumps]\n" +
                 "Kills: [killCount]\n" +
                 "Mountain Shrines: [mountainShrines]\n" +
-                "DPS: [dps]"
+                "DPS: [dps]\n" +
+                "Combo: [currentCombatDamage]\n" +
+                "Combo Timer: [remainingComboDuration]\n" +
+                "Max Combo: [maxCombo]"
                 , "String for the stats display");
             StatsDisplayDefinitions.SetupDefs();
         }
