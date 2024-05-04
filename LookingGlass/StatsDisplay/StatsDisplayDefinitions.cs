@@ -7,20 +7,6 @@ namespace LookingGlass.StatsDisplay
 {
     internal class StatsDisplayDefinitions
     {
-        /*
-                         StringBuilder sb = new StringBuilder();
-                sb.Append($"Stats\n" +
-                    $"Luck: {cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck)}\n" +
-                    $"Base Damage: {cachedUserBody.baseDamage}\n" +
-                    $"Crit Chance: {cachedUserBody.crit}\n" +
-                    $"Attack Speed: {cachedUserBody.attackSpeed}\n" +
-                    $"Armor: {cachedUserBody.armor} | {100 / (100 + cachedUserBody.armor)}\n" +
-                    $"Regen: {cachedUserBody.regen}\n" +
-                    $"Speed: {cachedUserBody.moveSpeed}\n" +
-                    $"Jumps: {cachedUserBody.maxJumpCount - cachedUserBody.characterMotor.jumpCount}/{cachedUserBody.maxJumpCount}\n" +
-                    $"Kills: {cachedUserBody.killCountServer}\n" +
-                    $"Mountain Shrines: {(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shrineBonusStacks : "Not Applicable")}\n");
-         */
         internal static void SetupDefs()
         {
             StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => { return $"<style=\"cIsUtility>{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}</style>"; });
