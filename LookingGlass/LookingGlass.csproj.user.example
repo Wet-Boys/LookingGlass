@@ -1,6 +1,14 @@
 <Project>
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /y &quot;J:\FOSS-UI\FOSS-UI-Plugin\bin\Debug\netstandard2.0\FOSSUI.dll&quot; &quot;C:\Users\Bigma Male\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\UI test\BepInEx\plugins\FOSSUI.dll&quot;" />
-    <Exec Command="copy /y &quot;J:\FOSS-UI\FOSS-UI-Plugin\bin\Debug\netstandard2.0\FOSSUI.pdb&quot; &quot;C:\Users\Bigma Male\AppData\Roaming\r2modmanPlus-local\RiskOfRain2\profiles\UI test\BepInEx\plugins\FOSSUI.pdb&quot;" />
+  <ItemGroup>
+    <!-- You can add additional files to deploy with another <FilesToDeploy> tag, you should probably leave this one alone though... -->
+    <FilesToDeploy Include="$(ProjectDir)/bin/Debug/netstandard2.0/LookingGlass.dll;$(ProjectDir)/bin/Debug/netstandard2.0/LookingGlass.pdb" />
+    
+    <!-- Add as many <DeployDirs> entries as you need, replacing what's inside of Include="..." with the path you want to deploy to -->
+    <DeployDirs Include="" />
+  </ItemGroup>
+  
+  <!-- Files will be copied whenever you Build the project -->
+  <Target Name="DeployFiles" AfterTargets="PostBuildEvent" DependsOnTargets="PackageThunderstoreArtifact">
+    <Copy SourceFiles="@(FilesToDeploy)" DestinationFolder="%(DeployDirs.Identity)/LookingGlass" />
   </Target>
 </Project>
