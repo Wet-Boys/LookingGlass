@@ -13,10 +13,11 @@ using UnityEngine.UI;
 
 namespace LookingGlass.ItemCounters
 {
-    internal class ItemCounter : BaseThing
+    internal class ItemCounter : BaseThing //https://github.com/MCMrARM/ror2-mods pretty good reference material for this
     {
         public static ConfigEntry<bool> itemCounters;
         private static Hook overrideHook;
+        private static Hook overrideHook2;
 
         public ItemCounter()
         {
@@ -29,6 +30,9 @@ namespace LookingGlass.ItemCounters
             var targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(ItemCounter).GetMethod(nameof(UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
+            targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.SetMaster), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            destMethod = typeof(ItemCounter).GetMethod(nameof(SetMaster), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            overrideHook2 = new Hook(targetMethod, destMethod, this);
         }
 
         public void SetupRiskOfOptions()
@@ -36,16 +40,21 @@ namespace LookingGlass.ItemCounters
             ModSettingsManager.AddOption(new CheckBoxOption(itemCounters, new CheckBoxConfig() { restartRequired = false }));
         }
 
-        void UpdateMoneyText(Action<ScoreboardStrip> orig, ScoreboardStrip self)
+        void SetMaster(Action<ScoreboardStrip, CharacterMaster> orig, ScoreboardStrip self, CharacterMaster newMaster)
         {
-            orig(self);
-            if (!self.master || !self.master.inventory)
-                return;
+            orig(self, newMaster);
             LayoutElement layout = self.moneyText.GetComponent<LayoutElement>();
             if (layout)
             {
                 layout.preferredWidth = 300;
             }
+        }
+
+        void UpdateMoneyText(Action<ScoreboardStrip> orig, ScoreboardStrip self)
+        {
+            orig(self);
+            if (!self.master || !self.master.inventory)
+                return;
             int whiteCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
             int greenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
             int redCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
