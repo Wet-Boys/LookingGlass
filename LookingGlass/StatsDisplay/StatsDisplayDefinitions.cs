@@ -14,8 +14,8 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.baseDamage)}</style>"; });
             StatsDisplayClass.statDictionary.Add("crit", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.crit)}</style>"; });
             StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.attackSpeed)}</style>"; });
-            StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"<style=\"cIsUtility>{(cachedUserBody.armor)}</style>"; });
-            StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"<style=\"cIsUtility>{(100 - (100 * (100 / (100 + cachedUserBody.armor)))):0.###}%</style>"; });
+            StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"<style=\"cIsHealing>{(cachedUserBody.armor)}</style>"; });
+            StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"<style=\"cIsHealing>{(100 - (100 * (100 / (100 + cachedUserBody.armor)))):0.###}%</style>"; });
             StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"<style=\"cIsHealing>{(cachedUserBody.regen)}</style>"; });
             StatsDisplayClass.statDictionary.Add("speed", cachedUserBody => { return $"<style=\"cIsUtility>{(cachedUserBody.moveSpeed)}</style>"; });
             StatsDisplayClass.statDictionary.Add("availableJumps", cachedUserBody => { return $"<style=\"cIsUtility>{(cachedUserBody.maxJumpCount - cachedUserBody.characterMotor.jumpCount)}</style>"; });

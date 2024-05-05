@@ -5,6 +5,7 @@ using LookingGlass.CommandWindowBlur;
 using LookingGlass.DPSMeterStuff;
 using LookingGlass.EscapeToCloseMenu;
 using LookingGlass.HidePickupNotifs;
+using LookingGlass.ItemCounters;
 using LookingGlass.ItemStatsNameSpace;
 using LookingGlass.ResizeCommandWindow;
 using LookingGlass.StatsDisplay;
@@ -14,6 +15,7 @@ using System.Collections;
 using System.IO;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using static RoR2.HealthComponent;
 
 namespace LookingGlass
 {
@@ -30,6 +32,7 @@ namespace LookingGlass
         internal ModifyCommandWindow resizeCommandWindowClass;
         internal StatsDisplayClass statsDisplayClass;
         internal DPSMeter dpsMeter;
+        internal ItemCounter itemCounter;
         public static byte[] logo;
         public static Sprite logo2;
         
@@ -67,6 +70,7 @@ namespace LookingGlass
             resizeCommandWindowClass = new ModifyCommandWindow();
             statsDisplayClass = new StatsDisplayClass();
             dpsMeter = new DPSMeter();
+            itemCounter = new ItemCounter();
             StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
             {
