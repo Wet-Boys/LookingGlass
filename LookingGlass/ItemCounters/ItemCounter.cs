@@ -41,7 +41,11 @@ namespace LookingGlass.ItemCounters
             orig(self);
             if (!self.master || !self.master.inventory)
                 return;
-            self.moneyText.GetComponent<LayoutElement>().preferredWidth = 300;
+            LayoutElement layout = self.moneyText.GetComponent<LayoutElement>();
+            if (layout)
+            {
+                layout.preferredWidth = 300;
+            }
             int whiteCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
             int greenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
             int redCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
