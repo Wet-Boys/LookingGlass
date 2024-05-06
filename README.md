@@ -35,6 +35,12 @@ A fully open source UI mod, compatible with RiskUI
 
 ![Command Window Tweaks](https://i.imgur.com/5buYHlv.png)
 
+## Item Counters
+
+- Count your items in the scoreboard so you can see who is poor.
+
+![Item Counters](https://i.imgur.com/40vXB3Y.png)
+
 ## Risk of Options Support/RiskUI support
 
 - Change any options in game with Risk of Options
@@ -43,11 +49,9 @@ A fully open source UI mod, compatible with RiskUI
 
 # Planned features
 
-- Item counters in the tab menu
-
 - Ability proc calculations
 
-- Fully local buff timers
+- Fully local buff timers (This one might not happen, seems like timers are never actually networked since the base game doesn't need it, fair enough)
 
 - More customization for the Stats Display menu
 
@@ -60,6 +64,8 @@ A fully open source UI mod, compatible with RiskUI
 # Credits:
 
 - https://github.com/ontrigger/ItemStatsMod and
+- https://github.com/MCMrARM/ror2-mods and
+- https://github.com/Moffein/ItemStats and
 - https://github.com/Vl4dimyr/CommandItemCount for being great open source projects to use as reference material/code
 
 (discord tags)
