@@ -63,9 +63,9 @@ A fully open source UI mod, compatible with RiskUI
 
 # Credits:
 
-- https://github.com/ontrigger/ItemStatsMod and
-- https://github.com/MCMrARM/ror2-mods and
-- https://github.com/Moffein/ItemStats and
+- https://github.com/ontrigger/ItemStatsMod
+- https://github.com/MCMrARM/ror2-mods
+- https://github.com/Moffein/ItemStats
 - https://github.com/Vl4dimyr/CommandItemCount for being great open source projects to use as reference material/code
 
 (discord tags)
