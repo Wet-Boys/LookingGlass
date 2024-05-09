@@ -112,7 +112,7 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        ItemIndex[] SortItems(ItemIndex[] items, int count, RoR2.UI.ItemInventoryDisplay display)
+        ItemIndex[] SortItems(ItemIndex[] items, int count, RoR2.UI.ItemInventoryDisplay display) //This really should be refactored but it works so...
         {
             foreach (var tierList in itemTierLists)
             {
@@ -121,9 +121,10 @@ namespace LookingGlass.AutoSortItems
             scrapList.Clear();
             noTierList.Clear();
             ItemIndex[] newArray = new ItemIndex[count];
+            List<ItemIndex> allItems = new List<ItemIndex>();
             for (int i = 0; i < count; i++)
             {
-                if (SeperateScrap.Value && (ItemCatalog.GetItemDef(items[i]).ContainsTag(ItemTag.Scrap) || ItemCatalog.GetItemDef(items[i]).ContainsTag(ItemTag.PriorityScrap)))
+                if (SeperateScrap.Value && (ItemCatalog.GetItemDef(items[i]).ContainsTag(ItemTag.Scrap) || ItemCatalog.GetItemDef(items[i]).ContainsTag(ItemTag.PriorityScrap) || ItemCatalog.GetItemDef(items[i]).nameToken == "ITEM_REGENERATINGSCRAPCONSUMED_NAME"))
                 {
                     scrapList.Add(items[i]);
                 }
@@ -140,6 +141,7 @@ namespace LookingGlass.AutoSortItems
                 }
                 else
                 {
+                    allItems.Add(items[i]);
                     newArray[i] = items[i];
                 }
             }
@@ -192,18 +194,13 @@ namespace LookingGlass.AutoSortItems
             }
             else
             {
-                items = items.OrderBy((item) =>
-                +((int)item)
-                + ((DescendingStackSize.Value ? -1 : 1) * (SortByStackSize.Value ? 1 : 0) * display.itemStacks[(int)item] * 20000)
-                ).Distinct().ToArray();
-                if (SeperateScrap.Value)
+                allItems = new List<ItemIndex>(allItems.ToArray().OrderBy((item) =>
+                +((DescendingStackSize.Value ? -1 : 1) * (SortByStackSize.Value ? 1 : 0) * display.itemStacks[(int)item] * 20000)).ToArray());
+                foreach (var item in scrapList)
                 {
-                    int num = 0;
-                    for (int i = count - scrapList.Count; i < count; i++)
-                    {
-                        items[i] = scrapList[num++];
-                    }
+                    allItems.Insert(0, item);
                 }
+                items = allItems.ToArray();
             }
             return items;
         }

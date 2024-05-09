@@ -3,6 +3,7 @@ using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace LookingGlass.StatsDisplay
 {
@@ -11,8 +12,8 @@ namespace LookingGlass.StatsDisplay
         internal static void SetupDefs()
         {
             StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => { return $"<style=\"cIsUtility>{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}</style>"; });
-            StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.baseDamage)}</style>"; });
-            StatsDisplayClass.statDictionary.Add("crit", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.crit)}</style>"; });
+            StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.damage)}</style>"; });
+            StatsDisplayClass.statDictionary.Add("crit", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.crit)}%</style>"; });
             StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.attackSpeed)}</style>"; });
             StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"<style=\"cIsHealing>{(cachedUserBody.armor)}</style>"; });
             StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"<style=\"cIsHealing>{(100 - (100 * (100 / (100 + cachedUserBody.armor)))):0.###}%</style>"; });
@@ -33,7 +34,7 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("maxJumpHeight", cachedUserBody => { return $"<style=\"cIsUtility>{(cachedUserBody.maxJumpHeight)}</style>"; });
             StatsDisplayClass.statDictionary.Add("damage", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.damage)}</style>"; });
             StatsDisplayClass.statDictionary.Add("critMultiplier", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.critMultiplier)}</style>"; });
-            StatsDisplayClass.statDictionary.Add("bleedChance", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.bleedChance)}</style>"; });
+            StatsDisplayClass.statDictionary.Add("bleedChance", cachedUserBody => { return $"<style=\"cIsDamage>{(cachedUserBody.bleedChance)}%</style>"; });
             StatsDisplayClass.statDictionary.Add("visionDistance", cachedUserBody => { return $"<style=\"cIsUtility>{(cachedUserBody.visionDistance)}</style>"; });
             StatsDisplayClass.statDictionary.Add("critHeal", cachedUserBody => { return $"<style=\"cIsHealing>{(cachedUserBody.critHeal)}</style>"; });
             StatsDisplayClass.statDictionary.Add("cursePenalty", cachedUserBody => { return $"<style=\"cIsUtility>{(cachedUserBody.cursePenalty)}</style>"; });
@@ -50,6 +51,39 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("remainingComboDuration", cachedUserBody => { return $"<style=\"cIsUtility>{(int)BasePlugin.instance.dpsMeter.timer + 1}</style>"; });
             StatsDisplayClass.statDictionary.Add("maxCombo", cachedUserBody => { return $"<style=\"cIsDamage>{BasePlugin.instance.dpsMeter.maxCombo}</style>"; });
 
+            StatsDisplayClass.statDictionary.Add("critWithLuck", cachedUserBody => {
+                int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
+                float num;
+                if (luck > 0)
+                {
+                    num = (1 - Mathf.Pow(1 - (Mathf.Min(cachedUserBody.crit, 100) * .01f), luck + 1)) * 100;
+                }
+                else if (luck < 0)
+                {
+                    num = Mathf.Pow(cachedUserBody.crit, luck + 1);
+                }
+                else
+                {
+                    num = cachedUserBody.crit;
+                }
+                return $"<style=\"cIsDamage>{num:0.###}%</style>"; });
+            StatsDisplayClass.statDictionary.Add("bleedChanceWithLuck", cachedUserBody => {
+                int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
+                float num;
+                if (luck > 0)
+                {
+                    num = (1 - Mathf.Pow(1 - (Mathf.Min(cachedUserBody.bleedChance, 100) * .01f), luck + 1)) * 100;
+                }
+                else if (luck < 0)
+                {
+                    num = Mathf.Pow(cachedUserBody.bleedChance, luck + 1);
+                }
+                else
+                {
+                    num = cachedUserBody.bleedChance;
+                }
+                return $"<style=\"cIsDamage>{num:0.###}%</style>";
+            });
         }
     }
 }

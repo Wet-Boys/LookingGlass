@@ -37,8 +37,8 @@ namespace LookingGlass.StatsDisplay
             statsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Stats Display String",
                 "Stats\n" +
                 "Luck: [luck]\n" +
-                "Base Damage: [baseDamage]\n" +
-                "Crit Chance: [crit]\n" +
+                "Damage: [baseDamage]\n" +
+                "Crit Chance: [critWithLuck]\n" +
                 "Attack Speed: [attackSpeed]\n" +
                 "Armor: [armor] | [armorDamageReduction]\n" +
                 "Regen: [regen]\n" +
