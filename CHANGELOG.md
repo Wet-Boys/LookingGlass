@@ -1,3 +1,6 @@
+### 1.2.2
+Fixed resized command window behaving poorly with controllers
+
 ### 1.2.1
 Fixed item sorting when only sorting scrap and nothing else. Added critWithLuck and bleedChanceWithLuck to the stats display stuff, which as stated, factors in your luck
 

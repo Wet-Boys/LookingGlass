@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using RoR2.UI;
 
 namespace LookingGlass.ResizeCommandWindow
 {
@@ -54,15 +55,24 @@ namespace LookingGlass.ResizeCommandWindow
             gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedRowCount;
             if (t is not null)
             {
-                RectTransform r = t.GetComponent<RectTransform>();
+                RectTransform r = t.GetComponent<RectTransform>();//I'm not reading this section, congratulations or I'm sorry that happened...
                 int maxHeight = 12;
                 int value = Mathf.CeilToInt((Mathf.Sqrt(itemCount) + 2));
                 gridLayoutGroup.constraintCount = Mathf.Min(maxHeight, value) - 2;
                 float height = Mathf.Min(value, maxHeight) * (r.sizeDelta.x / 8f);
+                int columnReduction = value <= maxHeight ? 0 : 1;
                 value = value <= maxHeight ? value : value + 1 + value - maxHeight;
                 float width = (value) * (r.sizeDelta.x / 8f);
                 r.sizeDelta = new Vector2(width, height); //Ugh, this is all kinda jank but it works 95%, just come back to this at some point
+
+
+                panel.panelInstanceController.maxColumnCount = value - 2 - columnReduction;
+                panel.panelInstanceController.SetPickupOptions(panel.options);
             }
+            //foreach (var item in gridLayoutGroup.GetComponentsInChildren<HGButton>())
+            //{
+            //    //item.navigation = Navigation.defaultNavigation;
+            //}
         }
     }
 }
