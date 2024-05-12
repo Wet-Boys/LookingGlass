@@ -53,37 +53,32 @@ namespace LookingGlass.StatsDisplay
 
             StatsDisplayClass.statDictionary.Add("critWithLuck", cachedUserBody => {
                 int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
-                float num;
-                if (luck > 0)
-                {
-                    num = (1 - Mathf.Pow(1 - (Mathf.Min(cachedUserBody.crit, 100) * .01f), luck + 1)) * 100;
-                }
-                else if (luck < 0)
-                {
-                    num = Mathf.Pow(cachedUserBody.crit, luck + 1);
-                }
-                else
-                {
-                    num = cachedUserBody.crit;
-                }
-                return $"<style=\"cIsDamage>{num:0.###}%</style>"; });
+                return $"<style=\"cIsDamage>{CalculateChance(cachedUserBody.crit, luck):0.###}%</style>"; });
             StatsDisplayClass.statDictionary.Add("bleedChanceWithLuck", cachedUserBody => {
                 int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
-                float num;
-                if (luck > 0)
-                {
-                    num = (1 - Mathf.Pow(1 - (Mathf.Min(cachedUserBody.bleedChance, 100) * .01f), luck + 1)) * 100;
-                }
-                else if (luck < 0)
-                {
-                    num = Mathf.Pow(cachedUserBody.bleedChance, luck + 1);
-                }
-                else
-                {
-                    num = cachedUserBody.bleedChance;
-                }
-                return $"<style=\"cIsDamage>{num:0.###}%</style>";
+                return $"<style=\"cIsDamage>{CalculateChance(cachedUserBody.bleedChance, luck):0.###}%</style>";
             });
+        }
+        internal static float CalculateChance(float baseChance, int luck) //baseChance should be between 0 and 1
+        {
+            float num;
+            if (baseChance >= 1)
+            {
+                return 100;
+            }
+            else if (luck > 0)
+            {
+                num = (1 - Mathf.Pow(1 - (Mathf.Min(baseChance, 100) * .01f), luck + 1)) * 100;
+            }
+            else if (luck < 0)
+            {
+                num = Mathf.Pow(baseChance, Mathf.Abs(luck) + 1);
+            }
+            else
+            {
+                num = baseChance;
+            }
+            return num;
         }
     }
 }

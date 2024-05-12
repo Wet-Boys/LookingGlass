@@ -10,6 +10,8 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using RoR2.UI;
+using System.Collections;
+using Newtonsoft.Json.Linq;
 
 namespace LookingGlass.ResizeCommandWindow
 {
@@ -65,14 +67,23 @@ namespace LookingGlass.ResizeCommandWindow
                 float width = (value) * (r.sizeDelta.x / 8f);
                 r.sizeDelta = new Vector2(width, height); //Ugh, this is all kinda jank but it works 95%, just come back to this at some point
 
-
-                panel.panelInstanceController.maxColumnCount = value - 2 - columnReduction;
-                panel.panelInstanceController.SetPickupOptions(panel.options);
+                Run.instance.StartCoroutine(FixColumnCountAndStuff(gridLayoutGroup, panel));
             }
-            //foreach (var item in gridLayoutGroup.GetComponentsInChildren<HGButton>())
-            //{
-            //    //item.navigation = Navigation.defaultNavigation;
-            //}
+        }
+        IEnumerator FixColumnCountAndStuff(GridLayoutGroup gridLayoutGroup, PickupPickerController panel)
+        {
+            yield return new WaitForEndOfFrame();
+            int columnCount = 1;
+            float firstY = gridLayoutGroup.transform.GetChild(1).GetComponent<RectTransform>().anchoredPosition.y;
+            for (int i = 2; i < gridLayoutGroup.transform.childCount; i++)
+            {
+                if (gridLayoutGroup.transform.GetChild(i).GetComponent<RectTransform>().anchoredPosition.y == firstY)
+                {
+                    columnCount++;
+                }
+            }
+            panel.panelInstanceController.maxColumnCount = columnCount;
+            panel.panelInstanceController.SetPickupOptions(panel.options);
         }
     }
 }

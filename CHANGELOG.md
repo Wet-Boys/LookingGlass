@@ -1,3 +1,6 @@
+### 1.2.4
+Fixed luck based calculations. Fixed command windows with controllers (again)
+
 ### 1.2.3
 Fixed UI padding for the RiskUI section
 
