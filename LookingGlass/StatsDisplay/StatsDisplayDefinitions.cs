@@ -62,7 +62,7 @@ namespace LookingGlass.StatsDisplay
         internal static float CalculateChance(float baseChance, int luck) //baseChance should be between 0 and 1
         {
             float num;
-            if (baseChance >= 1)
+            if (baseChance >= 100)
             {
                 return 100;
             }
