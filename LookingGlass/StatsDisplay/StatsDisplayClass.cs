@@ -60,7 +60,8 @@ namespace LookingGlass.StatsDisplay
             ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.All }));
 
         }
-
+        bool isRiskUI = false;
+        VerticalLayoutGroup layoutGroup;
         public void CalculateStuff()
         {
             if (!statsDisplay.Value)
@@ -103,7 +104,7 @@ namespace LookingGlass.StatsDisplay
                             r.localPosition = Vector3.zero;
                             r.localEulerAngles = Vector3.zero;
                             r.localScale = Vector3.one;
-                            VerticalLayoutGroup layoutGroup = g.GetComponent<VerticalLayoutGroup>();
+                            layoutGroup = g.GetComponent<VerticalLayoutGroup>();
                             statTracker = g.transform;
                             layoutGroup.enabled = false;
                             layoutGroup.enabled = true;
@@ -114,7 +115,10 @@ namespace LookingGlass.StatsDisplay
 
                             if (g.transform.Find("Seperator"))
                             {
-                                g.transform.Find("Seperator").GetComponent<VerticalLayoutGroup>().padding.top = -100;
+                                isRiskUI = true;
+                                VerticalLayoutGroup v = g.transform.Find("Seperator").GetComponent<VerticalLayoutGroup>();
+                                v.padding.top = 0;
+                                v.childAlignment = TextAnchor.UpperLeft;
                             }
                             break;
                         }
@@ -123,7 +127,12 @@ namespace LookingGlass.StatsDisplay
                 if (textComponent && layoutElement)
                 {
                     textComponent.text = stats;
-                    layoutElement.preferredHeight = textComponent.fontSize * (stats.Split('\n').Length + 1);
+                    int num = stats.Split('\n').Length;
+                    layoutElement.preferredHeight = textComponent.fontSize * (num + 1);
+                    if (isRiskUI && layoutGroup)
+                    {
+                        layoutGroup.padding.bottom = (int)((num / 16f) * 50);
+                    }
                 }
                 //Log.Debug(stats);
             }

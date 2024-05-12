@@ -1,3 +1,6 @@
+### 1.2.3
+Fixed UI padding for the RiskUI section
+
 ### 1.2.2
 Fixed resized command window behaving poorly with controllers
 
