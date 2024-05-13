@@ -1,3 +1,9 @@
+### 1.2.6
+I suck at math
+
+### 1.2.5
+I forgot but it probably didn't work
+
 ### 1.2.4
 Fixed luck based calculations. Fixed command windows with controllers (again)
 

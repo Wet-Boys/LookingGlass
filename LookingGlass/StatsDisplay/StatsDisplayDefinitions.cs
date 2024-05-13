@@ -68,11 +68,11 @@ namespace LookingGlass.StatsDisplay
             }
             else if (luck > 0)
             {
-                num = (1 - Mathf.Pow(1 - (Mathf.Min(baseChance, 100) * .01f), luck + 1)) * 100;
+                num = (1 - Mathf.Pow(1 - (baseChance * .01f), luck + 1)) * 100;
             }
             else if (luck < 0)
             {
-                num = Mathf.Pow(baseChance, Mathf.Abs(luck) + 1);
+                num = Mathf.Pow((baseChance * .01f), Mathf.Abs(luck) + 1) * 100;
             }
             else
             {
