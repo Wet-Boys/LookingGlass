@@ -1,3 +1,6 @@
+### 1.3.2
+Last update was fake, this one is real a cool, not cringe
+
 ### 1.3.1
 Fixed issue with buff timers applying to all buffs. Added a few new items to the StatsDisplay syntax. Added an option for StatsDisplay to remove the default color formatting.
 
