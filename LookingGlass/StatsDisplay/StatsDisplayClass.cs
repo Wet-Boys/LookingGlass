@@ -69,7 +69,7 @@ namespace LookingGlass.StatsDisplay
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.All }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit/*, richText = false*/ }));//for later whenever rune finished RoO update
             ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100, formatString = "{0:F0}" }));
             ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { restartRequired = false, min = 0.05f, max = 1f, formatString = "{0:F2}s" }));
@@ -81,8 +81,6 @@ namespace LookingGlass.StatsDisplay
         VerticalLayoutGroup layoutGroup;
         public void CalculateStuff()
         {
-            if (!statsDisplay.Value)
-                return;
             if (!cachedUserBody)
             {
                 try
@@ -93,6 +91,8 @@ namespace LookingGlass.StatsDisplay
                 {
                 }
             }
+            if (!statsDisplay.Value)
+                return;
             if (cachedUserBody)
             {
                 string stats = statsDisplayString.Value;
@@ -112,6 +112,8 @@ namespace LookingGlass.StatsDisplay
 
                             if (g.transform.Find("StripContainer"))
                                 GameObject.Destroy(g.transform.Find("StripContainer").gameObject);
+                            if (g.transform.Find("Minimap"))
+                                GameObject.DestroyImmediate(g.transform.Find("Minimap").gameObject);
                             if (g.GetComponent<HudObjectiveTargetSetter>())
                                 UnityEngine.Object.Destroy(g.GetComponent<HudObjectiveTargetSetter>());
                             if (g.GetComponent<ObjectivePanelController>())
@@ -126,6 +128,7 @@ namespace LookingGlass.StatsDisplay
                             layoutGroup.enabled = false;
                             layoutGroup.enabled = true;
                             textComponent = g.GetComponentInChildren<TextMeshProUGUI>();
+                            Log.Debug($"set textComponent to {textComponent}");
                             textComponent.alignment = TMPro.TextAlignmentOptions.TopLeft;
                             textComponent.color = Color.white;
                             layoutElement = g.GetComponentInChildren<LayoutElement>();
@@ -150,7 +153,7 @@ namespace LookingGlass.StatsDisplay
                         originalFontSize = textComponent.fontSize;
                     }
                     textComponent.fontSize = statsDisplaySize.Value == -1 ? originalFontSize : statsDisplaySize.Value;
-                    layoutElement.preferredHeight = textComponent.fontSize * (num + 1) * textComponent.font.; //yes I'm leaving this broken so I don't forget :gigachad:
+                    layoutElement.preferredHeight = textComponent.fontSize * (num + 1);
                     if (isRiskUI && layoutGroup)
                     {
                         layoutGroup.padding.bottom = (int)((num / 16f) * 50);

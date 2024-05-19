@@ -53,7 +53,7 @@ namespace LookingGlass.ItemCounters
         void UpdateMoneyText(Action<ScoreboardStrip> orig, ScoreboardStrip self)
         {
             orig(self);
-            if (!self.master || !self.master.inventory)
+            if (!self.master || !self.master.inventory || !itemCounters.Value)
                 return;
             int whiteCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
             int greenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
