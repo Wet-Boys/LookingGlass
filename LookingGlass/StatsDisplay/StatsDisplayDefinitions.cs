@@ -52,6 +52,20 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnGoldshoresPortal.ToString() : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnMSPortal.ToString() : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("shopPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnShopPortal.ToString() : "N/A")}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("voidPortal", cachedUserBody => {
+                if (TeleporterInteraction.instance is null)
+                {
+                    return $"{utilityString}N/A{styleString}";
+                }
+                foreach (var item in TeleporterInteraction.instance.portalSpawners)
+                {
+                    if (item.portalSpawnCard.name == "iscVoidPortal" && item.NetworkwillSpawn)
+                    {
+                        return $"{utilityString}True{styleString}";
+                    }
+                }
+                return $"{utilityString}False{styleString}";
+            });
             StatsDisplayClass.statDictionary.Add("dps", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.damageDealtSincePeriod / DPSMeter.DPS_MAX_TIME}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("remainingComboDuration", cachedUserBody => { return $"{utilityString}{(int)BasePlugin.instance.dpsMeter.timer + 1}{styleString}"; });

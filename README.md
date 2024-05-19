@@ -76,3 +76,4 @@ A fully open source UI mod, compatible with RiskUI
 - @github.com: icon
 - @rune: coding
 - @nunchuk: coding
+- SSM240 (github tag)
