@@ -150,7 +150,7 @@ namespace LookingGlass.StatsDisplay
                         originalFontSize = textComponent.fontSize;
                     }
                     textComponent.fontSize = statsDisplaySize.Value == -1 ? originalFontSize : statsDisplaySize.Value;
-                    layoutElement.preferredHeight = textComponent.fontSize * (num + 1);
+                    layoutElement.preferredHeight = textComponent.fontSize * (num + 1) * textComponent.font.; //yes I'm leaving this broken so I don't forget :gigachad:
                     if (isRiskUI && layoutGroup)
                     {
                         layoutGroup.padding.bottom = (int)((num / 16f) * 50);
