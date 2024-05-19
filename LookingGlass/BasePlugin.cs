@@ -98,7 +98,7 @@ namespace LookingGlass
         
         IEnumerator CheckPlayerStats()
         {
-            yield return new WaitForSeconds(.33f);
+            yield return new WaitForSeconds(StatsDisplayClass.statsDisplayUpdateInterval.Value);
             statsDisplayClass.CalculateStuff();
             StartCoroutine(CheckPlayerStats());
         }

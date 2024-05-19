@@ -17,6 +17,7 @@ namespace LookingGlass.ItemStatsNameSpace
     internal class ItemStats : BaseThing
     {
         public static ConfigEntry<bool> itemStats;
+        public static ConfigEntry<bool> fullDescOnPickup;
         public static ConfigEntry<bool> itemStatsOnPing;
 
         private static Hook overrideHook;
@@ -30,13 +31,15 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             InitHooks();
             ItemDefinitions.RegisterAll();
-            itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows item descriptions plus calculations");
+            itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows full item descriptions plus calculations on mouseover");
+            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", true, "Shows full item descriptions on pickup");
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world");
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
         }
         void InitHooks()
@@ -56,7 +59,7 @@ namespace LookingGlass.ItemStatsNameSpace
         void PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
         {
             orig(self, itemDef);
-            if (itemStats.Value)
+            if (fullDescOnPickup.Value)
                 self.descriptionText.token = itemDef.descriptionToken;
         }
         void ItemIndexText(Action<ItemIcon, ItemIndex, int> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount)
