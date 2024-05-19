@@ -1,3 +1,6 @@
+### 1.3.1
+Fixed issue with buff timers applying to all buffs. Added a few new items to the StatsDisplay syntax. Added an option for StatsDisplay to remove the default color formatting.
+
 ### 1.3.0
 Added buff timers. Added option to show hidden items. Added permanent equip item timers. Added option for global resizing of StatsDisplay text size
 

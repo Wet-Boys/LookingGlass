@@ -21,6 +21,7 @@ namespace LookingGlass.StatsDisplay
         public static ConfigEntry<bool> statsDisplay;
         public static ConfigEntry<string> statsDisplayString;
         public static ConfigEntry<float> statsDisplaySize;
+        public static ConfigEntry<bool> builtInColors;
         public static Dictionary<string, Func<CharacterBody, string>> statDictionary = new Dictionary<string, Func<CharacterBody, string>>();
         internal static CharacterBody cachedUserBody = null;
         Transform statTracker = null;
@@ -51,8 +52,15 @@ namespace LookingGlass.StatsDisplay
                 "Combo: [currentCombatDamage]\n" +
                 "Combo Timer: [remainingComboDuration]\n" +
                 "Max Combo: [maxCombo]"
-                , "String for the stats display");
+                , "String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: \nluck \n baseDamage \n crit \n attackSpeed \n armor \n armorDamageReduction \n regen \n speed \n availableJumps \n maxJumps \n killCount \n mountainShrines \n experience \n level \n maxHealth \n maxBarrier \n barrierDecayRate \n maxShield \n acceleration \n jumpPower \n maxJumpHeight \n damage \n critMultiplier \n bleedChance \n visionDistance \n critHeal \n cursePenalty \n hasOneShotProtection \n isGlass \n canPerformBackstab \n canReceiveBackstab \n healthPercentage \n goldPortal \n msPortal \n shopPortal \n dps \n currentCombatDamage \n remainingComboDuration \n maxCombo \n critWithLuck \n bleedChanceWithLuck");
             statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay font size", -1, "General font size of the stats display menu. If set to -1, will copy the font size from the objective panel");
+            builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, "Uses the default styling for stats display syntax items.");
+            builtInColors.SettingChanged += BuiltInColors_SettingChanged;
+            StatsDisplayDefinitions.SetupDefs();
+        }
+
+        private void BuiltInColors_SettingChanged(object sender, EventArgs e)
+        {
             StatsDisplayDefinitions.SetupDefs();
         }
 
@@ -61,6 +69,8 @@ namespace LookingGlass.StatsDisplay
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.All }));
             ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100 }));
+            ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
+
 
         }
         bool isRiskUI = false;

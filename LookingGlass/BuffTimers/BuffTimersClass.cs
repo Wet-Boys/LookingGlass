@@ -48,8 +48,9 @@ namespace LookingGlass.BuffTimers
                 {
                     foreach (var timedBuff in StatsDisplayClass.cachedUserBody.timedBuffs)
                     {
-                        foreach (var item in buffIcon.GetComponentsInChildren<TextMeshProUGUI>())
+                        if (timedBuff.buffIndex == buffIcon.buffDef.buffIndex)
                         {
+                            TextMeshProUGUI item = buffIcon.transform.GetComponentInChildren<TextMeshProUGUI>();
                             item.enabled = true;
                             item.text = $"<size=80%>{(timedBuff.timer):0.0}</size>\n";
                             if (buffIcon.buffCount > 1)
