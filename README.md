@@ -41,6 +41,12 @@ A fully open source UI mod, compatible with RiskUI
 
 ![Item Counters](https://i.imgur.com/40vXB3Y.png)
 
+## Buff Timers
+
+- Timers for buffs. RoR2 does not network buff timers, please install [NetworkedTimedBuffs](https://thunderstore.io/package/Bubbet/NetworkedTimedBuffs/) if you want clients to have timers.
+
+![Buff Timers](https://i.imgur.com/2TwEpg0.png)
+
 ## Risk of Options Support/RiskUI support
 
 - Change any options in game with Risk of Options
@@ -50,8 +56,6 @@ A fully open source UI mod, compatible with RiskUI
 # Planned features
 
 - Ability proc calculations
-
-- Fully local buff timers (This one might not happen, seems like timers are never actually networked since the base game doesn't need it, fair enough)
 
 - More customization for the Stats Display menu
 

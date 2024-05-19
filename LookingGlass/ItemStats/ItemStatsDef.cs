@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RoR2;
+using System;
 using System.Collections.Generic;
 
 namespace LookingGlass.ItemStatsNameSpace
@@ -24,7 +25,8 @@ namespace LookingGlass.ItemStatsNameSpace
         public List<string> descriptions = new List<string>();
         public List<ValueType> valueTypes = new List<ValueType>();
         public List<MeasurementUnits> measurementUnits = new List<MeasurementUnits>();
-        public Func<int, List<float>> calculateValues;
+        public Func<int, List<float>> calculateValues = null;
+        public Func<CharacterMaster, List<float>> calculateValuesWithCharacterMaster = null;
         public ItemStatsDef(List<string> descriptions, List<ValueType> valueTypes, List<MeasurementUnits> measurementUnits, Func<int, List<float>> calculateValues)
         {
             this.descriptions = descriptions;

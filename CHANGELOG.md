@@ -1,3 +1,6 @@
+### 1.3.0
+Added buff timers. Added option to show hidden items. Added permanent equip item timers. Added option for global resizing of StatsDisplay text size
+
 ### 1.2.6
 I suck at math
 

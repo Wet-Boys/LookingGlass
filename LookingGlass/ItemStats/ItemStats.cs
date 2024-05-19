@@ -88,47 +88,58 @@ namespace LookingGlass.ItemStatsNameSpace
                     itemDescription += $"\nWith one more stack than you have:";
                     newItemCount++;
                 }
-                List<float> values = itemStats.calculateValues(newItemCount);
-                for (int i = 0; i < itemStats.descriptions.Count; i++)
+                List<float> values = null;
+                if (itemStats.calculateValues is not null)
                 {
-                    itemDescription += $"\n<color=\"white\">{itemStats.descriptions[i]}</color>";
-                    switch (itemStats.valueTypes[i])
+                    values = itemStats.calculateValues(newItemCount);
+                }
+                else if (itemStats.calculateValuesWithCharacterMaster is not null)
+                {
+                    values = itemStats.calculateValuesWithCharacterMaster(LocalUserManager.GetFirstLocalUser().cachedMasterController.master);
+                }
+                if (values is not null)
+                {
+                    for (int i = 0; i < itemStats.descriptions.Count; i++)
                     {
-                        case ItemStatsDef.ValueType.Healing:
-                            itemDescription += "<style=\"cIsHealing";
-                            break;
-                        case ItemStatsDef.ValueType.Damage:
-                            itemDescription += "<style=\"cIsDamage";
-                            break;
-                        case ItemStatsDef.ValueType.Utility:
-                            itemDescription += "<style=\"cIsUtility";
-                            break;
-                        case ItemStatsDef.ValueType.Health:
-                            itemDescription += "<style=\"cIsHealth";
-                            break;
-                            //case ItemStatsDef.ValueType.Other:
-                            //    itemDescription += "<color=\"white";
-                            //    break;
-                    }
-                    switch (itemStats.measurementUnits[i])
-                    {
-                        case ItemStatsDef.MeasurementUnits.Meters:
-                            itemDescription += $"\">{values[i]:0.###}m</style>";
-                            break;
-                        case ItemStatsDef.MeasurementUnits.Percentage:
-                            itemDescription += $"\">{values[i] * 100:0.###}%</style>";
-                            break;
-                        case ItemStatsDef.MeasurementUnits.Health:
-                            itemDescription += $"\">{values[i]:0.###}hp</style>";
-                            break;
-                        case ItemStatsDef.MeasurementUnits.Number:
-                            itemDescription += $"\">{values[i]:0.###}</style>";
-                            break;
-                        case ItemStatsDef.MeasurementUnits.Seconds:
-                            itemDescription += $"\">{values[i]:0.###}s</style>";
-                            break;
-                        default:
-                            break;
+                        itemDescription += $"\n<color=\"white\">{itemStats.descriptions[i]}</color>";
+                        switch (itemStats.valueTypes[i])
+                        {
+                            case ItemStatsDef.ValueType.Healing:
+                                itemDescription += "<style=\"cIsHealing";
+                                break;
+                            case ItemStatsDef.ValueType.Damage:
+                                itemDescription += "<style=\"cIsDamage";
+                                break;
+                            case ItemStatsDef.ValueType.Utility:
+                                itemDescription += "<style=\"cIsUtility";
+                                break;
+                            case ItemStatsDef.ValueType.Health:
+                                itemDescription += "<style=\"cIsHealth";
+                                break;
+                                //case ItemStatsDef.ValueType.Other:
+                                //    itemDescription += "<color=\"white";
+                                //    break;
+                        }
+                        switch (itemStats.measurementUnits[i])
+                        {
+                            case ItemStatsDef.MeasurementUnits.Meters:
+                                itemDescription += $"\">{values[i]:0.###}m</style>";
+                                break;
+                            case ItemStatsDef.MeasurementUnits.Percentage:
+                                itemDescription += $"\">{values[i] * 100:0.###}%</style>";
+                                break;
+                            case ItemStatsDef.MeasurementUnits.Health:
+                                itemDescription += $"\">{values[i]:0.###}hp</style>";
+                                break;
+                            case ItemStatsDef.MeasurementUnits.Number:
+                                itemDescription += $"\">{values[i]:0.###}</style>";
+                                break;
+                            case ItemStatsDef.MeasurementUnits.Seconds:
+                                itemDescription += $"\">{values[i]:0.###}s</style>";
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }

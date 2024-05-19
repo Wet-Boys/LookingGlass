@@ -1,9 +1,12 @@
 using BepInEx;
 using LookingGlass.AutoSortItems;
+using LookingGlass.BuffTimers;
 using LookingGlass.CommandItemCount;
 using LookingGlass.CommandWindowBlur;
 using LookingGlass.DPSMeterStuff;
+using LookingGlass.EquipTimerFix;
 using LookingGlass.EscapeToCloseMenu;
+using LookingGlass.HiddenItems;
 using LookingGlass.HidePickupNotifs;
 using LookingGlass.ItemCounters;
 using LookingGlass.ItemStatsNameSpace;
@@ -33,6 +36,9 @@ namespace LookingGlass
         internal StatsDisplayClass statsDisplayClass;
         internal DPSMeter dpsMeter;
         internal ItemCounter itemCounter;
+        internal BuffTimersClass buffTimers;
+        internal EquipFixer equipFixer;
+        internal UnHiddenItems unHiddenItems;
         public static byte[] logo;
         public static Sprite logo2;
         
@@ -69,8 +75,11 @@ namespace LookingGlass
             commandItemCountClass = new CommandItemCountClass();
             resizeCommandWindowClass = new ModifyCommandWindow();
             statsDisplayClass = new StatsDisplayClass();
+            buffTimers = new BuffTimersClass();
             dpsMeter = new DPSMeter();
             itemCounter = new ItemCounter();
+            equipFixer = new EquipFixer();
+            unHiddenItems = new UnHiddenItems();
             StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
             {

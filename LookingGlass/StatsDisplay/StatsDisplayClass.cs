@@ -20,6 +20,7 @@ namespace LookingGlass.StatsDisplay
     {
         public static ConfigEntry<bool> statsDisplay;
         public static ConfigEntry<string> statsDisplayString;
+        public static ConfigEntry<float> statsDisplaySize;
         public static Dictionary<string, Func<CharacterBody, string>> statDictionary = new Dictionary<string, Func<CharacterBody, string>>();
         internal static CharacterBody cachedUserBody = null;
         Transform statTracker = null;
@@ -51,6 +52,7 @@ namespace LookingGlass.StatsDisplay
                 "Combo Timer: [remainingComboDuration]\n" +
                 "Max Combo: [maxCombo]"
                 , "String for the stats display");
+            statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay font size", -1, "General font size of the stats display menu. If set to -1, will copy the font size from the objective panel");
             StatsDisplayDefinitions.SetupDefs();
         }
 
@@ -58,9 +60,11 @@ namespace LookingGlass.StatsDisplay
         {
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.All }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100 }));
 
         }
         bool isRiskUI = false;
+        float originalFontSize = -1;
         VerticalLayoutGroup layoutGroup;
         public void CalculateStuff()
         {
@@ -128,6 +132,11 @@ namespace LookingGlass.StatsDisplay
                 {
                     textComponent.text = stats;
                     int num = stats.Split('\n').Length;
+                    if (originalFontSize == -1)
+                    {
+                        originalFontSize = textComponent.fontSize;
+                    }
+                    textComponent.fontSize = statsDisplaySize.Value == -1 ? originalFontSize : statsDisplaySize.Value;
                     layoutElement.preferredHeight = textComponent.fontSize * (num + 1);
                     if (isRiskUI && layoutGroup)
                     {
