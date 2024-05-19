@@ -38,7 +38,7 @@ namespace LookingGlass.StatsDisplay
         {
             statsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "StatsDisplay", true, "Enables Stats Display");
             statsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Stats Display String",
-                "Stats\n" +
+                "<size=120%>Stats</size>\n" +
                 "Luck: [luck]\n" +
                 "Damage: [baseDamage]\n" +
                 "Crit Chance: [critWithLuck]\n" +
@@ -69,7 +69,7 @@ namespace LookingGlass.StatsDisplay
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit/*, richText = false*/ }));//for later whenever rune finished RoO update
+            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit, richText = false }));
             ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100, formatString = "{0:F0}" }));
             ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { restartRequired = false, min = 0.05f, max = 1f, formatString = "{0:F2}s" }));
@@ -120,18 +120,25 @@ namespace LookingGlass.StatsDisplay
                                 UnityEngine.Object.Destroy(g.GetComponent<ObjectivePanelController>());
 
                             RectTransform r = g.GetComponent<RectTransform>();
+                            layoutGroup = g.GetComponent<VerticalLayoutGroup>();
+                            textComponent = g.GetComponentInChildren<TextMeshProUGUI>();
+                            layoutElement = g.GetComponentInChildren<LayoutElement>();
+
+                            if (!r || !layoutGroup || !textComponent || !layoutElement)
+                            {
+                                layoutGroup = null;
+                                textComponent = null;
+                                layoutElement = null;
+                                GameObject.DestroyImmediate(g);
+                                break;
+                            }
                             r.localPosition = Vector3.zero;
                             r.localEulerAngles = Vector3.zero;
                             r.localScale = Vector3.one;
-                            layoutGroup = g.GetComponent<VerticalLayoutGroup>();
-                            statTracker = g.transform;
                             layoutGroup.enabled = false;
                             layoutGroup.enabled = true;
-                            textComponent = g.GetComponentInChildren<TextMeshProUGUI>();
-                            Log.Debug($"set textComponent to {textComponent}");
                             textComponent.alignment = TMPro.TextAlignmentOptions.TopLeft;
                             textComponent.color = Color.white;
-                            layoutElement = g.GetComponentInChildren<LayoutElement>();
 
                             if (g.transform.Find("Seperator"))
                             {
@@ -140,6 +147,7 @@ namespace LookingGlass.StatsDisplay
                                 v.padding.top = 0;
                                 v.childAlignment = TextAnchor.UpperLeft;
                             }
+                            statTracker = g.transform;
                             break;
                         }
                     }

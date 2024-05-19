@@ -38,7 +38,6 @@ namespace LookingGlass.ResizeCommandWindow
         }
         internal void ResizeWindow(PickupPickerController panel)
         {
-
             Transform t = panel.panelInstance.transform.Find("MainPanel");
             if (t is not null)
             {
@@ -49,7 +48,7 @@ namespace LookingGlass.ResizeCommandWindow
                     background.GetComponent<Image>().color = new Color(originalColor.r, originalColor.g, originalColor.b, opacity.Value / 100f);
                 }
             }
-            if (!resize.Value)
+            if (!resize.Value || !panel.name.StartsWith("CommandCube"))
                 return;
 
             GridLayoutGroup gridLayoutGroup = panel.panelInstance.transform.GetComponentInChildren<GridLayoutGroup>();
