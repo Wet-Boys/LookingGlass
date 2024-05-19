@@ -45,8 +45,8 @@ namespace LookingGlass.ResizeCommandWindow
                 Transform background = t.Find("Juice/BG");
                 if (background is not null)
                 {
-
-                    background.GetComponent<Image>().color = new Color(1, 1, 1, opacity.Value / 100f);
+                    Color originalColor = background.GetComponent<Image>().color;
+                    background.GetComponent<Image>().color = new Color(originalColor.r, originalColor.g, originalColor.b, opacity.Value / 100f);
                 }
             }
             if (!resize.Value)
