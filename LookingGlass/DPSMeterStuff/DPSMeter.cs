@@ -14,6 +14,7 @@ namespace LookingGlass.DPSMeterStuff
     internal class DPSMeter : BaseThing
     {
         private static Hook overrideHook;
+        private static Hook overrideHook2;
         public int damageDealtSincePeriod = 0;
         public ulong currentCombatDamage = 0;
         public static ConfigEntry<ulong> maxComboConfigEntry;
@@ -31,10 +32,18 @@ namespace LookingGlass.DPSMeterStuff
             var targetMethod = typeof(GlobalEventManager).GetMethod(nameof(GlobalEventManager.ClientDamageNotified), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
             var destMethod = typeof(DPSMeter).GetMethod(nameof(TrackDamage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
+            targetMethod = typeof(Run).GetMethod(nameof(Run.OnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            destMethod = typeof(DPSMeter).GetMethod(nameof(RunOnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            overrideHook2 = new Hook(targetMethod, destMethod, this);
         }
 
         public void SetupRiskOfOptions()
         {
+        }
+        void RunOnEnable(Action<Run> orig, Run self)
+        {
+            orig(self);
+            damageDealtSincePeriod = 0;
         }
         void TrackDamage(Action<DamageDealtMessage> orig, DamageDealtMessage damageDealtMessage)
         {

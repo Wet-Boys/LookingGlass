@@ -1,3 +1,6 @@
+### 1.4.2
+Fixed DPS meter not resetting if you leave while it still has values stored. Fixed transforming into specific mobs like a LesserWisp causing StatsDisplay to break until restart
+
 ### 1.4.1
 Fixed StatsDisplay not working with RiskUI. Added an option for how many decimal points to be used for floating point values.
 
