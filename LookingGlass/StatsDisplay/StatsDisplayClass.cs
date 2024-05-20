@@ -148,15 +148,17 @@ namespace LookingGlass.StatsDisplay
                 if (textComponent && layoutElement)
                 {
                     textComponent.text = stats;
-                    int nlines = (statsDisplayOverrideHeight.Value
+                    int nlines = statsDisplayOverrideHeight.Value
                         ? statsDisplayOverrideHeightValue.Value
-                        : stats.Split('\n').Length);
+                        : stats.Split('\n').Length;
                     if (originalFontSize == -1)
                     {
                         originalFontSize = textComponent.fontSize;
                     }
                     textComponent.fontSize = statsDisplaySize.Value == -1 ? originalFontSize : statsDisplaySize.Value;
-                    layoutElement.preferredHeight = textComponent.fontSize * (nlines + 1);
+                    layoutElement.preferredHeight = statsDisplayOverrideHeight.Value
+                        ? textComponent.fontSize * (nlines + 1)
+                        : textComponent.renderedHeight;
                     if (isRiskUI && layoutGroup)
                     {
                         layoutGroup.padding.bottom = (int)((nlines / 16f) * 50);
