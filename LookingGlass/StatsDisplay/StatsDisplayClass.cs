@@ -35,6 +35,7 @@ namespace LookingGlass.StatsDisplay
         TextMeshProUGUI textComponent;
         GameObject textComponentGameObject;
         LayoutElement layoutElement;
+        Image cachedImage;
         private static Hook overrideHook;
         private static Hook overrideHook2;
         bool scoreBoardOpen = false;
@@ -77,7 +78,8 @@ namespace LookingGlass.StatsDisplay
                 "<size=120%>Stats</size>\n" +
                 "Luck: [luck]\n" +
                 "Damage: [baseDamage]\n" +
-                "Crit Chance: [critWithLuck] | Bleed Chance: [bleedChanceWithLuck]\n" +
+                "Crit Chance: [critWithLuck]\n" +
+                "Bleed Chance: [bleedChanceWithLuck]\n" +
                 "Attack Speed: [attackSpeed]\n" +
                 "Armor: [armor] | [armorDamageReduction]\n" +
                 "Regen: [regen]\n" +
@@ -87,7 +89,7 @@ namespace LookingGlass.StatsDisplay
                 "Mountain Shrines: [mountainShrines]\n" +
                 "Max Combo: [maxCombo]\n" +
                 "<size=120%>Portals:</size> \n" +
-                "<size=60%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>"
+                "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>"
                 , $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}");
             StatsDisplayDefinitions.SetupDefs();
 
@@ -124,7 +126,7 @@ namespace LookingGlass.StatsDisplay
             ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { restartRequired = false, min = 0.01f, max = 1f, formatString = "{0:F2}s" }));
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayOverrideHeight, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { restartRequired = false, min = 1, max = 100 }));
+            ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { restartRequired = false, min = 0, max = 100 }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(useSecondaryStatsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit, richText = false }));
@@ -159,9 +161,14 @@ namespace LookingGlass.StatsDisplay
                     {
                         if (item.gameObject.name == "RightInfoBar")
                         {
-                            GameObject g = GameObject.Instantiate(item.transform.Find("ObjectivePanel").gameObject);
-                            g.transform.parent = item.transform.Find("ObjectivePanel").parent.transform;
+                            Transform objectivePanel = item.transform.Find("ObjectivePanel");
+                            GameObject labelObject = objectivePanel.Find("Label").gameObject;
+                            bool originalActiveState = labelObject.activeSelf;
+                            labelObject.SetActive(true);
+                            GameObject g = GameObject.Instantiate(objectivePanel.gameObject);
+                            g.transform.parent = objectivePanel.parent.transform;
                             g.name = "PlayerStats";
+                            labelObject.SetActive(originalActiveState);
 
                             if (g.transform.Find("StripContainer"))
                                 GameObject.Destroy(g.transform.Find("StripContainer").gameObject);
@@ -222,9 +229,15 @@ namespace LookingGlass.StatsDisplay
                         originalFontSize = textComponent.fontSize;
                     }
                     textComponent.fontSize = statsDisplaySize.Value == -1 ? originalFontSize : statsDisplaySize.Value;
-                    layoutElement.preferredHeight = statsDisplayOverrideHeight.Value
-                        ? textComponent.fontSize * (nlines + 1)
-                        : textComponent.renderedHeight;
+                    Run.instance.StartCoroutine(FixScaleAfterFrame(nlines));
+                    if (!cachedImage)
+                    {
+                        cachedImage = layoutElement.transform.parent.GetComponent<Image>();
+                    }
+                    if (cachedImage)
+                    {
+                        cachedImage.enabled = nlines != 0;
+                    }
                     if (isRiskUI && layoutGroup)
                     {
                         layoutGroup.padding.bottom = (int)((nlines / 16f) * 50);
@@ -243,6 +256,14 @@ namespace LookingGlass.StatsDisplay
                 }
                 //Log.Debug(stats);
             }
+        }
+        IEnumerator FixScaleAfterFrame(int nlines)//needed to make the tab stuff work nicely
+        {
+            yield return new WaitForEndOfFrame();
+            float intendedHeight = statsDisplayOverrideHeight.Value
+    ? textComponent.fontSize * (nlines + 1)
+    : textComponent.renderedHeight;
+            layoutElement.preferredHeight = intendedHeight;
         }
     }
 }
