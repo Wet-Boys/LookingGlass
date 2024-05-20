@@ -29,6 +29,7 @@ namespace LookingGlass.StatsDisplay
         public static ConfigEntry<bool> builtInColors;
         public static ConfigEntry<bool> statsDisplayOverrideHeight;
         public static ConfigEntry<int> statsDisplayOverrideHeightValue;
+        public static ConfigEntry<int> floatPrecision;
         public static Dictionary<string, Func<CharacterBody, string>> statDictionary = new Dictionary<string, Func<CharacterBody, string>>();
         internal static CharacterBody cachedUserBody = null;
         Transform statTracker = null;
@@ -70,9 +71,10 @@ namespace LookingGlass.StatsDisplay
             statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay update interval", 0.33f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance");
             builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, "Uses the default styling for stats display syntax items.");
             builtInColors.SettingChanged += BuiltInColors_SettingChanged;
-			statsDisplayOverrideHeight = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Override Stats Display Height", false, "Sets a user-specified height for Stats Display (may be necessary if you get particularly creative with formatting)");
+            statsDisplayOverrideHeight = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Override Stats Display Height", false, "Sets a user-specified height for Stats Display (may be necessary if you get particularly creative with formatting)");
             statsDisplayOverrideHeightValue = BasePlugin.instance.Config.Bind<int>("Stats Display", "Stats Display Height Value", 7, "Height, in lines of full-size text, for the Stats Display panel");
-
+            floatPrecision = BasePlugin.instance.Config.Bind<int>("Stats Display", "StatsDisplay Float Precision", 2, "How many decimal points will be used in floating point values");
+            floatPrecision.SettingChanged += BuiltInColors_SettingChanged;
             useSecondaryStatsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use Secondary StatsDisplay", false, "Will enable the use of the secondary stats display string. This will overwrite the stats display string whenever the scoreboard is held open.");
             secondaryStatsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Secondary Stats Display String",
                 "<size=120%>Stats</size>\n" +
@@ -127,6 +129,7 @@ namespace LookingGlass.StatsDisplay
             ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { restartRequired = false, min = 0.01f, max = 1f, formatString = "{0:F2}s" }));
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayOverrideHeight, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { restartRequired = false, min = 0, max = 100 }));
+            ModSettingsManager.AddOption(new IntSliderOption(floatPrecision, new IntSliderConfig() { restartRequired = false, min = 0, max = 5 }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(useSecondaryStatsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit, richText = false }));
@@ -162,13 +165,20 @@ namespace LookingGlass.StatsDisplay
                         if (item.gameObject.name == "RightInfoBar")
                         {
                             Transform objectivePanel = item.transform.Find("ObjectivePanel");
-                            GameObject labelObject = objectivePanel.Find("Label").gameObject;
-                            bool originalActiveState = labelObject.activeSelf;
-                            labelObject.SetActive(true);
+                            GameObject labelObject = objectivePanel.Find("Label") ? objectivePanel.Find("Label").gameObject : null;
+                            bool originalActiveState = false;
+                            if (labelObject)
+                            {
+                                originalActiveState = labelObject.activeSelf;
+                                labelObject.SetActive(true);
+                            }
                             GameObject g = GameObject.Instantiate(objectivePanel.gameObject);
                             g.transform.parent = objectivePanel.parent.transform;
                             g.name = "PlayerStats";
-                            labelObject.SetActive(originalActiveState);
+                            if (labelObject)
+                            {
+                                labelObject.SetActive(originalActiveState);
+                            }
 
                             if (g.transform.Find("StripContainer"))
                                 GameObject.Destroy(g.transform.Find("StripContainer").gameObject);

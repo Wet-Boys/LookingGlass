@@ -2,6 +2,7 @@
 using RoR2;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using UnityEngine;
 
@@ -17,34 +18,37 @@ namespace LookingGlass.StatsDisplay
             string healthString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsHealth>" : "";
             string voidString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsVoid>" : "";
             string styleString = StatsDisplayClass.builtInColors.Value ? "</style>" : "";
+            //NumberFormatInfo floatPrecision = new NumberFormatInfo();
+            //floatPrecision.NumberDecimalDigits = StatsDisplayClass.floatPrecision.Value;
+            string floatPrecision = "0." + new string('#', StatsDisplayClass.floatPrecision.Value);
             StatsDisplayClass.statDictionary.Clear();
             StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => { return $"{utilityString}{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("crit", cachedUserBody => { return $"{damageString}{(cachedUserBody.crit)}%{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"{damageString}{(cachedUserBody.attackSpeed)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"{healingString}{(cachedUserBody.armor)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"{healingString}{(100 - (100 * (100 / (100 + cachedUserBody.armor)))):0.###}%{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("speed", cachedUserBody => { return $"{utilityString}{(cachedUserBody.moveSpeed),6:N2}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("crit", cachedUserBody => { return $"{damageString}{(cachedUserBody.crit).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"{damageString}{(cachedUserBody.attackSpeed).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"{healingString}{(cachedUserBody.armor).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"{healingString}{(100 - (100 * (100 / (100 + cachedUserBody.armor)))).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("speed", cachedUserBody => { return $"{utilityString}{(cachedUserBody.moveSpeed).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("availableJumps", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxJumpCount - cachedUserBody.characterMotor.jumpCount)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxJumps", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxJumpCount)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("killCount", cachedUserBody => { return $"{healthString}{(cachedUserBody.killCountServer)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("mountainShrines", cachedUserBody => { return $"{utilityString}{((TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shrineBonusStacks : "N/A"))}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("experience", cachedUserBody => { return $"{utilityString}{(cachedUserBody.experience)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("experience", cachedUserBody => { return $"{utilityString}{(cachedUserBody.experience).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("level", cachedUserBody => { return $"{utilityString}{(cachedUserBody.level)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healthString}{(cachedUserBody.maxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxBarrier", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxBarrier)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("barrierDecayRate", cachedUserBody => { return $"{utilityString}{(cachedUserBody.barrierDecayRate)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("barrierDecayRate", cachedUserBody => { return $"{utilityString}{(cachedUserBody.barrierDecayRate).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxShield", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxShield)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("acceleration", cachedUserBody => { return $"{utilityString}{(cachedUserBody.acceleration)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("jumpPower", cachedUserBody => { return $"{utilityString}{(cachedUserBody.jumpPower)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("maxJumpHeight", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxJumpHeight)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("critMultiplier", cachedUserBody => { return $"{damageString}{(cachedUserBody.critMultiplier)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("bleedChance", cachedUserBody => { return $"{damageString}{(cachedUserBody.bleedChance)}%{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("visionDistance", cachedUserBody => { return $"{utilityString}{(cachedUserBody.visionDistance)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("critHeal", cachedUserBody => { return $"{healingString}{(cachedUserBody.critHeal)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("cursePenalty", cachedUserBody => { return $"{utilityString}{(cachedUserBody.cursePenalty)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("acceleration", cachedUserBody => { return $"{utilityString}{(cachedUserBody.acceleration).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("jumpPower", cachedUserBody => { return $"{utilityString}{(cachedUserBody.jumpPower).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("maxJumpHeight", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxJumpHeight).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("critMultiplier", cachedUserBody => { return $"{damageString}{(cachedUserBody.critMultiplier).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("bleedChance", cachedUserBody => { return $"{damageString}{(cachedUserBody.bleedChance).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("visionDistance", cachedUserBody => { return $"{utilityString}{(cachedUserBody.visionDistance).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("critHeal", cachedUserBody => { return $"{healingString}{(cachedUserBody.critHeal).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("cursePenalty", cachedUserBody => { return $"{utilityString}{(cachedUserBody.cursePenalty).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("hasOneShotProtection", cachedUserBody => { return $"{utilityString}{(cachedUserBody.hasOneShotProtection)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("isGlass", cachedUserBody => { return $"{utilityString}{(cachedUserBody.isGlass)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("canPerformBackstab", cachedUserBody => { return $"{damageString}{(cachedUserBody.canPerformBackstab)}{styleString}"; });
@@ -75,12 +79,12 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("critWithLuck", cachedUserBody =>
             {
                 int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
-                return $"{damageString}{CalculateChance(cachedUserBody.crit, luck):0.###}%{styleString}";
+                return $"{damageString}{CalculateChance(cachedUserBody.crit, luck).ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("bleedChanceWithLuck", cachedUserBody =>
             {
                 int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
-                return $"{damageString}{CalculateChance(cachedUserBody.bleedChance, luck):0.###}%{styleString}";
+                return $"{damageString}{CalculateChance(cachedUserBody.bleedChance, luck).ToString(floatPrecision)}%{styleString}";
             });
 
             StatsDisplayClass.statDictionary.Add("velocity", cachedUserBody =>
@@ -88,13 +92,13 @@ namespace LookingGlass.StatsDisplay
                 Rigidbody r = cachedUserBody.GetComponent<Rigidbody>();
                 if (r)
                 {
-                    return $"{utilityString}{r.velocity.magnitude,6:N2}{styleString}";
+                    return $"{utilityString}{r.velocity.magnitude.ToString(floatPrecision)}{styleString}";
                 }
                 return $"{utilityString}N/A{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("teddyBearBlockChance", cachedUserBody => {
                 int stackCount = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Bear);
-                return $"{utilityString}{((0.15f * stackCount) / ((0.15f * stackCount) + 1)) * 100:0.###}%{styleString}";
+                return $"{utilityString}{(((0.15f * stackCount) / ((0.15f * stackCount) + 1)) * 100).ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("saferSpacesCD", cachedUserBody => {
                 int stackCount = cachedUserBody.inventory.GetItemCount(DLC1Content.Items.BearVoid);
@@ -102,12 +106,12 @@ namespace LookingGlass.StatsDisplay
                 {
                     return $"{utilityString}N/A{styleString}";
                 }
-                return $"{utilityString}{15 * Mathf.Pow(.9f, stackCount):0.###}{styleString}";
+                return $"{utilityString}{(15 * Mathf.Pow(.9f, stackCount)).ToString(floatPrecision)}{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("instaKillChance", cachedUserBody => {
                 int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
                 int stackCount = cachedUserBody.inventory.GetItemCount(DLC1Content.Items.CritGlassesVoid);
-                return $"{damageString}{(CalculateChance(.5f * stackCount, luck)):0.###}%{styleString}";
+                return $"{damageString}{(CalculateChance(.5f * stackCount, luck)).ToString(floatPrecision)}%{styleString}";
             });
         }
         internal static float CalculateChance(float baseChance, int luck) //baseChance should be between 0 and 1
