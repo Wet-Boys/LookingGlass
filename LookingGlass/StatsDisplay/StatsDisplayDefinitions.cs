@@ -24,7 +24,7 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"{healingString}{(cachedUserBody.armor)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"{healingString}{(100 - (100 * (100 / (100 + cachedUserBody.armor)))):0.###}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("speed", cachedUserBody => { return $"{utilityString}{(cachedUserBody.moveSpeed)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("speed", cachedUserBody => { return $"{utilityString}{(cachedUserBody.moveSpeed),6:N2}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("availableJumps", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxJumpCount - cachedUserBody.characterMotor.jumpCount)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxJumps", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxJumpCount)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("killCount", cachedUserBody => { return $"{healthString}{(cachedUserBody.killCountServer)}{styleString}"; });
@@ -73,7 +73,7 @@ namespace LookingGlass.StatsDisplay
                 Rigidbody r = cachedUserBody.GetComponent<Rigidbody>();
                 if (r)
                 {
-                    return $"{utilityString}{r.velocity.magnitude:0.###}{styleString}";
+                    return $"{utilityString}{r.velocity.magnitude,6:N2}{styleString}";
                 }
                 return $"{utilityString}N/A{styleString}";
             });
