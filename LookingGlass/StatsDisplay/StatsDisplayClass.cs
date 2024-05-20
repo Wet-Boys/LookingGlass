@@ -27,6 +27,8 @@ namespace LookingGlass.StatsDisplay
         public static ConfigEntry<float> statsDisplaySize;
         public static ConfigEntry<float> statsDisplayUpdateInterval;
         public static ConfigEntry<bool> builtInColors;
+        public static ConfigEntry<bool> statsDisplayOverrideHeight;
+        public static ConfigEntry<int> statsDisplayOverrideHeightValue;
         public static Dictionary<string, Func<CharacterBody, string>> statDictionary = new Dictionary<string, Func<CharacterBody, string>>();
         internal static CharacterBody cachedUserBody = null;
         Transform statTracker = null;
@@ -67,6 +69,8 @@ namespace LookingGlass.StatsDisplay
             statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay update interval", 0.33f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance");
             builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, "Uses the default styling for stats display syntax items.");
             builtInColors.SettingChanged += BuiltInColors_SettingChanged;
+			statsDisplayOverrideHeight = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Override Stats Display Height", false, "Sets a user-specified height for Stats Display (may be necessary if you get particularly creative with formatting)");
+            statsDisplayOverrideHeightValue = BasePlugin.instance.Config.Bind<int>("Stats Display", "Stats Display Height Value", 7, "Height, in lines of full-size text, for the Stats Display panel");
 
             useSecondaryStatsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use Secondary StatsDisplay", false, "Will enable the use of the secondary stats display string. This will overwrite the stats display string whenever the scoreboard is held open.");
             secondaryStatsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Secondary Stats Display String",
@@ -115,10 +119,12 @@ namespace LookingGlass.StatsDisplay
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit, richText = false }));
-            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100, formatString = "{0:F0}" }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.All, richText = false }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100 }));
             ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { restartRequired = false, min = 0.05f, max = 1f, formatString = "{0:F2}s" }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { restartRequired = false, min = 0.01f, max = 1f, formatString = "{0:F2}s" }));
+            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayOverrideHeight, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { restartRequired = false, min = 1, max = 100 }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(useSecondaryStatsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit, richText = false }));
@@ -208,16 +214,20 @@ namespace LookingGlass.StatsDisplay
                 if (textComponent && layoutElement)
                 {
                     textComponent.text = stats;
-                    int num = stats.Split('\n').Length;
+                    int nlines = statsDisplayOverrideHeight.Value
+                        ? statsDisplayOverrideHeightValue.Value
+                        : stats.Split('\n').Length;
                     if (originalFontSize == -1)
                     {
                         originalFontSize = textComponent.fontSize;
                     }
                     textComponent.fontSize = statsDisplaySize.Value == -1 ? originalFontSize : statsDisplaySize.Value;
-                    layoutElement.preferredHeight = textComponent.fontSize * (num + 1);
+                    layoutElement.preferredHeight = statsDisplayOverrideHeight.Value
+                        ? textComponent.fontSize * (nlines + 1)
+                        : textComponent.renderedHeight;
                     if (isRiskUI && layoutGroup)
                     {
-                        layoutGroup.padding.bottom = (int)((num / 16f) * 50);
+                        layoutGroup.padding.bottom = (int)((nlines / 16f) * 50);
                     }
                 }
                 else
