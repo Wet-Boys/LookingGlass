@@ -15,6 +15,7 @@ namespace LookingGlass.StatsDisplay
             string damageString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsDamage>" : "";
             string healingString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsHealing>" : "";
             string healthString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsHealth>" : "";
+            string voidString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsVoid>" : "";
             string styleString = StatsDisplayClass.builtInColors.Value ? "</style>" : "";
             StatsDisplayClass.statDictionary.Clear();
             StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => { return $"{utilityString}{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}{styleString}"; });
@@ -49,9 +50,23 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("canPerformBackstab", cachedUserBody => { return $"{damageString}{(cachedUserBody.canPerformBackstab)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("canReceiveBackstab", cachedUserBody => { return $"{damageString}{(cachedUserBody.canReceiveBackstab)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("healthPercentage", cachedUserBody => { return $"{healthString}{(cachedUserBody.healthComponent.combinedHealthFraction * 100f)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnGoldshoresPortal.ToString() : "N/A")}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{damageString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnGoldshoresPortal.ToString() : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnMSPortal.ToString() : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("shopPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnShopPortal.ToString() : "N/A")}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("voidPortal", cachedUserBody => {
+                if (TeleporterInteraction.instance is null)
+                {
+                    return $"{voidString}N/A{styleString}";
+                }
+                foreach (var item in TeleporterInteraction.instance.portalSpawners)
+                {
+                    if (item.portalSpawnCard.name == "iscVoidPortal" && item.NetworkwillSpawn)
+                    {
+                        return $"{voidString}True{styleString}";
+                    }
+                }
+                return $"{voidString}False{styleString}";
+            });
             StatsDisplayClass.statDictionary.Add("dps", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.damageDealtSincePeriod / DPSMeter.DPS_MAX_TIME}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("remainingComboDuration", cachedUserBody => { return $"{utilityString}{(int)BasePlugin.instance.dpsMeter.timer + 1}{styleString}"; });

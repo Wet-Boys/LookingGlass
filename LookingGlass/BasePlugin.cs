@@ -37,7 +37,7 @@ namespace LookingGlass
         internal DPSMeter dpsMeter;
         internal ItemCounter itemCounter;
         internal BuffTimersClass buffTimers;
-        internal EquipFixer equipFixer;
+        internal CooldownFixer equipFixer;
         internal UnHiddenItems unHiddenItems;
         public static byte[] logo;
         public static Sprite logo2;
@@ -78,7 +78,7 @@ namespace LookingGlass
             buffTimers = new BuffTimersClass();
             dpsMeter = new DPSMeter();
             itemCounter = new ItemCounter();
-            equipFixer = new EquipFixer();
+            equipFixer = new CooldownFixer();
             unHiddenItems = new UnHiddenItems();
             StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
