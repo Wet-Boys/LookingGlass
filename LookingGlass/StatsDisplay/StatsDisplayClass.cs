@@ -70,7 +70,7 @@ namespace LookingGlass.StatsDisplay
             statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay update interval", 0.33f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance");
             builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, "Uses the default styling for stats display syntax items.");
             builtInColors.SettingChanged += BuiltInColors_SettingChanged;
-			statsDisplayOverrideHeight = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Override Stats Display Height", false, "Sets a user-specified height for Stats Display (may be necessary if you get particularly creative with formatting)");
+            statsDisplayOverrideHeight = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Override Stats Display Height", false, "Sets a user-specified height for Stats Display (may be necessary if you get particularly creative with formatting)");
             statsDisplayOverrideHeightValue = BasePlugin.instance.Config.Bind<int>("Stats Display", "Stats Display Height Value", 7, "Height, in lines of full-size text, for the Stats Display panel");
 
             useSecondaryStatsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use Secondary StatsDisplay", false, "Will enable the use of the secondary stats display string. This will overwrite the stats display string whenever the scoreboard is held open.");
@@ -162,13 +162,20 @@ namespace LookingGlass.StatsDisplay
                         if (item.gameObject.name == "RightInfoBar")
                         {
                             Transform objectivePanel = item.transform.Find("ObjectivePanel");
-                            GameObject labelObject = objectivePanel.Find("Label").gameObject;
-                            bool originalActiveState = labelObject.activeSelf;
-                            labelObject.SetActive(true);
+                            GameObject labelObject = objectivePanel.Find("Label") ? objectivePanel.Find("Label").gameObject : null;
+                            bool originalActiveState = false;
+                            if (labelObject)
+                            {
+                                originalActiveState = labelObject.activeSelf;
+                                labelObject.SetActive(true);
+                            }
                             GameObject g = GameObject.Instantiate(objectivePanel.gameObject);
                             g.transform.parent = objectivePanel.parent.transform;
                             g.name = "PlayerStats";
-                            labelObject.SetActive(originalActiveState);
+                            if (labelObject)
+                            {
+                                labelObject.SetActive(originalActiveState);
+                            }
 
                             if (g.transform.Find("StripContainer"))
                                 GameObject.Destroy(g.transform.Find("StripContainer").gameObject);
