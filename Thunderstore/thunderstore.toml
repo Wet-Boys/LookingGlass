@@ -13,7 +13,7 @@ containsNsfwContent = false
 
 [package.dependencies]
 bbepis-BepInExPack = "5.4.2113"
-Rune580-Risk_Of_Options = "2.7.1"
+Rune580-Risk_Of_Options = "2.7.2"
 
 [build]
 icon = "icons/looking-glass-icon-static.png"
