@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Text;
 using static RoR2.Chat;
 using System.Linq;
+using LookingGlass.StatsDisplay;
 
 namespace LookingGlass.ItemStatsNameSpace
 {
@@ -55,6 +56,13 @@ namespace LookingGlass.ItemStatsNameSpace
             targetMethod = typeof(PingerController).GetMethod(nameof(PingerController.SetCurrentPing), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             destMethod = typeof(ItemStats).GetMethod(nameof(ItemPinged), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook3 = new Hook(targetMethod, destMethod, this);
+        }
+        internal void EquipText(EquipmentIcon self)
+        {
+            if (self.tooltipProvider && self.currentDisplayData.equipmentDef && self.playerCharacterMasterController && self.playerCharacterMasterController.body && self.playerCharacterMasterController.body.inventory)
+            {
+                self.tooltipProvider.overrideBodyText = $"{Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken)}\nCooldown Reduction: <style=\"cIsUtility>{((1 - self.playerCharacterMasterController.body.inventory.CalculateEquipmentCooldownScale()) * 100).ToString(StatsDisplayDefinitions.floatPrecision)}%</style>\nCooldown: <style=\"cIsUtility>{((self.currentDisplayData.equipmentDef.cooldown * self.playerCharacterMasterController.body.inventory.CalculateEquipmentCooldownScale())).ToString(StatsDisplayDefinitions.floatPrecision)}s</style>";
+            }
         }
         void PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
         {

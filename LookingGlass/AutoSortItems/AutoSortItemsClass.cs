@@ -98,6 +98,7 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperAlphabetical, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperAlphabeticalDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckScrapperSortTierAlphabetical }));
         }
+        //I'm going cross-eyed looking at all these
         private static bool CheckTierSort()
         {
             return !SortByTier.Value;

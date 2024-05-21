@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using LookingGlass.ItemStatsNameSpace;
 
 namespace LookingGlass.EquipTimerFix
 {
@@ -43,6 +44,10 @@ namespace LookingGlass.EquipTimerFix
         void SetDisplayData(Action<EquipmentIcon, EquipmentIcon.DisplayData> orig, EquipmentIcon self, EquipmentIcon.DisplayData newDisplayData)
         {
             orig(self, newDisplayData);
+            if (ItemStats.itemStats.Value)
+            {
+                BasePlugin.instance.itemStats.EquipText(self);
+            }
             if (permanentEquipCooldownText.Value && self.hasEquipment && newDisplayData.stock != newDisplayData.maxStock && self.cooldownText)
             {
                 self.cooldownText.gameObject.SetActive(true);
@@ -51,10 +56,10 @@ namespace LookingGlass.EquipTimerFix
         void Update(Action<SkillIcon> orig, SkillIcon self)
         {
             orig(self);
-            if (permanentSkillCooldownText.Value && 
-                self.targetSkill && 
-                self.targetSkill.stock > 0 && 
-                self.targetSkill.stock != self.targetSkill.maxStock && 
+            if (permanentSkillCooldownText.Value &&
+                self.targetSkill &&
+                self.targetSkill.stock > 0 &&
+                self.targetSkill.stock != self.targetSkill.maxStock &&
                 self.cooldownText)
             {
                 SkillIcon.sharedStringBuilder.Clear();

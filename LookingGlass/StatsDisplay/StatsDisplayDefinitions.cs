@@ -10,6 +10,7 @@ namespace LookingGlass.StatsDisplay
 {
     internal class StatsDisplayDefinitions
     {
+        internal static string floatPrecision;
         internal static void SetupDefs()
         {
             string utilityString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsUtility>" : "";
@@ -20,7 +21,7 @@ namespace LookingGlass.StatsDisplay
             string styleString = StatsDisplayClass.builtInColors.Value ? "</style>" : "";
             //NumberFormatInfo floatPrecision = new NumberFormatInfo();
             //floatPrecision.NumberDecimalDigits = StatsDisplayClass.floatPrecision.Value;
-            string floatPrecision = "0." + new string('#', StatsDisplayClass.floatPrecision.Value);
+            floatPrecision = "0." + new string('#', StatsDisplayClass.floatPrecision.Value);
             StatsDisplayClass.statDictionary.Clear();
             StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => { return $"{utilityString}{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
