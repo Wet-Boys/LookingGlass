@@ -9,6 +9,7 @@ A fully open source UI mod, compatible with RiskUI
 - Full item descriptions for all items. Items setup with the API have their calculations noted in the description as well.
 
 ![Item Stats](https://i.imgur.com/WXTVSxm.png)
+![Item Stats 2](https://i.imgur.com/avVswuU.png)
 
 ## Auto Sort Items
 

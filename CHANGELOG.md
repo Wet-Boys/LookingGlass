@@ -1,3 +1,6 @@
+### 1.5.0
+Added sorting options to the command menu and scrapper menu. Added equip slot functionality for itemstats.
+
 ### 1.4.2
 Fixed DPS meter not resetting if you leave while it still has values stored. Fixed transforming into specific mobs like a LesserWisp causing StatsDisplay to break until restart
 
