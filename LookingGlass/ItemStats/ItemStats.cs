@@ -59,9 +59,9 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         internal void EquipText(EquipmentIcon self)
         {
-            if (self.tooltipProvider && self.currentDisplayData.equipmentDef && self.playerCharacterMasterController && self.playerCharacterMasterController.body && self.playerCharacterMasterController.body.inventory)
+            if (self.tooltipProvider && self.currentDisplayData.equipmentDef && StatsDisplayClass.cachedUserBody && StatsDisplayClass.cachedUserBody.inventory)
             {
-                self.tooltipProvider.overrideBodyText = $"{Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken)}\nCooldown Reduction: <style=\"cIsUtility>{((1 - self.playerCharacterMasterController.body.inventory.CalculateEquipmentCooldownScale()) * 100).ToString(StatsDisplayDefinitions.floatPrecision)}%</style>\nCooldown: <style=\"cIsUtility>{((self.currentDisplayData.equipmentDef.cooldown * self.playerCharacterMasterController.body.inventory.CalculateEquipmentCooldownScale())).ToString(StatsDisplayDefinitions.floatPrecision)}s</style>";
+                self.tooltipProvider.overrideBodyText = $"{Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken)}\nCooldown Reduction: <style=\"cIsUtility>{((1 - StatsDisplayClass.cachedUserBody.inventory.CalculateEquipmentCooldownScale()) * 100).ToString(StatsDisplayDefinitions.floatPrecision)}%</style>\nCooldown: <style=\"cIsUtility>{((self.currentDisplayData.equipmentDef.cooldown * StatsDisplayClass.cachedUserBody.inventory.CalculateEquipmentCooldownScale())).ToString(StatsDisplayDefinitions.floatPrecision)}s</style>";
             }
         }
         void PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
