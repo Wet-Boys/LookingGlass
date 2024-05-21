@@ -101,7 +101,7 @@ namespace LookingGlass.CommandItemCount
 
             if (isItem && ItemStats.itemStats.Value)
             {
-                string stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, count, true);
+                string stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, count, null, true);
 
                 if (stats != null)
                 {
