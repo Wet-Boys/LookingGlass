@@ -25,7 +25,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Block Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([(0.15f * stackCount) / ((0.15f * stackCount) + 1)]);
             };
@@ -36,7 +36,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage Increase to Bosses: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.2f * stackCount]);
             };
@@ -47,7 +47,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Extra Secondary Charges: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -58,7 +58,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Health Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Health);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 25]);
             };
@@ -69,7 +69,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Fireworks Launched: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([4 + (stackCount * 4)]);
             };
@@ -83,7 +83,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.0225f + (.0225f * stackCount), 1.5f + (1.5f * stackCount)]);
             };
@@ -94,7 +94,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("hp/s: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 3]);
             };
@@ -105,7 +105,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage Increase to Healthy Enemies: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * .75f]);
             };
@@ -116,7 +116,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.2f * stackCount]);
             };
@@ -127,7 +127,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Sprint Bonus: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.25f * stackCount]);
             };
@@ -138,7 +138,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Nearby Damage Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.2f * stackCount]);
             };
@@ -155,7 +155,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([2.25f + (.75f * stackCount), 1.5f + (1.5f * stackCount), 8 + (4 * stackCount)]);
             };
@@ -166,7 +166,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Critical Chance Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.1f * stackCount]);
             };
@@ -177,7 +177,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Heal Amount: <style=\"cIsHealing\">20hp</style> + ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.05f * stackCount]);
             };
@@ -191,7 +191,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Movement Speed Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.075f * stackCount, .07f * stackCount]);
             };
@@ -202,7 +202,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Heal Amount: <style=\"cIsHealing\">8hp</style> + ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.02f * stackCount]);
             };
@@ -213,7 +213,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Armor Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([100 * stackCount]);
             };
@@ -224,7 +224,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Movement Speed Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.14f * stackCount]);
             };
@@ -235,7 +235,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Bonus Shield: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.08f * stackCount]);
             };
@@ -246,7 +246,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Available Charges: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -257,7 +257,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage Reduction: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([5 * stackCount]);
             };
@@ -268,7 +268,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Gold Gained: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 * stackCount * RoR2.Run.instance.difficultyCoefficient]);
             };
@@ -280,7 +280,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Available Charges: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -292,7 +292,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Attack Speed Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.15f * stackCount]);
             };
@@ -304,7 +304,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Sticky Bomb Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.05f * stackCount]);
             };
@@ -316,7 +316,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Stun Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([(0.05f * stackCount) / ((0.05f * stackCount) + 1)]);
             };
@@ -328,7 +328,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Barrier Gain on Kill: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([15 * stackCount]);
             };
@@ -340,7 +340,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Bleed Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.1f * stackCount]);
             };
@@ -352,7 +352,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([8 + (8 * stackCount)]);
             };
@@ -368,7 +368,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 * stackCount]);
             };
@@ -380,7 +380,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Drop Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.08f + (.1f * stackCount)]);
             };
@@ -392,7 +392,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Buff Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([2 + (stackCount * 4)]);
             };
@@ -404,7 +404,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Debuff Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([2 * stackCount]);
             };
@@ -416,7 +416,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Debuff Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([7 * stackCount]);
             };
@@ -431,7 +431,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Equipment Cooldown Reduction: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount, 1 - Mathf.Pow(1 - .15f, stackCount)]);
             };
@@ -443,7 +443,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Drop Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.04f * stackCount]);
             };
@@ -455,7 +455,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Heal Amount: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Health);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([4 + (4 * stackCount)]);
             };
@@ -467,7 +467,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Bonus Jumps: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -479,7 +479,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Buff Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.5f + (.5f * stackCount)]);
             };
@@ -491,7 +491,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Burn Damage Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 * stackCount]);
             };
@@ -506,7 +506,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Max Health Gained: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Health);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount, 100 * stackCount]);
             };
@@ -518,7 +518,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Total Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 * stackCount]);
             };
@@ -530,7 +530,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Heal Per Hit: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Health);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -542,7 +542,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Total Novas: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Health);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -554,7 +554,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("InstaKill Threshhold: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([(0.13f * stackCount) / ((0.13f * stackCount) + 1)]);
             };
@@ -566,7 +566,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([30 * Mathf.Pow(0.5f, stackCount - 1)]);
             };
@@ -578,7 +578,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Max Attack Speed Bonus: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.12f + (.24f * stackCount)]);
             };
@@ -590,7 +590,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Available Charges: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -605,7 +605,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 + (2 * stackCount), 15 + (10 * stackCount)]);
             };
@@ -617,7 +617,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Out of Combat Speed Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.3f * stackCount]);
             };
@@ -629,7 +629,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Sprint Armor Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([30 * stackCount]);
             };
@@ -644,7 +644,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Total Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 * stackCount, 2.5f * stackCount]);
             };
@@ -662,7 +662,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Legendary Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 float common = .79f;
                 float uncommon = .2f * stackCount;
@@ -681,7 +681,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Total Shurikens: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 + (1 * stackCount), 2 + stackCount]);
             };
@@ -693,7 +693,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Turret Attack Speed: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -708,7 +708,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Chain Distance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([1 + (2 * stackCount), 18 + (2 * stackCount)]);
             };
@@ -720,7 +720,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Buff Durations: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([4 + (4 * stackCount)]);
             };
@@ -732,7 +732,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Jump Boost: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([10 * stackCount]);
             };
@@ -747,7 +747,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Base Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([9.6f + (2.4f * stackCount), .7f + (2.8f * stackCount)]);
             };
@@ -763,7 +763,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Rerolls: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -774,7 +774,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Barrier Conversion Rate: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.5f * stackCount]);
             };
@@ -785,7 +785,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Cooldown Reduction: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([1 - Mathf.Pow(0.75f, stackCount)]);
             };
@@ -796,7 +796,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Debuff Prevention Stacks: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -807,7 +807,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Random Effects: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -818,7 +818,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Frenzy Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 4]);
             };
@@ -829,7 +829,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Explosion Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([1.5f + (2.5f * stackCount)]);
             };
@@ -840,7 +840,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Dagger Base Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([1.5f * stackCount]);
             };
@@ -851,7 +851,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Blocked Projectiles: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -862,7 +862,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Revives: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -873,7 +873,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Max Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([6 + (12 * stackCount)]);
             };
@@ -884,7 +884,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([10f * Mathf.Pow(0.5f, stackCount - 1)]);
             };
@@ -895,7 +895,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Ghost Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 30]);
             };
@@ -906,7 +906,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Extra Utility Charges: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 2]);
             };
@@ -917,7 +917,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([5 + (5 * stackCount)]);
             };
@@ -928,7 +928,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Critical Strike Bonus Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -939,7 +939,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Healing Stored: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -950,7 +950,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Missile Damage Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([-.5f + (.5f * stackCount)]);
             };
@@ -961,7 +961,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Bonus Healing: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -975,7 +975,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Explosion Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 3, stackCount * 10]);
             };
@@ -989,7 +989,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Hook Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([(0.2f * stackCount) / ((0.2f * stackCount) + 1), stackCount]);
             };
@@ -1000,7 +1000,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Debuff Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 8]);
             };
@@ -1011,7 +1011,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Reduction Amount: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([2 + (2 * stackCount)]);
             };
@@ -1022,7 +1022,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Extra Drone Attack Speed: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.5f * stackCount]);
             };
@@ -1033,7 +1033,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Armor Reduction Per Hit: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 2]);
             };
@@ -1044,7 +1044,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Max Enemies Hit: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([1 + (2 * stackCount)]);
             };
@@ -1055,7 +1055,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Buff Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 + (stackCount * 5)]);
             };
@@ -1069,7 +1069,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 5]);
             };
@@ -1080,7 +1080,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Max Constructs: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 4]);
             };
@@ -1091,7 +1091,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Core Base Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1102,7 +1102,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([30 / (1 + stackCount)]);
             };
@@ -1116,7 +1116,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Aurelionite Health: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.5f + (.5f * stackCount), stackCount]);
             };
@@ -1127,7 +1127,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Stat Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.1f * stackCount]);
             };
@@ -1138,7 +1138,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Wisp Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 3]);
             };
@@ -1149,7 +1149,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Tethered Entities: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1160,7 +1160,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Magma Ball Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 3]);
             };
@@ -1171,7 +1171,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Health Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.1f * stackCount]);
             };
@@ -1182,7 +1182,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Amount Healed: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Health);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 15]);
             };
@@ -1193,7 +1193,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Beetle Guard Count: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1207,7 +1207,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Explosion Health% Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([4 * stackCount, .15f * stackCount]);
             };
@@ -1221,7 +1221,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("hp/s Increase: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 40, stackCount * 1.6f]);
             };
@@ -1235,7 +1235,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Nothings Done: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1249,7 +1249,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Gold Lost: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Health);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 2 * RoR2.Run.instance.difficultyCoefficient, stackCount]);
             };
@@ -1263,7 +1263,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Max Healing Per Second: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount, .1f * (1/stackCount)]);
             };
@@ -1274,7 +1274,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Enemy Strength: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1288,7 +1288,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Max Orbs: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([3 * (1 / stackCount), 2 + stackCount]);
             };
@@ -1302,7 +1302,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 10, stackCount * 8]);
             };
@@ -1313,7 +1313,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Lunar Item Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.05f * stackCount]);
             };
@@ -1327,7 +1327,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Zone Size: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Health);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([90f / (1f + 0.3f * Mathf.Min(stackCount, 3f)), 1 / (2 * Mathf.Min(stackCount, 3f))]);
             };
@@ -1338,7 +1338,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Equipment Cooldown: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([1f - (0.5f * Mathf.Pow(0.85f, stackCount - 1))]);
             };
@@ -1352,7 +1352,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 3, stackCount * 5]);
             };
@@ -1366,7 +1366,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Attack Speed Reduction: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([Mathf.Pow(.5f, stackCount), 1 / (stackCount + 1)]);
             };
@@ -1377,7 +1377,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([16f * Mathf.Pow(1.5f, stackCount - 1)]);
             };
@@ -1391,7 +1391,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Negative Luck: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Health);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount + 1, stackCount]);
             };
@@ -1405,7 +1405,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Total Health: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([Mathf.Pow(2, stackCount), Mathf.Pow(.5f, stackCount)]);
             };
@@ -1419,7 +1419,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Movement Decrease: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount, 1 / (1 + stackCount)]);
             };
@@ -1433,7 +1433,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.182f * stackCount, stackCount * 3]);
             };
@@ -1444,7 +1444,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Bonus Shields: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.25f + (.25f * stackCount)]);
             };
@@ -1458,7 +1458,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([12 * stackCount, 2 * stackCount]);
             };
@@ -1469,7 +1469,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Items Upgraded Per Stage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 3]);
             };
@@ -1480,7 +1480,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Charges: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1491,7 +1491,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Instakill Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.005f * stackCount]);
             };
@@ -1502,7 +1502,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Extra Special Skill Stacks: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1513,7 +1513,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Collapse Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.1f * stackCount]);
             };
@@ -1527,7 +1527,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount, 60f / stackCount]);
             };
@@ -1538,7 +1538,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Total Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.4f * stackCount]);
             };
@@ -1549,7 +1549,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Extra Lives: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1560,7 +1560,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Total Hits: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount * 3]);
             };
@@ -1571,7 +1571,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Cooldown: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([15 * Mathf.Pow(.9f, stackCount)]);
             };
@@ -1582,7 +1582,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Total Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([stackCount]);
             };
@@ -1596,7 +1596,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Duration: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([1 - 1/(1 + .05f * stackCount), stackCount]);
             };
@@ -1610,7 +1610,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Base Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([9.6f + (2.4f * stackCount), 1.04f + (1.56f * stackCount)]);
             };
@@ -1621,7 +1621,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Sprint Healing: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValues = stackCount =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 return new List<float>([.02f * stackCount]);
             };

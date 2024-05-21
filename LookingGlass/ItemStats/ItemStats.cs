@@ -83,11 +83,17 @@ namespace LookingGlass.ItemStatsNameSpace
             var itemDef = ItemCatalog.GetItemDef(newItemIndex);
             if (self.tooltipProvider != null && itemDef != null)
             {
+                CharacterMaster master = null;
 
-                self.tooltipProvider.overrideBodyText = GetDescription(itemDef, newItemIndex, newItemCount, false);
+                var strip = self.GetComponentInParent<ScoreboardStrip>();
+                if (strip && strip.master)
+                {
+                    master = strip.master;
+                }
+                self.tooltipProvider.overrideBodyText = GetDescription(itemDef, newItemIndex, newItemCount, master, false);
             }
         }
-        public static string GetDescription(ItemDef itemDef, ItemIndex newItemIndex, int newItemCount, bool withOneMore)
+        public static string GetDescription(ItemDef itemDef, ItemIndex newItemIndex, int newItemCount, CharacterMaster master, bool withOneMore)
         {
             var itemDescription = $"{Language.GetString(itemDef.descriptionToken)}\n";
 
@@ -99,15 +105,11 @@ namespace LookingGlass.ItemStatsNameSpace
                     itemDescription += $"\nWith one more stack than you have:";
                     newItemCount++;
                 }
-                List<float> values = null;
-                if (itemStats.calculateValues is not null)
+                if (master == null)
                 {
-                    values = itemStats.calculateValues(newItemCount);
+                    master = LocalUserManager.GetFirstLocalUser().cachedMaster;
                 }
-                else if (itemStats.calculateValuesWithCharacterMaster is not null)
-                {
-                    values = itemStats.calculateValuesWithCharacterMaster(LocalUserManager.GetFirstLocalUser().cachedMasterController.master);
-                }
+                List<float> values = itemStats.calculateValues(master, newItemCount);
                 if (values is not null)
                 {
                     for (int i = 0; i < itemStats.descriptions.Count; i++)
