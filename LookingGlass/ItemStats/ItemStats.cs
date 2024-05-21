@@ -105,19 +105,11 @@ namespace LookingGlass.ItemStatsNameSpace
                     itemDescription += $"\nWith one more stack than you have:";
                     newItemCount++;
                 }
-                List<float> values = null;
-                if (itemStats.calculateValues is not null)
+                if (master == null)
                 {
-                    values = itemStats.calculateValues(newItemCount);
+                    master = LocalUserManager.GetFirstLocalUser().cachedMaster;
                 }
-                else if (itemStats.calculateValuesWithCharacterMaster is not null)
-                {
-                    if (master == null)
-                    {
-                        master = LocalUserManager.GetFirstLocalUser().cachedMaster;
-                    }
-                    values = itemStats.calculateValuesWithCharacterMaster(master, newItemCount);
-                }
+                List<float> values = itemStats.calculateValues(master, newItemCount);
                 if (values is not null)
                 {
                     for (int i = 0; i < itemStats.descriptions.Count; i++)
