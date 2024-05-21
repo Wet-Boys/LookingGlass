@@ -26,7 +26,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public List<ValueType> valueTypes = new List<ValueType>();
         public List<MeasurementUnits> measurementUnits = new List<MeasurementUnits>();
         public Func<int, List<float>> calculateValues = null;
-        public Func<CharacterMaster, List<float>> calculateValuesWithCharacterMaster = null;
+        public Func<CharacterMaster, int, List<float>> calculateValuesWithCharacterMaster = null;
         public ItemStatsDef(List<string> descriptions, List<ValueType> valueTypes, List<MeasurementUnits> measurementUnits, Func<int, List<float>> calculateValues)
         {
             this.descriptions = descriptions;

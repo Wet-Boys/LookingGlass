@@ -116,7 +116,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     {
                         master = LocalUserManager.GetFirstLocalUser().cachedMaster;
                     }
-                    values = itemStats.calculateValuesWithCharacterMaster(master);
+                    values = itemStats.calculateValuesWithCharacterMaster(master, newItemCount);
                 }
                 if (values is not null)
                 {
