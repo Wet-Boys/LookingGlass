@@ -127,6 +127,42 @@ namespace LookingGlass.ItemStatsNameSpace
                             case ItemStatsDef.ValueType.Health:
                                 itemDescription += "<style=\"cIsHealth";
                                 break;
+                            case ItemStatsDef.ValueType.Void:
+                                itemDescription += "<style=\"cIsVoid";
+                                break;
+                            case ItemStatsDef.ValueType.HumanObjective:
+                                itemDescription += "<style=\"cHumanObjective";
+                                break;
+                            case ItemStatsDef.ValueType.LunarObjective:
+                                itemDescription += "<style=\"cLunarObjective";
+                                break;
+                            case ItemStatsDef.ValueType.Stack:
+                                itemDescription += "<style=\"cStack";
+                                break;
+                            case ItemStatsDef.ValueType.WorldEvent:
+                                itemDescription += "<style=\"cWorldEvent";
+                                break;
+                            case ItemStatsDef.ValueType.Artifact:
+                                itemDescription += "<style=\"cArtifact";
+                                break;
+                            case ItemStatsDef.ValueType.UserSetting:
+                                itemDescription += "<style=\"cUserSetting";
+                                break;
+                            case ItemStatsDef.ValueType.Death:
+                                itemDescription += "<style=\"cDeath";
+                                break;
+                            case ItemStatsDef.ValueType.Sub:
+                                itemDescription += "<style=\"cSub";
+                                break;
+                            case ItemStatsDef.ValueType.Mono:
+                                itemDescription += "<style=\"cMono";
+                                break;
+                            case ItemStatsDef.ValueType.Shrine:
+                                itemDescription += "<style=\"cShrine";
+                                break;
+                            case ItemStatsDef.ValueType.Event:
+                                itemDescription += "<style=\"cEvent";
+                                break;
                                 //case ItemStatsDef.ValueType.Other:
                                 //    itemDescription += "<color=\"white";
                                 //    break;
@@ -140,13 +176,16 @@ namespace LookingGlass.ItemStatsNameSpace
                                 itemDescription += $"\">{values[i] * 100:0.###}%</style>";
                                 break;
                             case ItemStatsDef.MeasurementUnits.Health:
-                                itemDescription += $"\">{values[i]:0.###}hp</style>";
+                                itemDescription += $"\">{values[i]:0.###} HP</style>";
+                                break;
+                            case ItemStatsDef.MeasurementUnits.Healing:
+                                itemDescription += $"\">{values[i]:0.###} HP/s</style>";
                                 break;
                             case ItemStatsDef.MeasurementUnits.Number:
                                 itemDescription += $"\">{values[i]:0.###}</style>";
                                 break;
                             case ItemStatsDef.MeasurementUnits.Seconds:
-                                itemDescription += $"\">{values[i]:0.###}s</style>";
+                                itemDescription += $"\">{values[i]:0.###} seconds</style>";
                                 break;
                             default:
                                 break;

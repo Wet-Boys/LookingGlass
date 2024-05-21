@@ -12,13 +12,26 @@ namespace LookingGlass.ItemStatsNameSpace
             Healing,
             Damage,
             Utility,
-            Health
+            Health,
+            Void,
+            HumanObjective,
+            LunarObjective,
+            Stack,
+            WorldEvent,
+            Artifact,
+            UserSetting,
+            Death,
+            Sub,
+            Mono,
+            Shrine,
+            Event
         }
         public enum MeasurementUnits
         {
             Meters,
             Percentage,
             Health,
+            Healing,
             Number,
             Seconds
         }
