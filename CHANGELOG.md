@@ -1,3 +1,6 @@
+### 1.5.2
+Fixed a few bugs around command. Fixed a description conflict with Manuscript from mystic's items
+
 ### 1.5.1
 Fixed sorting options for the equipment menus. Changed calculate function for ItemStats to use a CharacterMaster for better calculations in the future
 
