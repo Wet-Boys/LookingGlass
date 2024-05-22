@@ -36,9 +36,9 @@ namespace LookingGlass.ResizeCommandWindow
             ModSettingsManager.AddOption(new CheckBoxOption(resize, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new SliderOption(opacity, new SliderConfig() { restartRequired = false }));
         }
-        internal void ResizeWindow(PickupPickerController panel)
+        internal void ResizeWindow(PickupPickerController controller)
         {
-            Transform t = panel.panelInstance.transform.Find("MainPanel");
+            Transform t = controller.panelInstance.transform.Find("MainPanel");
             if (t is not null)
             {
                 Transform background = t.Find("Juice/BG");
@@ -48,10 +48,10 @@ namespace LookingGlass.ResizeCommandWindow
                     background.GetComponent<Image>().color = new Color(originalColor.r, originalColor.g, originalColor.b, opacity.Value / 100f);
                 }
             }
-            if (!resize.Value || !panel.name.StartsWith("CommandCube"))
+            if (!resize.Value || !controller.name.StartsWith("CommandCube"))
                 return;
 
-            GridLayoutGroup gridLayoutGroup = panel.panelInstance.transform.GetComponentInChildren<GridLayoutGroup>();
+            GridLayoutGroup gridLayoutGroup = controller.panelInstance.transform.GetComponentInChildren<GridLayoutGroup>();
             int itemCount = gridLayoutGroup.transform.childCount - 1;
             gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedRowCount;
             if (t is not null)
@@ -66,10 +66,10 @@ namespace LookingGlass.ResizeCommandWindow
                 float width = (value) * (r.sizeDelta.x / 8f);
                 r.sizeDelta = new Vector2(width, height); //Ugh, this is all kinda jank but it works 95%, just come back to this at some point
 
-                Run.instance.StartCoroutine(FixColumnCountAndStuff(gridLayoutGroup, panel));
+                Run.instance.StartCoroutine(FixColumnCountAndStuff(gridLayoutGroup, controller));
             }
         }
-        IEnumerator FixColumnCountAndStuff(GridLayoutGroup gridLayoutGroup, PickupPickerController panel)
+        public static IEnumerator FixColumnCountAndStuff(GridLayoutGroup gridLayoutGroup, PickupPickerController panel)
         {
             yield return new WaitForEndOfFrame();
             int columnCount = 1;

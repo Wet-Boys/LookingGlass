@@ -59,10 +59,6 @@ namespace LookingGlass.CommandItemCount
                 if (commandToolTips.Value)
                     CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count);
             }
-            if (self.pickerController.name.StartsWith("CommandCube") || self.pickerController.name.StartsWith("Scrapper"))
-            {
-                BasePlugin.instance.autoSortItems.SortPickupPicker(options, elements, inventory, self.pickerController.name.StartsWith("CommandCube"));
-            }
         }
         void CreateNumber(Transform parent, int count)
         {

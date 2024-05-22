@@ -13,6 +13,11 @@ using RoR2.UI;
 using static Rewired.InputMapper;
 using System.Collections.ObjectModel;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.UIElements;
+using LookingGlass.ResizeCommandWindow;
+using System.Collections;
+using UnityEngine.EventSystems;
 
 namespace LookingGlass.AutoSortItems
 {
@@ -135,7 +140,7 @@ namespace LookingGlass.AutoSortItems
         {
             return SortScrapperAlphabetical.Value;
         }
-        internal void SortPickupPicker(PickupPickerController.Option[] options, ReadOnlyCollection<MPButton> elements, Inventory inventory, bool isCommand)
+        internal void SortPickupPicker(PickupPickerController.Option[] options, ReadOnlyCollection<MPButton> elements, Inventory inventory, bool isCommand, PickupPickerPanel panel)
         {
             Dictionary<ItemIndex, GameObject> stuff = new Dictionary<ItemIndex, GameObject>();
             List<ItemIndex> items = new List<ItemIndex>();
@@ -162,12 +167,70 @@ namespace LookingGlass.AutoSortItems
             }
             else
             {
-                items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, isCommand ? false : SortScrapperTier.Value, isCommand ? false : SortScrapperTierDescending.Value, isCommand ? true : SortScrapper.Value, isCommand ? SortCommandDescending.Value : SortScrapperDescending.Value));
+                items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, isCommand ? false : SortScrapperTier.Value, isCommand ? false : SortScrapperTierDescending.Value, isCommand ? SortCommand.Value : SortScrapper.Value, isCommand ? SortCommandDescending.Value : SortScrapperDescending.Value));
             }
             foreach (var item in items)
             {
                 stuff[item].transform.SetAsLastSibling();
             }
+            Run.instance.StartCoroutine(ReOrganizeItems(options, panel));
+        }
+        IEnumerator ReOrganizeItems(PickupPickerController.Option[] options, PickupPickerPanel self)
+        {
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            List<MPButton> buttons = new List<MPButton>();
+            foreach (var item in self.GetComponentInChildren<GridLayoutGroup>().GetComponentsInChildren<MPButton>())
+            {
+                if (item.gameObject.activeSelf)
+                {
+                    buttons.Add(item);
+                }
+            }
+            for (int j = 0; j < options.Length; j++)
+            {
+                MPButton mpbutton = buttons[j];
+                //Log.Debug($"{Language.GetString(mpbutton.GetComponent<TooltipProvider>().titleToken)}");
+                int num = j - j % self.maxColumnCount;
+                int num2 = j % self.maxColumnCount;
+                int num3 = num2 - self.maxColumnCount;
+                int num4 = num2 - 1;
+                int num5 = num2 + 1;
+                int num6 = num2 + self.maxColumnCount;
+                //Log.Debug($"num[{num}] num2[{num2}] num3[{num3}] num4[{num4}] num5[{num5}] num6[{num6}] ");
+                Navigation navigation = mpbutton.navigation;
+                navigation.mode = Navigation.Mode.Explicit;
+                navigation.selectOnRight = null;
+                navigation.selectOnLeft = null;
+                navigation.selectOnUp = null;
+                navigation.selectOnDown = null;
+                if (num4 >= 0)
+                {
+                    MPButton mpbutton2 = buttons[num + num4];
+                    //Log.Debug($"selectOnLeft :{Language.GetString(mpbutton2.GetComponent<TooltipProvider>().titleToken)}");
+                    navigation.selectOnLeft = mpbutton2;
+                }
+                if (num5 < self.maxColumnCount && num + num5 < options.Length)
+                {
+                    MPButton mpbutton3 = buttons[num + num5];
+                    //Log.Debug($"selectOnRight :{Language.GetString(mpbutton3.GetComponent<TooltipProvider>().titleToken)}");
+                    navigation.selectOnRight = mpbutton3;
+                }
+                if (num + num3 >= 0)
+                {
+                    MPButton mpbutton4 = buttons[num + num3];
+                    //Log.Debug($"selectOnUp :{Language.GetString(mpbutton4.GetComponent<TooltipProvider>().titleToken)}");
+                    navigation.selectOnUp = mpbutton4;
+                }
+                if (num + num6 < options.Length)
+                {
+                    MPButton mpbutton5 = buttons[num + num6];
+                    //Log.Debug($"selectOnDown :{Language.GetString(mpbutton5.GetComponent<TooltipProvider>().titleToken)}");
+                    navigation.selectOnDown = mpbutton5;
+                }
+                mpbutton.navigation = navigation;
+            }
+            EventSystem.current.SetSelectedGameObject(buttons.First().gameObject);
         }
         void InitHooks()
         {

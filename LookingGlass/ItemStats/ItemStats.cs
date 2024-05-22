@@ -81,6 +81,8 @@ namespace LookingGlass.ItemStatsNameSpace
         internal static void SetDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
         {
             var itemDef = ItemCatalog.GetItemDef(newItemIndex);
+            if (itemDef.nameToken == "ITEM_MYSTICSITEMS_MANUSCRIPT_NAME")
+                return;
             if (self.tooltipProvider != null && itemDef != null)
             {
                 CharacterMaster master = null;
