@@ -11,6 +11,7 @@ namespace LookingGlass.BuffDescriptions
     public class BuffDescriptionsClass : BaseThing
     {
         private static Hook overrideHook;
+        private static Hook overrideHook2;
 
         public BuffDescriptionsClass()
         {
@@ -31,23 +32,30 @@ namespace LookingGlass.BuffDescriptions
         void BuffIconUpdateIcon(Action<BuffIcon> orig, BuffIcon self)
         {
             orig(self);
-            if (!self.GetComponent<TooltipProvider>() && self.buffDef)
+            if (self.buffDef)
             {
-                if (!self.GetComponentInParent<Canvas>().gameObject.GetComponent<GraphicRaycaster>())
+                TooltipProvider toolTip = self.GetComponent<TooltipProvider>();
+                if (!toolTip)
                 {
-                    self.GetComponentInParent<Canvas>().gameObject.AddComponent<GraphicRaycaster>();
+                    if (!self.GetComponentInParent<Canvas>().gameObject.GetComponent<GraphicRaycaster>())
+                    {
+                        self.GetComponentInParent<Canvas>().gameObject.AddComponent<GraphicRaycaster>();
+                    }
+                    TooltipContent content = new TooltipContent();
+                    content.titleToken = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.buffIndex}");
+                    content.titleColor = Color.gray;
+                    content.bodyToken = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.buffIndex}");
+                    content.bodyColor = Color.blue;
+                    content.disableTitleRichText = false;
+                    content.disableBodyRichText = false;
+                    toolTip = self.gameObject.AddComponent<TooltipProvider>();
+                    toolTip.SetContent(content);
                 }
-                TooltipContent content = new TooltipContent();
-                content.titleToken = self.buffDef.name;
-                content.overrideTitleText = self.buffDef.name;
-                content.titleColor = Color.gray;
-                content.bodyToken = self.buffDef.name;
-                content.overrideBodyText = self.buffDef.name;
-                content.bodyColor = Color.blue;
-                content.disableTitleRichText = false;
-                content.disableBodyRichText = false;
-                TooltipProvider toolTip = self.gameObject.AddComponent<TooltipProvider>();
-                toolTip.SetContent(content);
+                if (toolTip)
+                {
+                    toolTip.titleToken = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.buffIndex}");
+                    toolTip.bodyToken = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.buffIndex}");
+                }
             }
         }
     }

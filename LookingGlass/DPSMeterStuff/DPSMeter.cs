@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.BuffDescriptions;
 using MonoMod.RuntimeDetour;
 using RoR2;
 using RoR2.UI;
@@ -44,6 +45,7 @@ namespace LookingGlass.DPSMeterStuff
         {
             orig(self);
             damageDealtSincePeriod = 0;
+            BuffDefinitions.SetupVanillaDefs();
         }
         void TrackDamage(Action<DamageDealtMessage> orig, DamageDealtMessage damageDealtMessage)
         {
