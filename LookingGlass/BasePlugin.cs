@@ -1,5 +1,6 @@
 using BepInEx;
 using LookingGlass.AutoSortItems;
+using LookingGlass.BuffDescriptions;
 using LookingGlass.BuffTimers;
 using LookingGlass.CommandItemCount;
 using LookingGlass.CommandWindowBlur;
@@ -14,6 +15,7 @@ using LookingGlass.ResizeCommandWindow;
 using LookingGlass.StatsDisplay;
 using RiskOfOptions;
 using RoR2;
+using RoR2.UI;
 using System.Collections;
 using System.IO;
 using UnityEngine;
@@ -39,6 +41,7 @@ namespace LookingGlass
         internal BuffTimersClass buffTimers;
         internal CooldownFixer equipFixer;
         internal UnHiddenItems unHiddenItems;
+        internal BuffDescriptionsClass buffDescriptions;
         public static byte[] logo;
         public static Sprite logo2;
         
@@ -80,6 +83,7 @@ namespace LookingGlass
             itemCounter = new ItemCounter();
             equipFixer = new CooldownFixer();
             unHiddenItems = new UnHiddenItems();
+            //buffDescriptions = new BuffDescriptionsClass();
             StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
             {

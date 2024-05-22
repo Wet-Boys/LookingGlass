@@ -142,6 +142,10 @@ namespace LookingGlass.AutoSortItems
             for (int i = 0; i < options.Length; i++)
             {
                 ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
+                if (itemIndex == ItemIndex.None)
+                {
+                    return;
+                }
                 stuff.Add(itemIndex, elements[i].gameObject);
                 items.Add(itemIndex);
             }
