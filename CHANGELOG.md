@@ -1,3 +1,6 @@
+### 1.5.1
+Fixed sorting options for the equipment menus. Changed calculate function for ItemStats to use a CharacterMaster for better calculations in the future
+
 ### 1.5.0
 Added sorting options to the command menu and scrapper menu. Added equip slot functionality for itemstats.
 
