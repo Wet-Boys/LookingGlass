@@ -42,9 +42,9 @@ namespace LookingGlass.BuffDescriptions
                         self.GetComponentInParent<Canvas>().gameObject.AddComponent<GraphicRaycaster>();
                     }
                     TooltipContent content = new TooltipContent();
-                    content.titleToken = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.buffIndex}");
+                    content.titleToken = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
                     content.titleColor = Color.gray;
-                    content.bodyToken = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.buffIndex}");
+                    content.bodyToken = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.name}");
                     content.bodyColor = Color.blue;
                     content.disableTitleRichText = false;
                     content.disableBodyRichText = false;
@@ -53,8 +53,8 @@ namespace LookingGlass.BuffDescriptions
                 }
                 if (toolTip)
                 {
-                    toolTip.titleToken = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.buffIndex}");
-                    toolTip.bodyToken = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.buffIndex}");
+                    toolTip.titleToken = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
+                    toolTip.bodyToken = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.name}");
                 }
             }
         }

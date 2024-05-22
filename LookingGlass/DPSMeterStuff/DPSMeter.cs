@@ -45,7 +45,7 @@ namespace LookingGlass.DPSMeterStuff
         {
             orig(self);
             damageDealtSincePeriod = 0;
-            BuffDefinitions.SetupVanillaDefs();
+            BuffDefinitions.SetupEnglishDefs();
         }
         void TrackDamage(Action<DamageDealtMessage> orig, DamageDealtMessage damageDealtMessage)
         {

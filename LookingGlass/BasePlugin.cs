@@ -83,7 +83,7 @@ namespace LookingGlass
             itemCounter = new ItemCounter();
             equipFixer = new CooldownFixer();
             unHiddenItems = new UnHiddenItems();
-            //buffDescriptions = new BuffDescriptionsClass();
+            buffDescriptions = new BuffDescriptionsClass();
             StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
             {
