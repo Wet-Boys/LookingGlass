@@ -1,0 +1,13 @@
+{
+	"name": "lookingglass",
+	"author": {
+		"name": "DropPod",
+		"email": "",
+		"url": "https://github.com/Wet-Boys/LookingGlass"
+	},
+	"displayName": "LookingGlass",
+	"version": "1.0.0",
+	"unity": "2019.4",
+	"type": "library",
+	"hideInEditor": false
+}

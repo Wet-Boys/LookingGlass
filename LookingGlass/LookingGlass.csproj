@@ -18,7 +18,21 @@
     <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
     <PackageReference Include="RiskOfRain2.GameLibs" Version="1.2.4-r.0" />
     <PackageReference Include="Rune580.Mods.RiskOfRain2.RiskOfOptions" Version="2.7.2" />
-    <PackageReference Include="UnityEngine.Modules" Version="2019.4.26" />
+    <PackageReference Include="UnityEngine.Modules" Version="2019.4.37" />
+  </ItemGroup>
+
+  <Target Name="CopyUnityAssetBundles" BeforeTargets="PreBuildEvent">
+    <ItemGroup>
+<!--      <AssetBundles Include="" />-->
+    </ItemGroup>
+
+    <Copy SourceFiles="../Unity-RoO-UI/AssetBundles/StandaloneWindows/%(AssetBundles.Identity)" DestinationFiles="Resources/AssetBundles/%(AssetBundles.Identity)" />
+  </Target>
+
+  <ItemGroup>
+    <Content Include="AssetBundles\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   
   <Target Name="SetPluginVersion" BeforeTargets="AddGeneratedFile" DependsOnTargets="MinVer">
@@ -26,6 +40,14 @@
       <PlainVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PlainVersion>
       <BepInExPluginVersion>$(PlainVersion)</BepInExPluginVersion>
     </PropertyGroup>
+  </Target>
+
+  <Target Name="CopyDllToUnityProjPackages" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <FilesToCopy Include="$(TargetPath);$(TargetDir)$(TargetName).pdb" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(ProjectDir)../Unity-LookingGlass/Packages/LookingGlass/" />
   </Target>
   
   <Target Name="PackageThunderstoreArtifact" DependsOnTargets="SetPluginVersion" AfterTargets="PostBuildEvent" Condition="$(Configuration) == 'Release'">

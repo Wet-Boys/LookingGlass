@@ -17,8 +17,6 @@ using RoR2;
 using System.Collections;
 using System.IO;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using static RoR2.HealthComponent;
 
 namespace LookingGlass
 {
@@ -39,13 +37,18 @@ namespace LookingGlass
         internal BuffTimersClass buffTimers;
         internal CooldownFixer equipFixer;
         internal UnHiddenItems unHiddenItems;
+        
         public static byte[] logo;
         public static Sprite logo2;
         
+        public static BepInEx.PluginInfo Plugin { get; private set; }
+        
         public void Awake()
         {
+            Plugin = Info;
             Log.Init(Logger);
             instance = this;
+            
             try
             {
                 string folderName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Info.Location), "icons");
@@ -66,7 +69,8 @@ namespace LookingGlass
             catch (System.Exception)
             {
             }
-
+            
+            Assets.LoadAllAssetBundles();
 
             autoSortItems = new AutoSortItemsClass();
             noWindowBlur = new NoWindowBlur();

@@ -29,6 +29,10 @@ source = "../LookingGlass/bin/Release/netstandard2.0/LookingGlass.pdb"
 target = "plugins/LookingGlass/"
 
 [[build.copy]]
+source = "../LookingGlass/bin/Release/netstandard2.0/AssetBundles/"
+target = "plugins/LookingGlass/AssetBundles/"
+
+[[build.copy]]
 source = "../CHANGELOG.md"
 target = "/"
 
