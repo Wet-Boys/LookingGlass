@@ -20,6 +20,12 @@ namespace LookingGlass.DPSMeterStuff
         public ulong currentCombatDamage = 0;
         public static ConfigEntry<ulong> maxComboConfigEntry;
         public ulong maxCombo = 0;
+        public ulong maxRunCombo = 0;
+
+        public ulong currentComboKills = 0;
+        public static ConfigEntry<ulong> maxKillComboConfigEntry;
+        public ulong maxKillCombo = 0;
+        public ulong maxRunKillCombo = 0;
         public const float DPS_MAX_TIME = 5;
         public float timer = DPS_MAX_TIME;
         public DPSMeter()
@@ -30,6 +36,8 @@ namespace LookingGlass.DPSMeterStuff
         {
             maxComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Combo", 0, "What are you gonna do, cheat the number?");
             maxCombo = maxComboConfigEntry.Value;
+            maxKillComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Kill Combo", 0, "What are you gonna do, cheat the number?");
+            maxKillCombo = maxKillComboConfigEntry.Value;
             var targetMethod = typeof(GlobalEventManager).GetMethod(nameof(GlobalEventManager.ClientDamageNotified), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
             var destMethod = typeof(DPSMeter).GetMethod(nameof(TrackDamage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
@@ -45,6 +53,7 @@ namespace LookingGlass.DPSMeterStuff
         {
             orig(self);
             damageDealtSincePeriod = 0;
+            maxRunCombo = 0;
         }
         void TrackDamage(Action<DamageDealtMessage> orig, DamageDealtMessage damageDealtMessage)
         {
@@ -61,7 +70,27 @@ namespace LookingGlass.DPSMeterStuff
                     {
                         maxCombo = currentCombatDamage;
                     }
+                    if (maxRunCombo < currentCombatDamage)
+                    {
+                        maxRunCombo = currentCombatDamage;
+                    }
                     timer = DPS_MAX_TIME;
+                    if (damageDealtMessage.victim)
+                    {
+                        CharacterBody victim = damageDealtMessage.victim.GetComponent<CharacterBody>();
+                        if (victim && victim.healthComponent && (victim.healthComponent.combinedHealth + victim.healthComponent.barrier) - damageDealtMessage.damage <= 0)
+                        {
+                            currentComboKills++;
+                            if (maxKillCombo < currentComboKills)
+                            {
+                                maxKillCombo = currentComboKills;
+                            }
+                            if (maxRunKillCombo < currentComboKills)
+                            {
+                                maxRunKillCombo = currentComboKills;
+                            }
+                        }
+                    }
                     Run.instance.StartCoroutine(RemoveFromDamageDealtAfterSeconds(DPS_MAX_TIME, (int)thing));
                 }
             }
@@ -88,6 +117,9 @@ namespace LookingGlass.DPSMeterStuff
                     timer = -1;
                     maxComboConfigEntry.Value = maxCombo;
                     currentCombatDamage = 0;
+
+                    maxKillComboConfigEntry.Value = maxKillCombo;
+                    currentComboKills = 0;
                 }
             }
         }
