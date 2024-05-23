@@ -10,7 +10,7 @@ namespace LookingGlass.LookingGlassLanguage
         public static void SetupToken(Language language, string token, string value)
         {
             //Log.Debug($"{token}   {value}");
-            language.stringsByToken.Add("LG_TOKEN_" + token, value);
+            language.stringsByToken["LG_TOKEN_" + token] = value;
         }
     }
 }

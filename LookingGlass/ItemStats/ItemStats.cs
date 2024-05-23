@@ -20,6 +20,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public static ConfigEntry<bool> itemStats;
         public static ConfigEntry<bool> fullDescOnPickup;
         public static ConfigEntry<bool> itemStatsOnPing;
+        public static ConfigEntry<float> itemStatsFontSize;
 
         private static Hook overrideHook;
         private static Hook overrideHook2;
@@ -35,6 +36,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows full item descriptions plus calculations on mouseover");
             fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", true, "Shows full item descriptions on pickup");
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world");
+            itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
@@ -42,6 +44,7 @@ namespace LookingGlass.ItemStatsNameSpace
             ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
         }
         void InitHooks()
         {
@@ -97,7 +100,7 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         public static string GetDescription(ItemDef itemDef, ItemIndex newItemIndex, int newItemCount, CharacterMaster master, bool withOneMore)
         {
-            var itemDescription = $"{Language.GetString(itemDef.descriptionToken)}\n";
+            var itemDescription = $"<size={itemStatsFontSize.Value}%>{Language.GetString(itemDef.descriptionToken)}\n";
 
             if (ItemDefinitions.allItemDefinitions.ContainsKey((int)newItemIndex))
             {
@@ -197,6 +200,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     }
                 }
             }
+            itemDescription += "</size>";
             return itemDescription;
         }
 
