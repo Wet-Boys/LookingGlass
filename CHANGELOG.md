@@ -1,3 +1,6 @@
+### 1.6.1
+Forgot to push option for Buff Timer size
+
 ### 1.6.0
 Added Buff Definitions, hover over your buffs to see them. Buff definitions have to be pre-defined, so modded buffs need to utilize BuffDefinitions.RegisterBuff in order for their buffs to show up (this can technically be done one either side if you know the names of buffs, but it's extremely tedius with how many mods are out there). Added a few new items to StatsDisplay (maxComboThisRun, currentCombatKills, maxKillCombo, maxKillComboThisRun). Added font scale options for Item Stats. Currently thinking about a setup where you can create as many StatsDisplay tabs as you want and move them around (such as having one as a dedicated DPS meter if you wanted to), but nothing to show for it yet, look forward to it though!
 
