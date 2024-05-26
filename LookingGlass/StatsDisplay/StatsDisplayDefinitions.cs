@@ -26,7 +26,7 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => {
                 if (cachedUserBody.master)
                 {
-                    return $"{utilityString}{cachedUserBody.master.luck}{styleString}";
+                    return $"{utilityString}{(cachedUserBody.master.luck).ToString(floatPrecision)}{styleString}";
                 }
                 return $"{utilityString}{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}{styleString}";
             });
