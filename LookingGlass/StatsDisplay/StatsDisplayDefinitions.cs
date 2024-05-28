@@ -23,7 +23,13 @@ namespace LookingGlass.StatsDisplay
             //floatPrecision.NumberDecimalDigits = StatsDisplayClass.floatPrecision.Value;
             floatPrecision = "0." + new string('#', StatsDisplayClass.floatPrecision.Value);
             StatsDisplayClass.statDictionary.Clear();
-            StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => { return $"{utilityString}{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => {
+                if (cachedUserBody.master)
+                {
+                    return $"{utilityString}{(cachedUserBody.master.luck).ToString(floatPrecision)}{styleString}";
+                }
+                return $"{utilityString}{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}{styleString}";
+            });
             StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("crit", cachedUserBody => { return $"{damageString}{(cachedUserBody.crit).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"{damageString}{(cachedUserBody.attackSpeed).ToString(floatPrecision)}{styleString}"; });
