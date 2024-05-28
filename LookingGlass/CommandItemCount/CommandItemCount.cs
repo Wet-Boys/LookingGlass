@@ -20,6 +20,8 @@ namespace LookingGlass.CommandItemCount
         private static Hook overrideHook;
         public static ConfigEntry<bool> commandItemCount;
         public static ConfigEntry<bool> commandToolTips;
+        public static ConfigEntry<float> commandItemCountFontSize;
+
 
         public CommandItemCountClass()
         {
@@ -32,12 +34,15 @@ namespace LookingGlass.CommandItemCount
             overrideHook = new Hook(targetMethod, destMethod, this);
             commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
             commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
+            commandItemCountFontSize = BasePlugin.instance.Config.Bind<float>("Command Settings", "Command Item Count Font Size", 100f, "Changes the font size of command item count");
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new SliderOption(commandItemCountFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
+
         }
 
         //Largely copied from https://github.com/Vl4dimyr/CommandItemCount/blob/master/CommandItemCountPlugin.cs#L191
@@ -70,7 +75,7 @@ namespace LookingGlass.CommandItemCount
             RectTransform rectTransform = textContainer.AddComponent<RectTransform>();
             HGTextMeshProUGUI hgtextMeshProUGUI = textContainer.AddComponent<HGTextMeshProUGUI>();
 
-            hgtextMeshProUGUI.text = count != 0 ? $"x{count}" : "";
+            hgtextMeshProUGUI.text = count != 0 ? $"<scale={commandItemCountFontSize.Value}%>x{count}</scale>" : "";
             hgtextMeshProUGUI.fontSize = 18f;
             hgtextMeshProUGUI.color = Color.white;
             hgtextMeshProUGUI.alignment = TMPro.TextAlignmentOptions.TopRight;
