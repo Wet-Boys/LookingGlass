@@ -70,21 +70,39 @@ namespace LookingGlass.BuffDescriptions
                         self.GetComponentInParent<Canvas>().gameObject.AddComponent<GraphicRaycaster>();
                     }
                     TooltipContent content = new TooltipContent();
-                    content.overrideTitleText = $"<size={buffDescriptionsFontSize.Value}%>{Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}")}</size>";
                     content.titleColor = Color.gray;
-                    content.overrideBodyText = $"<size={buffDescriptionsFontSize.Value}%>{Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.name}")}";
                     content.bodyColor = Color.blue;
                     content.disableTitleRichText = false;
                     content.disableBodyRichText = false;
                     toolTip = self.gameObject.AddComponent<TooltipProvider>();
+
+                    if (Language.currentLanguage.stringsByToken.ContainsKey($"LG_TOKEN_NAME_{self.buffDef.name}"))
+                    {
+                        string name = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
+                        string desc = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.name}");
+                        content.overrideTitleText = $"<size={buffDescriptionsFontSize.Value}%>{Language.GetString(name)}</size>";
+                        content.overrideBodyText = $"<size={buffDescriptionsFontSize.Value}%>{Language.GetString(desc)}";
+                    }
+                    else
+                    {
+                        content.overrideTitleText = self.buffDef.name;
+                    }
+
                     toolTip.SetContent(content);
                 }
                 if (toolTip)
                 {
-                    string name = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
-                    string desc = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.name}");
-                    toolTip.overrideTitleText = $"<size={buffDescriptionsFontSize.Value}%>{name}</size>";
-                    toolTip.overrideBodyText = $"<size={buffDescriptionsFontSize.Value}%>{desc}</size>";
+                    if (Language.currentLanguage.stringsByToken.ContainsKey($"LG_TOKEN_NAME_{self.buffDef.name}"))
+                    {
+                        string name = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
+                        string desc = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.name}");
+                        toolTip.overrideTitleText = $"<size={buffDescriptionsFontSize.Value}%>{name}</size>";
+                        toolTip.overrideBodyText = $"<size={buffDescriptionsFontSize.Value}%>{desc}</size>";
+                    }
+                    else
+                    {
+                        toolTip.overrideTitleText = self.buffDef.name;
+                    }
                 }
             }
         }
