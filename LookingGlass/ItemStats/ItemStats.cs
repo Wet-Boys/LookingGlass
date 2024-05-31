@@ -60,6 +60,7 @@ namespace LookingGlass.ItemStatsNameSpace
             destMethod = typeof(ItemStats).GetMethod(nameof(ItemPinged), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook3 = new Hook(targetMethod, destMethod, this);
         }
+
         internal void EquipText(EquipmentIcon self)
         {
             CharacterBody body = StatsDisplayClass.cachedUserBody;
@@ -69,7 +70,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 CharacterMaster master = self.targetInventory.GetComponentInParent<CharacterMaster>();
                 if (master && master.GetBody())
                 {
-                    Log.Debug("Using body attached to equipment icon for cooldown calculation.");
+                    // Use master body if exists
                     body = master.GetBody();
                 }
             }
