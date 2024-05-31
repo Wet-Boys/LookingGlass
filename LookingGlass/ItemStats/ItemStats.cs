@@ -62,10 +62,28 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         internal void EquipText(EquipmentIcon self)
         {
-            if (self.tooltipProvider && self.currentDisplayData.equipmentDef && StatsDisplayClass.cachedUserBody && StatsDisplayClass.cachedUserBody.inventory)
+            CharacterBody body = StatsDisplayClass.cachedUserBody;
+            // Multiplayer compatibility
+            if (self.targetInventory)
             {
-                self.tooltipProvider.overrideBodyText = $"{Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken)}\nCooldown Reduction: <style=\"cIsUtility>{((1 - StatsDisplayClass.cachedUserBody.inventory.CalculateEquipmentCooldownScale()) * 100).ToString(StatsDisplayDefinitions.floatPrecision)}%</style>\nCooldown: <style=\"cIsUtility>{((self.currentDisplayData.equipmentDef.cooldown * StatsDisplayClass.cachedUserBody.inventory.CalculateEquipmentCooldownScale())).ToString(StatsDisplayDefinitions.floatPrecision)}s</style>";
+                CharacterMaster master = self.targetInventory.GetComponentInParent<CharacterMaster>();
+                if (master && master.GetBody())
+                {
+                    Log.Debug("Using body attached to equipment icon for cooldown calculation.");
+                    body = master.GetBody();
+                }
             }
+#pragma warning disable Publicizer001 // Accessing a member that was not originally public
+            if (self.tooltipProvider && self.currentDisplayData.equipmentDef && body && body.inventory)
+            {
+                String cooldownReductionFormatted = ((1 - body.inventory.CalculateEquipmentCooldownScale()) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
+                String currentCooldownFormatted = (self.currentDisplayData.equipmentDef.cooldown * body.inventory.CalculateEquipmentCooldownScale()).ToString(StatsDisplayDefinitions.floatPrecision);
+                
+                self.tooltipProvider.overrideBodyText = $"{Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken)}" +
+                    $"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>" +
+                    $"\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted} seconds</style>";
+            }
+#pragma warning restore Publicizer001 // Accessing a member that was not originally public
         }
         void PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
         {
