@@ -1,3 +1,6 @@
+### 1.6.3
+Fixed healthPercentage not using the float precision option
+
 ### 1.6.2
 Big thanks to shirograhm for most of these changes. Luck is gathered in a more accurate way now, should work better with modded items that add luck. Added a check for buff definitions to just use their name if no definition (name/description) was provided. Fixed equipment not utilizing ally's stats when looking in the scoreboard.
 

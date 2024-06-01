@@ -77,7 +77,7 @@ namespace LookingGlass.StatsDisplay
                 {
                     return $"{healthString}N/A{styleString}";
                 }
-                return $"{healthString}{(cachedUserBody.healthComponent.combinedHealthFraction * 100f)}{styleString}"; 
+                return $"{healthString}{(cachedUserBody.healthComponent.combinedHealthFraction * 100f).ToString(floatPrecision)}{styleString}"; 
             });
             StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{damageString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnGoldshoresPortal.ToString() : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnMSPortal.ToString() : "N/A")}{styleString}"; });
