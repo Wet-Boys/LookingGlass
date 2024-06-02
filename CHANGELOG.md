@@ -1,3 +1,6 @@
+### 1.7.0
+Fixed equipment not always showing their full descriptions. Added option to adjust how long pickup display notifications last. Added difficultyCoefficient to StatsDisplay as an option. Made the item calculations for item stats optional.
+
 ### 1.6.3
 Fixed healthPercentage not using the float precision option
 
