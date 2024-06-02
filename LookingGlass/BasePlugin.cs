@@ -11,6 +11,7 @@ using LookingGlass.HiddenItems;
 using LookingGlass.HidePickupNotifs;
 using LookingGlass.ItemCounters;
 using LookingGlass.ItemStatsNameSpace;
+using LookingGlass.PickupNotifsDuration;
 using LookingGlass.ResizeCommandWindow;
 using LookingGlass.StatsDisplay;
 using RiskOfOptions;
@@ -42,6 +43,7 @@ namespace LookingGlass
         internal CooldownFixer equipFixer;
         internal UnHiddenItems unHiddenItems;
         internal BuffDescriptionsClass buffDescriptions;
+        internal PickupNotifDurationClass pickupNotifDurationClass;
         public static byte[] logo;
         public static Sprite logo2;
         
@@ -84,6 +86,7 @@ namespace LookingGlass
             equipFixer = new CooldownFixer();
             unHiddenItems = new UnHiddenItems();
             buffDescriptions = new BuffDescriptionsClass();
+            pickupNotifDurationClass = new PickupNotifDurationClass();
             StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
             {
