@@ -143,6 +143,8 @@ namespace LookingGlass.StatsDisplay
                 int stackCount = cachedUserBody.inventory.GetItemCount(DLC1Content.Items.CritGlassesVoid);
                 return $"{damageString}{(CalculateChance(.5f * stackCount, luck)).ToString(floatPrecision)}%{styleString}";
             });
+            StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{Run.instance.difficultyCoefficient}{styleString}"; });
+
         }
         internal static float CalculateChance(float baseChance, int luck) //baseChance should be between 0 and 1
         {

@@ -18,6 +18,7 @@ namespace LookingGlass.ItemStatsNameSpace
     internal class ItemStats : BaseThing
     {
         public static ConfigEntry<bool> itemStats;
+        public static ConfigEntry<bool> itemStatsCalculations;
         public static ConfigEntry<bool> fullDescOnPickup;
         public static ConfigEntry<bool> itemStatsOnPing;
         public static ConfigEntry<float> itemStatsFontSize;
@@ -34,6 +35,7 @@ namespace LookingGlass.ItemStatsNameSpace
             InitHooks();
             ItemDefinitions.RegisterAll();
             itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows full item descriptions plus calculations on mouseover");
+            itemStatsCalculations = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats Calculations", true, "Gives calculations for vanilla items and modded items which have added specific support. (Sadly, items are not designed in a way to allow this to be automatic)");
             fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", true, "Shows full item descriptions on pickup");
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world");
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
@@ -42,6 +44,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
@@ -122,7 +125,7 @@ namespace LookingGlass.ItemStatsNameSpace
             var itemDescription = $"<size={itemStatsFontSize.Value}%>{Language.GetString(itemDef.descriptionToken)}\n";
             try
             {
-                if (ItemDefinitions.allItemDefinitions.ContainsKey((int)newItemIndex))
+                if (itemStatsCalculations.Value && ItemDefinitions.allItemDefinitions.ContainsKey((int)newItemIndex))
                 {
                     ItemStatsDef itemStats = ItemDefinitions.allItemDefinitions[(int)newItemIndex];
                     if (withOneMore && itemStats.descriptions.Count != 0)
