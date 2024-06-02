@@ -51,12 +51,15 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         private static bool ItemStatsDisabled()
         {
-            return itemStats.Value;
+            return !itemStats.Value;
         }
         void InitHooks()
         {
             var targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetItem), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(ItemStats).GetMethod(nameof(PickupText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            overrideHook = new Hook(targetMethod, destMethod, this);
+            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetEquipment), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(EquipmentText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
 
             targetMethod = typeof(RoR2.UI.ItemIcon).GetMethod(nameof(RoR2.UI.ItemIcon.SetItemIndex), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
@@ -98,6 +101,12 @@ namespace LookingGlass.ItemStatsNameSpace
             orig(self, itemDef);
             if (fullDescOnPickup.Value)
                 self.descriptionText.token = itemDef.descriptionToken;
+        }
+        void EquipmentText(Action<GenericNotification, EquipmentDef> orig, GenericNotification self, EquipmentDef equipmentDef)
+        {
+            orig(self, equipmentDef);
+            if (fullDescOnPickup.Value)
+                self.descriptionText.token = equipmentDef.descriptionToken;
         }
         void ItemIndexText(Action<ItemIcon, ItemIndex, int> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount)
         {
