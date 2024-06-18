@@ -173,6 +173,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                 case ItemStatsDef.ValueType.Void:
                                     itemDescription += "<style=\"cIsVoid";
                                     break;
+                                case ItemStatsDef.ValueType.Gold:
                                 case ItemStatsDef.ValueType.HumanObjective:
                                     itemDescription += "<style=\"cHumanObjective";
                                     break;
@@ -203,6 +204,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                 case ItemStatsDef.ValueType.Shrine:
                                     itemDescription += "<style=\"cShrine";
                                     break;
+                                case ItemStatsDef.ValueType.Armor:
                                 case ItemStatsDef.ValueType.Event:
                                     itemDescription += "<style=\"cEvent";
                                     break;
@@ -218,11 +220,17 @@ namespace LookingGlass.ItemStatsNameSpace
                                 case ItemStatsDef.MeasurementUnits.Percentage:
                                     itemDescription += $"\">{values[i] * 100:0.###}%</style>";
                                     break;
-                                case ItemStatsDef.MeasurementUnits.Health:
+                                case ItemStatsDef.MeasurementUnits.FlatHealth:
                                     itemDescription += $"\">{values[i]:0.###} HP</style>";
                                     break;
-                                case ItemStatsDef.MeasurementUnits.Healing:
+                                case ItemStatsDef.MeasurementUnits.PercentHealth:
+                                    itemDescription += $"\">{values[i] * 100:0.###}% HP</style>";
+                                    break;
+                                case ItemStatsDef.MeasurementUnits.FlatHealing:
                                     itemDescription += $"\">{values[i]:0.###} HP/s</style>";
+                                    break;
+                                case ItemStatsDef.MeasurementUnits.PercentHealing:
+                                    itemDescription += $"\">{values[i] * 100:0.###}% HP/s</style>";
                                     break;
                                 case ItemStatsDef.MeasurementUnits.Number:
                                     itemDescription += $"\">{values[i]:0.###}</style>";
