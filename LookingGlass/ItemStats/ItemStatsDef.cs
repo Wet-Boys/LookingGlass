@@ -24,16 +24,20 @@ namespace LookingGlass.ItemStatsNameSpace
             Sub,
             Mono,
             Shrine,
-            Event
+            Event,
+            Gold,
+            Armor
         }
         public enum MeasurementUnits
         {
             Meters,
             Percentage,
-            Health,
-            Healing,
+            FlatHealth,
+            FlatHealing,
             Number,
-            Seconds
+            Seconds,
+            PercentHealth,
+            PercentHealing
         }
         public List<string> descriptions = new List<string>();
         public List<ValueType> valueTypes = new List<ValueType>();

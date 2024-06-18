@@ -24,11 +24,7 @@ namespace LookingGlass.StatsDisplay
             floatPrecision = "0." + new string('#', StatsDisplayClass.floatPrecision.Value);
             StatsDisplayClass.statDictionary.Clear();
             StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => {
-                if (cachedUserBody.master)
-                {
-                    return $"{utilityString}{(cachedUserBody.master.luck).ToString(floatPrecision)}{styleString}";
-                }
-                return $"{utilityString}{(cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck))}{styleString}";
+                return $"{utilityString}{Utils.GetLuckFromCachedUserBody(cachedUserBody).ToString(floatPrecision)}{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("crit", cachedUserBody => { return $"{damageString}{(cachedUserBody.crit).ToString(floatPrecision)}%{styleString}"; });
@@ -108,13 +104,13 @@ namespace LookingGlass.StatsDisplay
 
             StatsDisplayClass.statDictionary.Add("critWithLuck", cachedUserBody =>
             {
-                int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
-                return $"{damageString}{CalculateChance(cachedUserBody.crit, luck).ToString(floatPrecision)}%{styleString}";
+                float critWithLuck = Utils.CalculateChanceWithLuck(cachedUserBody.crit / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
+                return $"{damageString}{critWithLuck.ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("bleedChanceWithLuck", cachedUserBody =>
             {
-                int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
-                return $"{damageString}{CalculateChance(cachedUserBody.bleedChance, luck).ToString(floatPrecision)}%{styleString}";
+                float bleedChanceWithLuck = Utils.CalculateChanceWithLuck(cachedUserBody.bleedChance / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
+                return $"{damageString}{bleedChanceWithLuck.ToString(floatPrecision)}%{styleString}";
             });
 
             StatsDisplayClass.statDictionary.Add("velocity", cachedUserBody =>
@@ -128,7 +124,7 @@ namespace LookingGlass.StatsDisplay
             });
             StatsDisplayClass.statDictionary.Add("teddyBearBlockChance", cachedUserBody => {
                 int stackCount = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Bear);
-                return $"{utilityString}{(((0.15f * stackCount) / ((0.15f * stackCount) + 1)) * 100).ToString(floatPrecision)}%{styleString}";
+                return $"{utilityString}{(((0.15f * stackCount) / ((0.15f * stackCount) + 1)) * 100f).ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("saferSpacesCD", cachedUserBody => {
                 int stackCount = cachedUserBody.inventory.GetItemCount(DLC1Content.Items.BearVoid);
@@ -139,33 +135,12 @@ namespace LookingGlass.StatsDisplay
                 return $"{utilityString}{(15 * Mathf.Pow(.9f, stackCount)).ToString(floatPrecision)}{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("instaKillChance", cachedUserBody => {
-                int luck = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
                 int stackCount = cachedUserBody.inventory.GetItemCount(DLC1Content.Items.CritGlassesVoid);
-                return $"{damageString}{(CalculateChance(.5f * stackCount, luck)).ToString(floatPrecision)}%{styleString}";
+                float instakillChance = Utils.CalculateChanceWithLuck(.005f * stackCount, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
+                return $"{damageString}{instakillChance.ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{Run.instance.difficultyCoefficient}{styleString}"; });
 
-        }
-        internal static float CalculateChance(float baseChance, int luck) //baseChance should be between 0 and 1
-        {
-            float num;
-            if (baseChance >= 100)
-            {
-                return 100;
-            }
-            else if (luck > 0)
-            {
-                num = (1 - Mathf.Pow(1 - (baseChance * .01f), luck + 1)) * 100;
-            }
-            else if (luck < 0)
-            {
-                num = Mathf.Pow((baseChance * .01f), Mathf.Abs(luck) + 1) * 100;
-            }
-            else
-            {
-                num = baseChance;
-            }
-            return num;
         }
     }
 }
