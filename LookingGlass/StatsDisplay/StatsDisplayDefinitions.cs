@@ -104,12 +104,12 @@ namespace LookingGlass.StatsDisplay
 
             StatsDisplayClass.statDictionary.Add("critWithLuck", cachedUserBody =>
             {
-                float critWithLuck = Utils.CalculateChanceWithLuck(cachedUserBody.crit, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
+                float critWithLuck = Utils.CalculateChanceWithLuck(cachedUserBody.crit / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
                 return $"{damageString}{critWithLuck.ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("bleedChanceWithLuck", cachedUserBody =>
             {
-                float bleedChanceWithLuck = Utils.CalculateChanceWithLuck(cachedUserBody.bleedChance, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
+                float bleedChanceWithLuck = Utils.CalculateChanceWithLuck(cachedUserBody.bleedChance / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
                 return $"{damageString}{bleedChanceWithLuck.ToString(floatPrecision)}%{styleString}";
             });
 
@@ -136,7 +136,7 @@ namespace LookingGlass.StatsDisplay
             });
             StatsDisplayClass.statDictionary.Add("instaKillChance", cachedUserBody => {
                 int stackCount = cachedUserBody.inventory.GetItemCount(DLC1Content.Items.CritGlassesVoid);
-                float instakillChance = Utils.CalculateChanceWithLuck(.5f * stackCount, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
+                float instakillChance = Utils.CalculateChanceWithLuck(.005f * stackCount, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
                 return $"{damageString}{instakillChance.ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{Run.instance.difficultyCoefficient}{styleString}"; });

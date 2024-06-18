@@ -1761,7 +1761,7 @@ namespace LookingGlass.ItemStatsNameSpace
             //Stone Flux Pauldron
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Health Bonus: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Health);
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PercentHealth);
             itemStat.descriptions.Add("MSpeed Multiplier: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
@@ -2028,7 +2028,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Sprint Healing: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PercentHealth);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PercentHealing);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
