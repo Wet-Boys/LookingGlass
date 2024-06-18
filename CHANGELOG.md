@@ -1,3 +1,6 @@
+### 1.7.1
+Big thanks to shirograhm for this update. Refactor of the backend for itemstats definitions/stats definitions to be much more readable. Adjusted definitions of some item stats to be more accurate.
+
 ### 1.7.0
 Fixed equipment not always showing their full descriptions. Added option to adjust how long pickup display notifications last. Added difficultyCoefficient to StatsDisplay as an option. Made the item calculations for item stats optional.
 
