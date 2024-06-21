@@ -1,3 +1,6 @@
+### 1.7.2
+Quick fix for some calculations going in reverse if you exceed 100% chance
+
 ### 1.7.1
 Big thanks to shirograhm for this update. Refactor of the backend for itemstats definitions/stats definitions to be much more readable. Adjusted definitions of some item stats to be more accurate.
 

@@ -16,6 +16,7 @@ namespace LookingGlass
 
         public static float CalculateChanceWithLuck(float baseChance, float luckIn)
         {
+            baseChance = Mathf.Min(baseChance, 1);
             int luck = Mathf.CeilToInt(luckIn);
             if (luck > 0)
                 return 1f - Mathf.Pow(1f - baseChance, luck + 1);
