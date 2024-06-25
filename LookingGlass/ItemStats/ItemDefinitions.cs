@@ -692,7 +692,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                values.Add(Utils.GetExponentialRechargeTime(30f, 0.5f, 0.5f, stackCount));
+                values.Add(Utils.GetExponentialRechargeTime(30f, 0.5f, stackCount));
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.Phasing.itemIndex, itemStat);
@@ -1080,7 +1080,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                values.Add(Utils.GetExponentialRechargeTime(10, 0.5f, 0.5f, stackCount));
+                values.Add(Utils.GetExponentialRechargeTime(10, 0.5f, stackCount));
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.FallBoots.itemIndex, itemStat);
@@ -1968,7 +1968,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                values.Add(Utils.GetExponentialRechargeTime(15, 0.1f, 0.1f, stackCount));
+                values.Add(Utils.GetExponentialRechargeTime(15, 0.1f, stackCount + 1)); //Kinda bizzare, but safer spaces specifically calculates it's time with 1 extra stack. Compared to StealthKit/Headstompers which calculate accurately
                 return values;
             };
             allItemDefinitions.Add((int)DLC1Content.Items.BearVoid.itemIndex, itemStat);

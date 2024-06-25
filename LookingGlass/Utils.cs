@@ -34,9 +34,9 @@ namespace LookingGlass
             return cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
         }
 
-        public static float GetExponentialRechargeTime(float baseCooldown, float basePercent, float extraPercent, int count)
+        public static float GetExponentialRechargeTime(float baseCooldown, float extraPercent, int count)
         {
-            return baseCooldown * basePercent * Mathf.Pow(1 - extraPercent, count - 1);
+            return baseCooldown * Mathf.Pow(1 - extraPercent, count - 1);
         }
 
         public static float GetExponentialStacking(float basePercent, float extraPercent, int count)
