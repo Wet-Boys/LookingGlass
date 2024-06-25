@@ -1,3 +1,6 @@
+### 1.7.3
+Fixed math issue with items that have exponentially scaling cooldown reduction.
+
 ### 1.7.2
 Quick fix for some calculations going in reverse if you exceed 100% chance
 
