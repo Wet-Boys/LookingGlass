@@ -159,7 +159,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     ItemStatsDef itemStats = ItemDefinitions.allItemDefinitions[(int)newItemIndex];
                     if (withOneMore && itemStats.descriptions.Count != 0)
                     {
-                        itemDescription += $"\nWith one more stack than you have:";
+                        itemDescription += $"\nWith one more stack, you will have:";
                         newItemCount++;
                     }
                     if (master == null)
