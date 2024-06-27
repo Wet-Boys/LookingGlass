@@ -79,3 +79,5 @@ A fully open source UI mod, compatible with RiskUI
 - @nunchuk: coding
 - SSM240 (github tag): coding 
 - yuukotf2 (github tag): coding
+- shirograhm (github tag): coding
+- Warmek (github tag): coding
