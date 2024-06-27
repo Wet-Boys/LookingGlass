@@ -48,6 +48,8 @@ namespace LookingGlass.CommandItemCount
             {
                 return;
             }
+            string parentName = self.gameObject.name;
+            bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
             for (int i = 0; i < options.Length; i++)
@@ -57,7 +59,7 @@ namespace LookingGlass.CommandItemCount
                 if (commandItemCount.Value)
                     CreateNumber(elements[i].transform, count);
                 if (commandToolTips.Value)
-                    CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count);
+                    CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count, withOneMore);
             }
         }
         void CreateNumber(Transform parent, int count)
@@ -83,7 +85,7 @@ namespace LookingGlass.CommandItemCount
             rectTransform.sizeDelta = Vector2.zero;
             rectTransform.anchoredPosition = new Vector2(-5f, -1.5f);
         }
-        void CreateToolTip(Transform parent, PickupDef pickupDefinition, int count)
+        void CreateToolTip(Transform parent, PickupDef pickupDefinition, int count, bool withOneMore)
         {
             ItemDef itemDefinition = ItemCatalog.GetItemDef(pickupDefinition.itemIndex);
             EquipmentDef equipmentDef = EquipmentCatalog.GetEquipmentDef(pickupDefinition.equipmentIndex);
@@ -97,7 +99,7 @@ namespace LookingGlass.CommandItemCount
 
             if (isItem && ItemStats.itemStats.Value)
             {
-                string stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, count, null, true);
+                string stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, count, null, withOneMore);
 
                 if (stats != null)
                 {

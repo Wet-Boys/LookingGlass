@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# Publicizer001: Accessing a member that was not originally public
+dotnet_diagnostic.Publicizer001.severity = suggestion

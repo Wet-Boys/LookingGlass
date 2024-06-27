@@ -12,6 +12,7 @@ using System.Text;
 using static RoR2.Chat;
 using System.Linq;
 using LookingGlass.StatsDisplay;
+using RoR2.Skills;
 
 namespace LookingGlass.ItemStatsNameSpace
 {
@@ -26,6 +27,7 @@ namespace LookingGlass.ItemStatsNameSpace
         private static Hook overrideHook;
         private static Hook overrideHook2;
         private static Hook overrideHook3;
+        private static Hook overrideHook4;
         public ItemStats()
         {
             Setup();
@@ -69,6 +71,10 @@ namespace LookingGlass.ItemStatsNameSpace
             targetMethod = typeof(PingerController).GetMethod(nameof(PingerController.SetCurrentPing), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             destMethod = typeof(ItemStats).GetMethod(nameof(ItemPinged), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook3 = new Hook(targetMethod, destMethod, this);
+
+            targetMethod = typeof(RoR2.UI.SkillIcon).GetMethod(nameof(RoR2.UI.SkillIcon.Update), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(SkillUpdate), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            overrideHook4 = new Hook(targetMethod, destMethod, this);
         }
 
         internal void EquipText(EquipmentIcon self)
@@ -116,6 +122,16 @@ namespace LookingGlass.ItemStatsNameSpace
                 SetDescription(self, newItemIndex, newItemCount);
             }
         }
+        void SkillUpdate(Action<SkillIcon> orig, SkillIcon self)
+        {
+            orig(self);
+            // TODO Change skills description to include proc cof data
+            string desc = Language.GetString(self.targetSkill.skillDescriptionToken);
+
+            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken)) desc = desc + "\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>\n";
+
+            self.tooltipProvider.overrideBodyText = desc;
+        }
         internal static void SetDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
         {
             var itemDef = ItemCatalog.GetItemDef(newItemIndex);
@@ -143,7 +159,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     ItemStatsDef itemStats = ItemDefinitions.allItemDefinitions[(int)newItemIndex];
                     if (withOneMore && itemStats.descriptions.Count != 0)
                     {
-                        itemDescription += $"\nWith one more stack than you have:";
+                        itemDescription += $"\nWith one more stack, you will have:";
                         newItemCount++;
                     }
                     if (master == null)
