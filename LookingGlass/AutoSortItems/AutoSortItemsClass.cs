@@ -96,7 +96,7 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new CheckBoxOption(SeperateScrap, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortByTier, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit}));
-            ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
             ModSettingsManager.AddOption(new CheckBoxOption(DescendingTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortByStackSize, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(DescendingStackSize, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckStackSort }));
@@ -261,7 +261,7 @@ namespace LookingGlass.AutoSortItems
                     itemTierLists.Clear();
                     foreach (string tierString in TierOrder.Value.Split(' '))
                     {
-                        if (Enum.TryParse(tierString, out ItemTier tier))
+                        if (Enum.TryParse(tierString, out ItemTier tier) && !tierMatcher.ContainsKey(tier))
                         {
                             tierMatcher.Add(tier, itemTierLists.Count);
                             itemTierLists.Add(new List<ItemIndex>());
@@ -273,12 +273,13 @@ namespace LookingGlass.AutoSortItems
                         {
                             noTierNum = itemTierLists.Count;
                         }
-                        if (!tierMatcher.ContainsKey(tierDef.tier)) // use default ordering for any not present in the setting (TODO: test this probably?)
+                        if (!tierMatcher.ContainsKey(tierDef.tier)) // use default ordering for any not present in the setting
                         {
                             tierMatcher.Add(tierDef.tier, itemTierLists.Count);
                             itemTierLists.Add(new List<ItemIndex>());
                         }
                     }
+                    Log.Debug(Utils.DictToString(tierMatcher));
                 }
                 self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, SeperateScrap.Value, SortByTier.Value, DescendingTier.Value, SortByStackSize.Value, DescendingStackSize.Value);
             }
