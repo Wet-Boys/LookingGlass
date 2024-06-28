@@ -25,12 +25,10 @@ namespace LookingGlass.AutoSortItems
     internal class AutoSortItemsClass : BaseThing
     {
 
-        // TODO: figure out wtf to do with all the "descending" settings
         public static ConfigEntry<bool> SeperateScrap;
         public static ConfigEntry<bool> SortByTier;
         public static ConfigEntry<string> TierOrder;
         public static ConfigEntry<bool> CombineVoidTiers;
-        public static ConfigEntry<bool> DescendingTier;
         public static ConfigEntry<bool> SortByStackSize;
         public static ConfigEntry<bool> DescendingStackSize;
         public static ConfigEntry<bool> SortCommand;
@@ -38,7 +36,6 @@ namespace LookingGlass.AutoSortItems
         public static ConfigEntry<bool> SortCommandDescending;
         public static ConfigEntry<bool> SortScrapperDescending;
         public static ConfigEntry<bool> SortScrapperTier;
-        public static ConfigEntry<bool> SortScrapperTierDescending;
 
         public static ConfigEntry<bool> SortCommandAlphabetical;
         public static ConfigEntry<bool> SortScrapperAlphabetical;
@@ -66,7 +63,6 @@ namespace LookingGlass.AutoSortItems
             SortByTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Tier Sort", true, "Sorts by Tier");
             TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1", "How the tiers should be ordered");
             CombineVoidTiers = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
-            DescendingTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Tier Sort", true, "Sorts by Tier Descending");
             SortByStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Stack Size Sort", true, "Sorts by Stack Size");
             DescendingStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Stack Size Sort", true, "Sorts by Stack Size Descending");
             SortCommand = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Command Menu", true, "Sorts command menu by stack count");
@@ -74,7 +70,6 @@ namespace LookingGlass.AutoSortItems
             SortScrapper = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper", true, "Sorts Scrapper by stack count");
             SortScrapperDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Scrapper Descending", true, "Sorts Scrapper by descending");
             SortScrapperTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Tier", false, "Sorts Scrapper by tier");
-            SortScrapperTierDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Scrapper Tier Descending", true, "Sorts Scrapper by descending");
 
             SortCommandAlphabetical = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Command Menu Alphabetically", false, "Sorts command menu alphabetically");
             SortCommandAlphabeticalDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Command Menu Alphabetically Descending", true, "Sorts command alphabetically descending");
@@ -84,7 +79,6 @@ namespace LookingGlass.AutoSortItems
             SortByTier.SettingChanged += SettingsChanged;
             TierOrder.SettingChanged += SettingsChanged;
             CombineVoidTiers.SettingChanged += SettingsChanged;
-            DescendingTier.SettingChanged += SettingsChanged;
             SortByStackSize.SettingChanged += SettingsChanged;
             DescendingStackSize.SettingChanged += SettingsChanged;
 
@@ -100,7 +94,6 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new GenericButtonOption("Use Descending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use descending tiers", "Set", SetDescendingTiers));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Ascending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use ascending tiers", "Set", SetAscendingTiers));
             ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
-            ModSettingsManager.AddOption(new CheckBoxOption(DescendingTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortByStackSize, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(DescendingStackSize, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckStackSort }));
 
@@ -109,7 +102,6 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapper, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckScrapperSort }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTierDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckScrapperSortTier }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(SortCommandAlphabetical, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortCommandAlphabeticalDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckCommandSortAlphabetical }));
@@ -203,7 +195,7 @@ namespace LookingGlass.AutoSortItems
             }
             else
             {
-                items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, isCommand ? false : SortScrapperTier.Value, isCommand ? false : SortScrapperTierDescending.Value, isCommand ? SortCommand.Value : SortScrapper.Value, isCommand ? SortCommandDescending.Value : SortScrapperDescending.Value));
+                items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, isCommand ? false : SortScrapperTier.Value, isCommand ? SortCommand.Value : SortScrapper.Value, isCommand ? SortCommandDescending.Value : SortScrapperDescending.Value));
             }
             foreach (var item in items)
             {
@@ -307,7 +299,7 @@ namespace LookingGlass.AutoSortItems
                     }
                     Log.Debug(Utils.DictToString(tierMatcher));
                 }
-                self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, SeperateScrap.Value, SortByTier.Value, DescendingTier.Value, SortByStackSize.Value, DescendingStackSize.Value);
+                self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, SeperateScrap.Value, SortByTier.Value, SortByStackSize.Value, DescendingStackSize.Value);
             }
             catch (Exception e)
             {
@@ -334,7 +326,7 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        ItemIndex[] SortItems(ItemIndex[] items, int count, RoR2.UI.ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool descendingTier, bool sortByStackSize, bool descendingStackSize) //This really should be refactored but it works so...
+        ItemIndex[] SortItems(ItemIndex[] items, int count, RoR2.UI.ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize) //This really should be refactored but it works so...
         {
             foreach (var tierList in itemTierLists)
             {
@@ -399,26 +391,12 @@ namespace LookingGlass.AutoSortItems
                         num++;
                     }
                 }
-                if (descendingTier)
+                for (int i = 0; i < itemTierLists.Count; i++)
                 {
-                    for (int i = itemTierLists.Count - 1; i > -1; i--)
+                    for (int x = 0; x < itemTierLists[i].Count; x++)
                     {
-                        for (int x = 0; x < itemTierLists[i].Count; x++)
-                        {
-                            items[num] = itemTierLists[i][x];
-                            num++;
-                        }
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < itemTierLists.Count; i++)
-                    {
-                        for (int x = 0; x < itemTierLists[i].Count; x++)
-                        {
-                            items[num] = itemTierLists[i][x];
-                            num++;
-                        }
+                        items[num] = itemTierLists[i][x];
+                        num++;
                     }
                 }
                 for (int i = 0; i < noTierList.Count; i++)
