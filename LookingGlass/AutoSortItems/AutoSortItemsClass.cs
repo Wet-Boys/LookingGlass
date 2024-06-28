@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
 using MonoMod.RuntimeDetour;
+using RiskOfOptions.Components.Options;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
@@ -96,6 +97,8 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new CheckBoxOption(SeperateScrap, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortByTier, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit}));
+            ModSettingsManager.AddOption(new GenericButtonOption("Use Descending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use descending tiers", "Set", SetDescendingTiers));
+            ModSettingsManager.AddOption(new GenericButtonOption("Use Ascending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use ascending tiers", "Set", SetAscendingTiers));
             ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
             ModSettingsManager.AddOption(new CheckBoxOption(DescendingTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortByStackSize, new CheckBoxConfig() { restartRequired = false }));
@@ -150,6 +153,29 @@ namespace LookingGlass.AutoSortItems
         {
             return SortScrapperAlphabetical.Value;
         }
+
+        private void SetDescendingTiers()
+        {
+            // manually update the tier order option in the menu (which also updates the setting)
+            foreach (var controller in UnityEngine.Object.FindObjectsOfType<InputFieldController>())
+            {
+                if (controller.name.Contains("Tier Order"))
+                {
+                    controller.SubmitValue("Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1");
+                }
+            }
+        }
+        private void SetAscendingTiers()
+        {
+            foreach (var controller in UnityEngine.Object.FindObjectsOfType<InputFieldController>())
+            {
+                if (controller.name.Contains("Tier Order"))
+                {
+                    controller.SubmitValue("Tier1 VoidTier1 Tier2 VoidTier2 Tier3 VoidTier3 Boss VoidBoss Lunar");
+                }
+            }
+        }
+
         internal void SortPickupPicker(PickupPickerController.Option[] options, ReadOnlyCollection<MPButton> elements, Inventory inventory, bool isCommand, PickupPickerPanel panel)
         {
             Dictionary<ItemIndex, GameObject> stuff = new Dictionary<ItemIndex, GameObject>();
