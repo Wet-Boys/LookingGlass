@@ -128,35 +128,39 @@ namespace LookingGlass.ItemStatsNameSpace
             orig(self);
             StringBuilder desc = new StringBuilder(Language.GetString(self.targetSkill.skillDescriptionToken));
 
-            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken)) desc.Append("\nProc Coefficient: <style=cStack>").Append((ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
+            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
+                desc.Append("\nProc Coefficient: <style=cStack>").Append((ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
 
 
             
             CharacterBody body = self.targetSkill.characterBody;
-
+            
             int itemCount = 0;
             ItemStatsDef itemStats;
             foreach (var item in ItemCatalog.itemDefs)
             {
-                itemCount = body.inventory.GetItemCount(item.itemIndex);
-                if (itemCount > 0) {
-                    itemStats = ItemDefinitions.allItemDefinitions[(int)item.itemIndex];
-                    if (itemStats.hasChance)
+                if (ItemDefinitions.allItemDefinitions.ContainsKey((int)item.itemIndex))
+                {
+                    itemCount = body.inventory.GetItemCount(item.itemIndex);
+                    if (itemCount > 0)
                     {
+                        itemStats = ItemDefinitions.allItemDefinitions[(int)item.itemIndex];
+                        if (itemStats.hasChance)
+                        {
+                            desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
 
-                        desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
+                            desc.Append((itemStats.calculateValues(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
 
-                        desc.Append((itemStats.calculateValues(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
-
-                        if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
-                            desc.Append(" <style=cStack>(").Append((int)Math.Ceiling(1 / itemStats.calculateValues(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0])).Append(" to cap)</style>");
-
-
+                            if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
+                                desc.Append(" <style=cStack>(").Append((int)Math.Ceiling(1 / itemStats.calculateValues(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0])).Append(" to cap)</style>");
+                        }
                     }
                 }
+                
             }
-            
-            
+            //*/
+
+
 
             self.tooltipProvider.overrideBodyText = desc.ToString();
         }
