@@ -31,7 +31,6 @@ namespace LookingGlass.AutoSortItems
             Mixed
         }
 
-        //public static ConfigEntry<bool> SeperateScrap;
         public static ConfigEntry<ScrapSortMode> ScrapSorting;
         public static ConfigEntry<bool> SortByTier;
         public static ConfigEntry<string> TierOrder;
