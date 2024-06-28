@@ -65,7 +65,7 @@ namespace LookingGlass.AutoSortItems
             SeperateScrap = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Seperate Scrap", true, "Sorts by Scrap");
             SortByTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Tier Sort", true, "Sorts by Tier");
             TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1", "How the tiers should be ordered");
-            CombineVoidTiers = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Combine Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
+            CombineVoidTiers = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
             DescendingTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Tier Sort", true, "Sorts by Tier Descending");
             SortByStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Stack Size Sort", true, "Sorts by Stack Size");
             DescendingStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Stack Size Sort", true, "Sorts by Stack Size Descending");
