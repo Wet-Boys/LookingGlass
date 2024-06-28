@@ -24,8 +24,15 @@ namespace LookingGlass.AutoSortItems
 {
     internal class AutoSortItemsClass : BaseThing
     {
+        internal enum ScrapSortMode
+        {
+            Start,
+            End,
+            Mixed
+        }
 
-        public static ConfigEntry<bool> SeperateScrap;
+        //public static ConfigEntry<bool> SeperateScrap;
+        public static ConfigEntry<ScrapSortMode> ScrapSorting;
         public static ConfigEntry<bool> SortByTier;
         public static ConfigEntry<string> TierOrder;
         public static ConfigEntry<bool> CombineVoidTiers;
@@ -59,7 +66,7 @@ namespace LookingGlass.AutoSortItems
         {
 
             instance = this;
-            SeperateScrap = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Seperate Scrap", true, "Sorts by Scrap");
+            ScrapSorting = BasePlugin.instance.Config.Bind<ScrapSortMode>("Auto Sort Items", "Scrap Sorting", ScrapSortMode.Start, "Where scrap should be sorted");
             SortByTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Tier Sort", true, "Sorts by Tier");
             TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1", "How the tiers should be ordered");
             CombineVoidTiers = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
@@ -75,7 +82,7 @@ namespace LookingGlass.AutoSortItems
             SortCommandAlphabeticalDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Command Menu Alphabetically Descending", true, "Sorts command alphabetically descending");
             SortScrapperAlphabetical = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Alphabetically", false, "Sorts Scrapper alphabetically");
             SortScrapperAlphabeticalDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Scrapper Alphabetically Descending", true, "Sorts Scrapper alphabetically descending");
-            SeperateScrap.SettingChanged += SettingsChanged;
+            ScrapSorting.SettingChanged += SettingsChanged;
             SortByTier.SettingChanged += SettingsChanged;
             TierOrder.SettingChanged += SettingsChanged;
             CombineVoidTiers.SettingChanged += SettingsChanged;
@@ -88,7 +95,7 @@ namespace LookingGlass.AutoSortItems
 
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(SeperateScrap, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new ChoiceOption(ScrapSorting, new ChoiceConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortByTier, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit}));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Descending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use descending tiers", "Set", SetDescendingTiers));
@@ -299,7 +306,7 @@ namespace LookingGlass.AutoSortItems
                     }
                     Log.Debug(Utils.DictToString(tierMatcher));
                 }
-                self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, SeperateScrap.Value, SortByTier.Value, SortByStackSize.Value, DescendingStackSize.Value);
+                self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, SortByTier.Value, SortByStackSize.Value, DescendingStackSize.Value);
             }
             catch (Exception e)
             {
@@ -382,8 +389,12 @@ namespace LookingGlass.AutoSortItems
                     (int)item)
                     + ((descendingStackSize ? -1 : 1) * (sortByStackSize ? 1 : 0) * display.itemStacks[(int)item] * 20000)).ToArray());
                 }
+                if (scrapList.Count >= 0)
+                {
+                    scrapList = scrapList.OrderBy(item => tierMatcher[ItemCatalog.GetItemDef(item).tier]).ToList();
+                }
                 int num = 0;
-                if (seperateScrap)
+                if (seperateScrap && ScrapSorting.Value == ScrapSortMode.Start)
                 {
                     for (int i = 0; i < scrapList.Count; i++)
                     {
@@ -399,6 +410,14 @@ namespace LookingGlass.AutoSortItems
                         num++;
                     }
                 }
+                if (seperateScrap && ScrapSorting.Value == ScrapSortMode.End)
+                {
+                    for (int i = 0; i < scrapList.Count; i++)
+                    {
+                        items[num] = scrapList[i];
+                        num++;
+                    }
+                }
                 for (int i = 0; i < noTierList.Count; i++)
                 {
                     items[num] = noTierList[i];
@@ -411,7 +430,14 @@ namespace LookingGlass.AutoSortItems
                 +((descendingStackSize ? -1 : 1) * (sortByStackSize ? 1 : 0) * display.itemStacks[(int)item] * 20000)).ToArray());
                 foreach (var item in scrapList)
                 {
-                    allItems.Insert(0, item);
+                    if (ScrapSorting.Value == ScrapSortMode.Start)
+                    {
+                        allItems.Insert(0, item);
+                    }
+                    else if (ScrapSorting.Value == ScrapSortMode.End)
+                    {
+                        allItems.Add(item);
+                    }
                 }
                 items = allItems.ToArray();
             }
