@@ -128,7 +128,7 @@ namespace LookingGlass.ItemStatsNameSpace
             orig(self);
             StringBuilder desc = new StringBuilder(Language.GetString(self.targetSkill.skillDescriptionToken));
 
-            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken)) desc.Append("\nProc Coefficient: <color=#a6b3bd>").Append((ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken)).ToString("0.00")).Append("</color>");
+            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken)) desc.Append("\nProc Coefficient: <style=cStack>").Append((ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
 
 
             
