@@ -1,3 +1,6 @@
+### 1.7.4
+Fixed the wording slightly in the "one more" text. Added basic proc info to abilities.
+
 ### 1.7.3
 Fixed math issue with items that have exponentially scaling cooldown reduction.
 

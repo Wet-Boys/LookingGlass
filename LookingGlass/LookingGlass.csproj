@@ -8,6 +8,10 @@
     <Product>LookingGlass</Product>
     <BepInExPluginGuid>droppod.lookingglass</BepInExPluginGuid>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.0.*">
