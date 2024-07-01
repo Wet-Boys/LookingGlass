@@ -151,6 +151,10 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         public static string GetDescription(ItemDef itemDef, ItemIndex newItemIndex, int newItemCount, CharacterMaster master, bool withOneMore)
         {
+            if (Language.GetString(itemDef.descriptionToken) == itemDef.descriptionToken)
+            {
+                return Language.GetString(itemDef.pickupToken);
+            }
             var itemDescription = $"<size={itemStatsFontSize.Value}%>{Language.GetString(itemDef.descriptionToken)}\n";
             try
             {
