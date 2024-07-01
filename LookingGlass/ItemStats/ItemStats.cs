@@ -13,6 +13,8 @@ using static RoR2.Chat;
 using System.Linq;
 using LookingGlass.StatsDisplay;
 using RoR2.Skills;
+using System.Security.Cryptography;
+using LookingGlass.ItemStatsNameSpace;
 
 namespace LookingGlass.ItemStatsNameSpace
 {
@@ -128,9 +130,69 @@ namespace LookingGlass.ItemStatsNameSpace
             // TODO Change skills description to include proc cof data
             string desc = Language.GetString(self.targetSkill.skillDescriptionToken);
 
-            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken)) desc = desc + "\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>\n";
+
+            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken)) desc = desc + "\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>";
+
+
+            desc += "\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self) + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>";
+
 
             self.tooltipProvider.overrideBodyText = desc;
+        }
+
+        float CalculateSkillCooldown(SkillIcon self)
+        {
+
+            if (self.targetSkill.skillDef.baseRechargeInterval < 0.5f)
+                return self.targetSkill.skillDef.baseRechargeInterval;
+
+            CharacterBody body = self.targetSkill.characterBody;
+
+            int itemCount = 0;
+            ItemStatsDef itemStats;
+            float scale = 1f;
+            int badLuckCount = 0;
+            float calculated_skill_cooldown;
+            foreach (var item in ItemCatalog.itemDefs)
+            {
+                if (ItemCooldownReduction.hasSkillCooldown((int)item.itemIndex))
+                {
+                    itemCount = body.inventory.GetItemCount(item.itemIndex);
+
+                    if (itemCount > 0)
+                    {
+                        int reductionValueIndex = ItemCooldownReduction.GetReductionValueIndex((int)item.itemIndex);
+                        // Both items that have non scalable skill reduction happen to have the same cooldown, it should be changed if new item with different non scalable skill reduction is added
+                        if (item.itemIndex == RoR2Content.Items.LunarBadLuck.itemIndex)
+                        {
+                            badLuckCount = itemCount;
+                            continue;
+                        }
+                        
+                        if (reductionValueIndex < 0)
+                        {
+                            scale *= 0.33f;
+                            continue;
+                        }
+
+                        if (ItemCooldownReduction.GetItemTargetSkill((int)item.itemIndex) == (int)SkillSlot.None || ItemCooldownReduction.GetItemTargetSkill((int)item.itemIndex) == (int)self.targetSkillSlot)
+                            scale *= 1 - ItemDefinitions.allItemDefinitions[(int)item.itemIndex].calculateValues(body.master, itemCount)[reductionValueIndex];
+                    }
+                }
+            }
+
+            calculated_skill_cooldown = self.targetSkill.skillDef.baseRechargeInterval * scale;
+
+            if (badLuckCount > 0)
+            {
+                calculated_skill_cooldown -= ItemDefinitions.allItemDefinitions[(int)RoR2Content.Items.LunarBadLuck.itemIndex].calculateValues(body.master, badLuckCount)[0];
+            }
+
+            if (calculated_skill_cooldown < 0.5f)
+                calculated_skill_cooldown = 0.5f;
+
+            return calculated_skill_cooldown;
+
         }
         internal static void SetDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
         {
