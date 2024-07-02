@@ -140,6 +140,7 @@ namespace LookingGlass.StatsDisplay
                 return $"{damageString}{instakillChance.ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{Run.instance.difficultyCoefficient}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("stage", cachedUserBody => { return $"{utilityString}{Language.GetString(RoR2.Stage.instance.sceneDef.nameToken)}{styleString}"; });
 
         }
     }
