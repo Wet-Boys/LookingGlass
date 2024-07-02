@@ -152,23 +152,23 @@ namespace LookingGlass.ItemStatsNameSpace
                         {
                             desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
 
-                            desc.Append((itemStats.calculateValues(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
+                            desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
 
                             if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear){
                                 desc.Append(" <style=cStack>(");
-                                desc.Append((int)Math.Ceiling(1 / itemStats.calculateValues(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
                                 desc.Append(" to cap)</style>");
                             }
 
                             if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                             {
                                 // TODO align this text to the one above
-                                desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValues(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
+                                desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
 
                                 if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
                                 {
                                     desc.Append(" <style=cStack>(");
-                                    desc.Append((int)Math.Ceiling(1 / itemStats.calculateValues(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
+                                    desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
                                     desc.Append(" to cap)</style>");
                                 }
                             }
@@ -221,7 +221,15 @@ namespace LookingGlass.ItemStatsNameSpace
                     {
                         luck = master.luck;
                     }
-                    List<float> values = itemStats.calculateValues(luck, newItemCount, 1f);
+                    List<float> values;
+                    if (itemStats.calculateValues == null)
+                    {
+                        values = itemStats.calculateValuesNew(luck, newItemCount, 1f);
+                    }
+                    else
+                    {
+                        values = itemStats.calculateValues(master, newItemCount);
+                    }
                     if (values is not null)
                     {
                         for (int i = 0; i < itemStats.descriptions.Count; i++)
