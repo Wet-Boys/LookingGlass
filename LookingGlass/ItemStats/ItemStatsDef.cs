@@ -39,16 +39,33 @@ namespace LookingGlass.ItemStatsNameSpace
             PercentHealth,
             PercentHealing
         }
+        public enum ChanceScaling
+        {
+            Linear,
+            Hyperbolic,
+            DoesNotScale
+        }
         public List<string> descriptions = new List<string>();
         public List<ValueType> valueTypes = new List<ValueType>();
         public List<MeasurementUnits> measurementUnits = new List<MeasurementUnits>();
         public Func<CharacterMaster, int, List<float>> calculateValues = null;
+        public Func<float, int, float, List<float>> calculateValuesNew = null;
+        public bool hasChance = false;
+        public ChanceScaling chanceScaling = ChanceScaling.Linear;
+
         public ItemStatsDef(List<string> descriptions, List<ValueType> valueTypes, List<MeasurementUnits> measurementUnits, Func<CharacterMaster, int, List<float>> calculateValues)
         {
             this.descriptions = descriptions;
             this.valueTypes = valueTypes;
             this.measurementUnits = measurementUnits;
             this.calculateValues = calculateValues;
+        }
+        public ItemStatsDef(List<string> descriptions, List<ValueType> valueTypes, List<MeasurementUnits> measurementUnits, Func<float, int, float, List<float>> calculateValues)
+        {
+            this.descriptions = descriptions;
+            this.valueTypes = valueTypes;
+            this.measurementUnits = measurementUnits;
+            this.calculateValuesNew = calculateValues;
         }
         public ItemStatsDef() { }
     }
