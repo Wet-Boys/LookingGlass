@@ -148,11 +148,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     if (itemCount > 0)
                     {
                         itemStats = ItemDefinitions.allItemDefinitions[(int)item.itemIndex];
-                        if (itemStats.legacyCalculateValues != null)
-                        {
-
-                        }
-                        else if (itemStats.hasChance)
+                        if (itemStats.hasChance)
                         {
                             desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
 
