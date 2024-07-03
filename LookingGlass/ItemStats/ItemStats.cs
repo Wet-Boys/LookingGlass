@@ -16,6 +16,7 @@ using RoR2.Skills;
 using System.Security.Cryptography;
 using LookingGlass.ItemStatsNameSpace;
 using Newtonsoft.Json.Utilities;
+using UnityEngine;
 
 namespace LookingGlass.ItemStatsNameSpace
 {
@@ -130,9 +131,12 @@ namespace LookingGlass.ItemStatsNameSpace
             orig(self);
             StringBuilder desc = new StringBuilder(Language.GetString(self.targetSkill.skillDescriptionToken));
 
-            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken)) 
-				desc = desc + "\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>";
-				desc += "\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self) + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>";
+            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
+            {
+                desc.Append("\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
+                desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self) + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
+            }
+
 
             if(self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                 desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
@@ -185,21 +189,20 @@ namespace LookingGlass.ItemStatsNameSpace
 
             self.tooltipProvider.overrideBodyText = desc.ToString();
         }
-
         float CalculateSkillCooldown(SkillIcon self)
         {
 
             if (self.targetSkill.skillDef.baseRechargeInterval < 0.5f)
                 return self.targetSkill.skillDef.baseRechargeInterval;
-
             CharacterBody body = self.targetSkill.characterBody;
+            CacheObtainedItems(body);
 
             int itemCount = 0;
             ItemStatsDef itemStats;
             float scale = 1f;
             int badLuckCount = 0;
             float calculated_skill_cooldown;
-            foreach (var item in ItemCatalog.itemDefs)
+            foreach (var item in cachedItems)
             {
                 if (ItemCooldownReduction.hasSkillCooldown((int)item.itemIndex))
                 {
@@ -214,15 +217,30 @@ namespace LookingGlass.ItemStatsNameSpace
                             badLuckCount = itemCount;
                             continue;
                         }
-                        
+
                         if (reductionValueIndex < 0)
                         {
                             scale *= 0.33f;
                             continue;
                         }
+                        try//gotta be honest, this works, but I'm scared of how it might work with other item mods so I'm adding a trycatch block lol
+                        {
+                            if (ItemCooldownReduction.GetItemTargetSkill((int)item.itemIndex) == (int)SkillSlot.None || ItemCooldownReduction.GetItemTargetSkill((int)item.itemIndex) == (int)self.targetSkillSlot)
+                            {
+                                if (ItemDefinitions.allItemDefinitions[(int)item.itemIndex].calculateValues == null)
+                                {
+                                    scale *= 1 - ItemDefinitions.allItemDefinitions[(int)item.itemIndex].calculateValuesNew(1, itemCount, 1)[reductionValueIndex];
+                                }
+                                else
+                                {
+                                    scale *= 1 - ItemDefinitions.allItemDefinitions[(int)item.itemIndex].calculateValues(body.master, itemCount)[reductionValueIndex];
+                                }
 
-                        if (ItemCooldownReduction.GetItemTargetSkill((int)item.itemIndex) == (int)SkillSlot.None || ItemCooldownReduction.GetItemTargetSkill((int)item.itemIndex) == (int)self.targetSkillSlot)
-                            scale *= 1 - ItemDefinitions.allItemDefinitions[(int)item.itemIndex].calculateValues(body.master, itemCount)[reductionValueIndex];
+                            }
+                        }
+                        catch (Exception)
+                        {
+                        }
                     }
                 }
             }
@@ -239,6 +257,37 @@ namespace LookingGlass.ItemStatsNameSpace
 
             return calculated_skill_cooldown;
 
+        }
+        List<ItemDef> cachedItems = new List<ItemDef>();
+        float cachingInterval = 0;
+        void CacheObtainedItems(CharacterBody body)//just trying to avoid looping through the whole catalog every frame lol
+        {
+            cachingInterval += Time.deltaTime;
+            if (cachingInterval > 5)
+            {
+                cachingInterval = 0;
+                foreach (var item in ItemCatalog.itemDefs)
+                {
+                    if (ItemCooldownReduction.hasSkillCooldown((int)item.itemIndex))
+                    {
+                        int itemCount = body.inventory.GetItemCount(item.itemIndex);
+                        if (itemCount > 0)
+                        {
+                            if (!cachedItems.Contains(item))
+                            {
+                                cachedItems.Add(item);
+                            }
+                        }
+                        else
+                        {
+                            if (cachedItems.Contains(item))
+                            {
+                                cachedItems.Remove(item);
+                            }
+                        }
+                    }
+                }
+            }
         }
         internal static void SetDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
         {
