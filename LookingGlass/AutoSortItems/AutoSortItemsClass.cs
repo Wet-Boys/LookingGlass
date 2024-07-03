@@ -303,7 +303,7 @@ namespace LookingGlass.AutoSortItems
                             itemTierLists.Add(new List<ItemIndex>());
                         }
                     }
-                    Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
+                    //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
                 }
                 self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, SortByTier.Value, SortByStackSize.Value, DescendingStackSize.Value);
             }
