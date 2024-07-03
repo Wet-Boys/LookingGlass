@@ -121,6 +121,8 @@ namespace LookingGlass.ItemStatsNameSpace
             // TODO differentiate between corrupted and normal
             skills.Add("VOIDSURVIVOR_PRIMARY_NAME", 1f);
             skills.Add("VOIDSURVIVOR_SECONDARY_NAME", 1f);
+            skills.Add("CORRUPTED_VOIDSURVIVOR_PRIMARY_NAME", 0.625f);
+            skills.Add("CORRUPTED_VOIDSURVIVOR_SECONDARY_NAME", 1f);
 
 
         }

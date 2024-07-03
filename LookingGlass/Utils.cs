@@ -1,5 +1,6 @@
 ﻿using RoR2;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace LookingGlass
@@ -52,6 +53,17 @@ namespace LookingGlass
         public static float GetBandolierStacking(int count)
         {
             return 1f - 1f / Mathf.Pow(1f + count, 0.33f);
+        }
+
+        public static string DictToString<TKey, TValue>(Dictionary<TKey, TValue> dict)
+        {
+            string s = "{\n";
+            foreach (KeyValuePair<TKey, TValue> kv in dict)
+            {
+                s += $"[{kv.Key}] = {kv.Value}\n";
+            }
+            s += "}";
+            return s;
         }
     }
 }
