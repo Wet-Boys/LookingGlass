@@ -144,6 +144,14 @@ namespace LookingGlass.CommandItemCount
                     content.overrideBodyText = stats;
                 }
             }
+            else if (isItem && corrupted)
+            {
+                string stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
+                ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(ContagiousItemManager.GetTransformedItemIndex(pickupDefinition.itemIndex));
+                stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
+                stats += Language.GetString(corruptedItemDefinition.descriptionToken);
+                content.overrideBodyText = stats;
+            }
 
             TooltipProvider tooltipProvider = parent.gameObject.AddComponent<TooltipProvider>();
 
