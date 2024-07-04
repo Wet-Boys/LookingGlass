@@ -20,6 +20,7 @@ namespace LookingGlass.CommandItemCount
     {
         private static Hook overrideHook;
         public static ConfigEntry<bool> commandItemCount;
+        public static ConfigEntry<bool> hideCountIfZero;
         public static ConfigEntry<bool> commandToolTips;
         public static ConfigEntry<bool> showCorruptedItems;
 
@@ -33,6 +34,7 @@ namespace LookingGlass.CommandItemCount
             var destMethod = typeof(CommandItemCountClass).GetMethod(nameof(PickupPickerPanel), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
             commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
+            hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, "Hides the item count if you have none of an item");
             commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
             showCorruptedItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Show Corrupted Items", true, "Shows when items have been corrupted");
             SetupRiskOfOptions();
@@ -40,8 +42,17 @@ namespace LookingGlass.CommandItemCount
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(hideCountIfZero, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckHideCountIfZero }));
             ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(showCorruptedItems, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(showCorruptedItems, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckShowCorruptedItems }));
+        }
+        private static bool CheckHideCountIfZero()
+        {
+            return !commandItemCount.Value;
+        }
+        private static bool CheckShowCorruptedItems()
+        {
+            return !(commandItemCount.Value || commandToolTips.Value);
         }
 
         //Largely copied from https://github.com/Vl4dimyr/CommandItemCount/blob/master/CommandItemCountPlugin.cs#L191
@@ -93,7 +104,7 @@ namespace LookingGlass.CommandItemCount
             hgtextMeshProUGUI.text = $"x{count}";
             if (count == 0)
             {
-                hgtextMeshProUGUI.text = $"<color=#808080>{hgtextMeshProUGUI.text}</color>";
+                hgtextMeshProUGUI.text = (hideCountIfZero.Value && !corrupted) ? "" : $"<color=#808080>{hgtextMeshProUGUI.text}</color>";
             }
             hgtextMeshProUGUI.fontSize = 18f;
             hgtextMeshProUGUI.color = Color.white;
