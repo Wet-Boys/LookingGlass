@@ -390,7 +390,14 @@ namespace LookingGlass.AutoSortItems
                 }
                 if (scrapList.Count >= 0)
                 {
-                    scrapList = scrapList.OrderBy(item => tierMatcher[ItemCatalog.GetItemDef(item).tier]).ToList();
+                    scrapList = scrapList.OrderBy(item =>
+                    {
+                        if (tierMatcher.TryGetValue(ItemCatalog.GetItemDef(item).tier, out int value))
+                        {
+                            return value;
+                        }
+                        return 999;
+                    }).ToList();
                 }
                 int num = 0;
                 if (seperateScrap && ScrapSorting.Value == ScrapSortMode.Start)
