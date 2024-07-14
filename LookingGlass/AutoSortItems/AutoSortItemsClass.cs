@@ -52,7 +52,6 @@ namespace LookingGlass.AutoSortItems
         RoR2.UI.ItemInventoryDisplay display;
         List<List<ItemIndex>> itemTierLists = new List<List<ItemIndex>>();
         List<ItemIndex> scrapList = new List<ItemIndex>();
-        List<ItemIndex> noTierList = new List<ItemIndex>();
         Dictionary<ItemTier, int> tierMatcher = new Dictionary<ItemTier, int>();
         private static Hook overrideHook;
         bool initialized = false;
@@ -67,7 +66,7 @@ namespace LookingGlass.AutoSortItems
             instance = this;
             ScrapSorting = BasePlugin.instance.Config.Bind<ScrapSortMode>("Auto Sort Items", "Scrap Sorting", ScrapSortMode.Start, "Where scrap should be sorted");
             SortByTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Tier Sort", true, "Sorts by Tier");
-            TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1", "How the tiers should be ordered");
+            TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier", "How the tiers should be ordered");
             CombineVoidTiers = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
             SortByStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Stack Size Sort", true, "Sorts by Stack Size");
             DescendingStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Stack Size Sort", true, "Sorts by Stack Size Descending");
@@ -159,7 +158,7 @@ namespace LookingGlass.AutoSortItems
             {
                 if (controller.name.Contains("Tier Order"))
                 {
-                    controller.SubmitValue("Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1");
+                    controller.SubmitValue("Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier");
                 }
             }
         }
@@ -169,7 +168,7 @@ namespace LookingGlass.AutoSortItems
             {
                 if (controller.name.Contains("Tier Order"))
                 {
-                    controller.SubmitValue("Tier1 VoidTier1 Tier2 VoidTier2 Tier3 VoidTier3 Boss VoidBoss Lunar");
+                    controller.SubmitValue("Tier1 VoidTier1 Tier2 VoidTier2 Tier3 VoidTier3 Boss VoidBoss Lunar NoTier");
                 }
             }
         }
@@ -293,15 +292,17 @@ namespace LookingGlass.AutoSortItems
                     }
                     foreach (var tierDef in RoR2.ContentManagement.ContentManager.itemTierDefs)
                     {
-                        if (tierDef.tier.ToString() == "NoTier")
-                        {
-                            noTierNum = itemTierLists.Count;
-                        }
                         if (!tierMatcher.ContainsKey(tierDef.tier)) // use default ordering for any not present in the setting
                         {
                             tierMatcher.Add(tierDef.tier, itemTierLists.Count);
                             itemTierLists.Add(new List<ItemIndex>());
                         }
+                    }
+                    // apparently this is just not in itemTierDefs? wack
+                    if (!tierMatcher.ContainsKey(ItemTier.NoTier))
+                    {
+                        tierMatcher.Add(ItemTier.NoTier, itemTierLists.Count);
+                        itemTierLists.Add(new List<ItemIndex>());
                     }
                     //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
                 }
@@ -314,8 +315,6 @@ namespace LookingGlass.AutoSortItems
             orig(self);
             self.itemOrder = temp;
         }
-
-        int noTierNum;
 
         private void SettingsChanged(object sender, EventArgs e)
         {
@@ -339,7 +338,6 @@ namespace LookingGlass.AutoSortItems
                 tierList.Clear();
             }
             scrapList.Clear();
-            noTierList.Clear();
             ItemIndex[] newArray = new ItemIndex[count];
             List<ItemIndex> allItems = new List<ItemIndex>();
             for (int i = 0; i < count; i++)
@@ -350,27 +348,20 @@ namespace LookingGlass.AutoSortItems
                 }
                 else if (sortByTier)
                 {
-                    if (ItemCatalog.GetItemDef(items[i]).tier == ItemTier.NoTier)
+                    ItemTier tier = ItemCatalog.GetItemDef(items[i]).tier;
+                    if (CombineVoidTiers.Value)
                     {
-                        noTierList.Add(items[i]);
-                    }
-                    else
-                    {
-                        ItemTier tier = ItemCatalog.GetItemDef(items[i]).tier;
-                        if (CombineVoidTiers.Value)
+                        // pretend the item is the regular version of the tier
+                        tier = tier switch
                         {
-                            // pretend the item is the regular version of the tier
-                            tier = tier switch
-                            {
-                                ItemTier.VoidBoss => ItemTier.Boss,
-                                ItemTier.VoidTier3 => ItemTier.Tier3,
-                                ItemTier.VoidTier2 => ItemTier.Tier2,
-                                ItemTier.VoidTier1 => ItemTier.Tier1,
-                                _ => tier
-                            };
-                        }
-                        itemTierLists[tierMatcher[tier]].Add(items[i]);
+                            ItemTier.VoidBoss => ItemTier.Boss,
+                            ItemTier.VoidTier3 => ItemTier.Tier3,
+                            ItemTier.VoidTier2 => ItemTier.Tier2,
+                            ItemTier.VoidTier1 => ItemTier.Tier1,
+                            _ => tier
+                        };
                     }
+                    itemTierLists[tierMatcher[tier]].Add(items[i]);
                 }
                 else
                 {
@@ -416,11 +407,6 @@ namespace LookingGlass.AutoSortItems
                         items[num] = scrapList[i];
                         num++;
                     }
-                }
-                for (int i = 0; i < noTierList.Count; i++)
-                {
-                    items[num] = noTierList[i];
-                    num++;
                 }
             }
             else
