@@ -12,6 +12,7 @@ using LookingGlass.ItemStatsNameSpace;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
+using RoR2.Items;
 
 namespace LookingGlass.CommandItemCount
 {
@@ -19,7 +20,9 @@ namespace LookingGlass.CommandItemCount
     {
         private static Hook overrideHook;
         public static ConfigEntry<bool> commandItemCount;
+        public static ConfigEntry<bool> hideCountIfZero;
         public static ConfigEntry<bool> commandToolTips;
+        public static ConfigEntry<bool> showCorruptedItems;
 
         public CommandItemCountClass()
         {
@@ -31,13 +34,25 @@ namespace LookingGlass.CommandItemCount
             var destMethod = typeof(CommandItemCountClass).GetMethod(nameof(PickupPickerPanel), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
             commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
+            hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, "Hides the item count if you have none of an item");
             commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
+            showCorruptedItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Show Corrupted Items", true, "Shows when items have been corrupted");
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(hideCountIfZero, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckHideCountIfZero }));
             ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(showCorruptedItems, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckShowCorruptedItems }));
+        }
+        private static bool CheckHideCountIfZero()
+        {
+            return !commandItemCount.Value;
+        }
+        private static bool CheckShowCorruptedItems()
+        {
+            return !(commandItemCount.Value || commandToolTips.Value);
         }
 
         //Largely copied from https://github.com/Vl4dimyr/CommandItemCount/blob/master/CommandItemCountPlugin.cs#L191
@@ -56,13 +71,27 @@ namespace LookingGlass.CommandItemCount
             {
                 ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
                 int count = inventory.GetItemCount(itemIndex);
+
+                // check for corrupted versions
+                bool corrupted = false;
+                int corruptedCount = 0;
+                if (showCorruptedItems.Value && count == 0)
+                {
+                    ItemIndex corruptedIndex = ContagiousItemManager.GetTransformedItemIndex(itemIndex);
+                    if (corruptedIndex != ItemIndex.None && inventory.GetItemCount(corruptedIndex) > 0)
+                    {
+                        corrupted = true;
+                        corruptedCount = inventory.GetItemCount(corruptedIndex);
+                    }
+                }
+
                 if (commandItemCount.Value)
-                    CreateNumber(elements[i].transform, count);
+                    CreateNumber(elements[i].transform, count, corrupted, corruptedCount);
                 if (commandToolTips.Value)
-                    CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count, withOneMore);
+                    CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count, withOneMore, corrupted, corruptedCount);
             }
         }
-        void CreateNumber(Transform parent, int count)
+        void CreateNumber(Transform parent, int count, bool corrupted = false, int corruptedCount = 0)
         {
             GameObject textContainer = new GameObject();
             textContainer.transform.parent = parent;
@@ -72,11 +101,19 @@ namespace LookingGlass.CommandItemCount
             RectTransform rectTransform = textContainer.AddComponent<RectTransform>();
             HGTextMeshProUGUI hgtextMeshProUGUI = textContainer.AddComponent<HGTextMeshProUGUI>();
 
-            hgtextMeshProUGUI.text = count != 0 ? $"x{count}" : "";
+            hgtextMeshProUGUI.text = $"x{count}";
+            if (count == 0)
+            {
+                hgtextMeshProUGUI.text = (hideCountIfZero.Value && !corrupted) ? "" : $"<color=#808080>{hgtextMeshProUGUI.text}</color>";
+            }
             hgtextMeshProUGUI.fontSize = 18f;
             hgtextMeshProUGUI.color = Color.white;
             hgtextMeshProUGUI.alignment = TMPro.TextAlignmentOptions.TopRight;
             hgtextMeshProUGUI.enableWordWrapping = false;
+            if (corrupted)
+            {
+                hgtextMeshProUGUI.text += $"\n<color=#eda3d7>x{corruptedCount}</color>";
+            }
 
             rectTransform.localPosition = Vector2.zero;
             rectTransform.anchorMin = Vector2.zero;
@@ -85,7 +122,7 @@ namespace LookingGlass.CommandItemCount
             rectTransform.sizeDelta = Vector2.zero;
             rectTransform.anchoredPosition = new Vector2(-5f, -1.5f);
         }
-        void CreateToolTip(Transform parent, PickupDef pickupDefinition, int count, bool withOneMore)
+        void CreateToolTip(Transform parent, PickupDef pickupDefinition, int count, bool withOneMore, bool corrupted = false, int corruptedCount = 0)
         {
             ItemDef itemDefinition = ItemCatalog.GetItemDef(pickupDefinition.itemIndex);
             EquipmentDef equipmentDef = EquipmentCatalog.GetEquipmentDef(pickupDefinition.equipmentIndex);
@@ -99,12 +136,32 @@ namespace LookingGlass.CommandItemCount
 
             if (isItem && ItemStats.itemStats.Value)
             {
-                string stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, count, null, withOneMore);
+                string stats;
+                if (corrupted)
+                {
+                    // intentional extra </style> tag because some items have broken descriptions *glares at titanic knurl*
+                    stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
+                    ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(ContagiousItemManager.GetTransformedItemIndex(pickupDefinition.itemIndex));
+                    stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
+                    stats += ItemStats.GetDescription(corruptedItemDefinition, corruptedItemDefinition.itemIndex, corruptedCount, null, withOneMore);
+                }
+                else
+                {
+                    stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, count, null, withOneMore);
+                }
 
                 if (stats != null)
                 {
                     content.overrideBodyText = stats;
                 }
+            }
+            else if (isItem && corrupted)
+            {
+                string stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
+                ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(ContagiousItemManager.GetTransformedItemIndex(pickupDefinition.itemIndex));
+                stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
+                stats += Language.GetString(corruptedItemDefinition.descriptionToken);
+                content.overrideBodyText = stats;
             }
 
             TooltipProvider tooltipProvider = parent.gameObject.AddComponent<TooltipProvider>();
