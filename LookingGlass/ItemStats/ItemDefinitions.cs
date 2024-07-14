@@ -53,17 +53,17 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             //Backup Magazine
-            //itemStat = new ItemStatsDef();
-            //itemStat.descriptions.Add("Skill Charges: ");
-            //itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            //itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            //itemStat.calculateValues = (luck, stackCount, procChance) =>
-            //{
-            //    List<float> values = new();
-            //    values.Add(stackCount);
-            //    return values;
-            //};
-            //allItemDefinitions.Add((int)RoR2Content.Items.SecondarySkillMagazine.itemIndex, itemStat);
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Skill Charges: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)RoR2Content.Items.SecondarySkillMagazine.itemIndex, itemStat);
 
 
             //Bison Steak
@@ -307,17 +307,17 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             //Power Elixir
-            //itemStat = new ItemStatsDef();
-            //itemStat.descriptions.Add("Charges: ");
-            //itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            //itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            //itemStat.calculateValues = (luck, stackCount, procChance) =>
-            //{
-            //    List<float> values = new();
-            //    values.Add(stackCount);
-            //    return values;
-            //};
-            //allItemDefinitions.Add((int)DLC1Content.Items.HealingPotion.itemIndex, itemStat);
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Charges: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC1Content.Items.HealingPotion.itemIndex, itemStat);
 
 
             //Repulsion Armor Plate
@@ -349,17 +349,17 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             //Rusted Key
-            //itemStat = new ItemStatsDef();
-            //itemStat.descriptions.Add("Charges: ");
-            //itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            //itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            //itemStat.calculateValues = (luck, stackCount, procChance) =>
-            //{
-            //    List<float> values = new();
-            //    values.Add(stackCount);
-            //    return values;
-            //};
-            //allItemDefinitions.Add((int)RoR2Content.Items.TreasureCache.itemIndex, itemStat);
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Charges: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)RoR2Content.Items.TreasureCache.itemIndex, itemStat);
 
 
             //Soldier's Syringe
@@ -751,17 +751,17 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             ////Regenerating Scrap
-            //itemStat = new ItemStatsDef();
-            //itemStat.descriptions.Add("Charges: ");
-            //itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            //itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            //itemStat.calculateValues = (luck, stackCount, procChance) =>
-            //{
-            //    List<float> values = new();
-            //    values.Add(stackCount);
-            //    return values;
-            //};
-            //allItemDefinitions.Add((int)ItemCatalog.FindItemIndex("RegeneratingScrap"), itemStat);
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Charges: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)ItemCatalog.FindItemIndex("RegeneratingScrap"), itemStat);
 
 
             //Rose Buckler
@@ -983,17 +983,17 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             //Bottled Chaos
-            //itemStat = new ItemStatsDef();
-            //itemStat.descriptions.Add("Random Effects: ");
-            //itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            //itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            //itemStat.calculateValues = (luck, stackCount, procChance) =>
-            //{
-            //    List<float> values = new();
-            //    values.Add(stackCount);
-            //    return values;
-            //};
-            //allItemDefinitions.Add((int)DLC1Content.Items.RandomEquipmentTrigger.itemIndex, itemStat);
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Random Effects: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC1Content.Items.RandomEquipmentTrigger.itemIndex, itemStat);
 
 
             //Brainstalks
@@ -1592,15 +1592,15 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             //Defiant Gouge
-            //itemStat = new ItemStatsDef();
-            //itemStat.descriptions.Add("Enemy Strength: ");
-            //itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            //itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            //itemStat.calculateValues = (luck, stackCount, procChance) =>
-            //{
-            //    return new List<float>([stackCount]);
-            //};
-            //allItemDefinitions.Add((int)RoR2Content.Items.MonstersOnShrineUse.itemIndex, itemStat);
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Enemy Strength: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                return new List<float>([stackCount]);
+            };
+            allItemDefinitions.Add((int)RoR2Content.Items.MonstersOnShrineUse.itemIndex, itemStat);
 
 
             //Egocentrism
@@ -1856,15 +1856,15 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             ////Encrusted Key
-            //itemStat = new ItemStatsDef();
-            //itemStat.descriptions.Add("Charges: ");
-            //itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            //itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            //itemStat.calculateValues = (luck, stackCount, procChance) =>
-            //{
-            //    return new List<float>([stackCount]);
-            //};
-            //allItemDefinitions.Add((int)DLC1Content.Items.TreasureCacheVoid.itemIndex, itemStat);
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Charges: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                return new List<float>([stackCount]);
+            };
+            allItemDefinitions.Add((int)DLC1Content.Items.TreasureCacheVoid.itemIndex, itemStat);
 
 
             //Lost Seer's Lenses
