@@ -1,3 +1,6 @@
+### 1.8.2
+Fixed default config for statsdisplay using baseDamage not damage
+
 ### 1.8.1
 Fixed item sorting bugs with Regenerating Scrap. Re-added a few "for fun" item stats that got removed. Added option to show corrupted item info in the command menu.
 
