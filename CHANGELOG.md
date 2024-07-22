@@ -1,3 +1,6 @@
+### 1.8.3
+Minor fix for pickuip descriptions on items without descriptions
+
 ### 1.8.2
 Fixed default config for statsdisplay using baseDamage not damage
 
