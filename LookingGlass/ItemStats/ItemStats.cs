@@ -110,7 +110,14 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             orig(self, itemDef);
             if (fullDescOnPickup.Value)
-                self.descriptionText.token = itemDef.descriptionToken;
+                if (Language.GetString(itemDef.descriptionToken) == itemDef.descriptionToken)
+                {
+                    self.descriptionText.token = itemDef.pickupToken;
+                }
+                else
+                {
+                    self.descriptionText.token = itemDef.descriptionToken;
+                }
         }
         void EquipmentText(Action<GenericNotification, EquipmentDef> orig, GenericNotification self, EquipmentDef equipmentDef)
         {
