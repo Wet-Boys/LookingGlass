@@ -13,16 +13,22 @@ using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RiskOfOptions;
 using RoR2.Items;
+using System.Reflection;
+using System.Linq;
 
 namespace LookingGlass.CommandItemCount
 {
     internal class CommandItemCountClass : BaseThing
     {
         private static Hook overrideHook;
+        private static Hook contagiousItemsHook;
         public static ConfigEntry<bool> commandItemCount;
         public static ConfigEntry<bool> hideCountIfZero;
         public static ConfigEntry<bool> commandToolTips;
         public static ConfigEntry<bool> showCorruptedItems;
+
+        // needs to be a list because some void items corrupt multiple items
+        private Dictionary<ItemIndex, List<ItemIndex>> transformedToOriginal;
 
         public CommandItemCountClass()
         {
@@ -30,9 +36,12 @@ namespace LookingGlass.CommandItemCount
         }
         public void Setup()
         {
-            var targetMethod = typeof(RoR2.UI.PickupPickerPanel).GetMethod(nameof(RoR2.UI.PickupPickerPanel.SetPickupOptions), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(CommandItemCountClass).GetMethod(nameof(PickupPickerPanel), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(RoR2.UI.PickupPickerPanel).GetMethod(nameof(RoR2.UI.PickupPickerPanel.SetPickupOptions), BindingFlags.Public | BindingFlags.Instance);
+            var destMethod = typeof(CommandItemCountClass).GetMethod(nameof(PickupPickerPanel), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
+            var targetMethod2 = typeof(ContagiousItemManager).GetMethod(nameof(ContagiousItemManager.InitTransformationTable), BindingFlags.NonPublic | BindingFlags.Static);
+            var destMethod2 = typeof(CommandItemCountClass).GetMethod(nameof(InitializeTransformedToOriginal), BindingFlags.NonPublic | BindingFlags.Instance);
+            contagiousItemsHook = new Hook(targetMethod2, destMethod2, this);
             commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
             hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, "Hides the item count if you have none of an item");
             commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
@@ -55,6 +64,20 @@ namespace LookingGlass.CommandItemCount
             return !(commandItemCount.Value || commandToolTips.Value);
         }
 
+        private void InitializeTransformedToOriginal(Action orig)
+        {
+            orig();
+            transformedToOriginal = new();
+            foreach(var info in ContagiousItemManager.transformationInfos)
+            {
+                if (!transformedToOriginal.TryGetValue(info.transformedItem, out List<ItemIndex> originalItemList))
+                {
+                    transformedToOriginal[info.transformedItem] = originalItemList = new();
+                }
+                originalItemList.Add(info.originalItem);
+            }
+        }
+
         //Largely copied from https://github.com/Vl4dimyr/CommandItemCount/blob/master/CommandItemCountPlugin.cs#L191
         void PickupPickerPanel(Action<PickupPickerPanel, PickupPickerController.Option[]> orig, PickupPickerPanel self, PickupPickerController.Option[] options)
         {
@@ -72,26 +95,50 @@ namespace LookingGlass.CommandItemCount
                 ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
                 int count = inventory.GetItemCount(itemIndex);
 
-                // check for corrupted versions
-                bool corrupted = false;
-                int corruptedCount = 0;
+                // check for corrupted items
+                ItemCorruptionInfo corruption = null;
                 if (showCorruptedItems.Value && count == 0)
                 {
                     ItemIndex corruptedIndex = ContagiousItemManager.GetTransformedItemIndex(itemIndex);
                     if (corruptedIndex != ItemIndex.None && inventory.GetItemCount(corruptedIndex) > 0)
                     {
-                        corrupted = true;
-                        corruptedCount = inventory.GetItemCount(corruptedIndex);
+                        corruption = new()
+                        {
+                            Type = CorruptionType.Corrupted,
+                            Items = [corruptedIndex],
+                            ItemCount = inventory.GetItemCount(corruptedIndex)
+                        };
+                    }
+                    else if (transformedToOriginal.TryGetValue(itemIndex, out var origList))
+                    {
+                        int origCount = 0;
+                        foreach (ItemIndex origIndex in origList)
+                        {
+                            origCount += inventory.GetItemCount(origIndex);
+                        }
+                        if (origCount > 0)
+                        {
+                            corruption = new()
+                            {
+                                Type = CorruptionType.Void,
+                                Items = origList,
+                                ItemCount = origCount
+                            };
+                        }
                     }
                 }
+                corruption ??= new()
+                {
+                    Type = CorruptionType.None
+                };
 
                 if (commandItemCount.Value)
-                    CreateNumber(elements[i].transform, count, corrupted, corruptedCount);
+                    CreateNumber(elements[i].transform, count, corruption);
                 if (commandToolTips.Value)
-                    CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count, withOneMore, corrupted, corruptedCount);
+                    CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count, withOneMore, corruption);
             }
         }
-        void CreateNumber(Transform parent, int count, bool corrupted = false, int corruptedCount = 0)
+        void CreateNumber(Transform parent, int count, ItemCorruptionInfo corruption)
         {
             GameObject textContainer = new GameObject();
             textContainer.transform.parent = parent;
@@ -104,15 +151,22 @@ namespace LookingGlass.CommandItemCount
             hgtextMeshProUGUI.text = $"x{count}";
             if (count == 0)
             {
-                hgtextMeshProUGUI.text = (hideCountIfZero.Value && !corrupted) ? "" : $"<color=#808080>{hgtextMeshProUGUI.text}</color>";
+                hgtextMeshProUGUI.text = (hideCountIfZero.Value && corruption.Type == CorruptionType.None) ? "" : $"<color=#808080>{hgtextMeshProUGUI.text}</color>";
             }
             hgtextMeshProUGUI.fontSize = 18f;
             hgtextMeshProUGUI.color = Color.white;
             hgtextMeshProUGUI.alignment = TMPro.TextAlignmentOptions.TopRight;
             hgtextMeshProUGUI.enableWordWrapping = false;
-            if (corrupted)
+            if (corruption.Type == CorruptionType.Corrupted)
             {
-                hgtextMeshProUGUI.text += $"\n<color=#eda3d7>x{corruptedCount}</color>";
+                hgtextMeshProUGUI.text += $"\n<color=#eda3d7>x{corruption.ItemCount}</color>";
+            }
+            else if (corruption.Type == CorruptionType.Void)
+            {
+                ItemDef itemDef = ItemCatalog.GetItemDef(corruption.Items[0]);
+                ItemTierDef itemTierDef = ItemTierCatalog.GetItemTierDef(itemDef.tier);
+                string color = ColorCatalog.GetColorHexString(itemTierDef.colorIndex);
+                hgtextMeshProUGUI.text += $"\n<color=#{color}>x{corruption.ItemCount}</color>";
             }
 
             rectTransform.localPosition = Vector2.zero;
@@ -122,7 +176,7 @@ namespace LookingGlass.CommandItemCount
             rectTransform.sizeDelta = Vector2.zero;
             rectTransform.anchoredPosition = new Vector2(-5f, -1.5f);
         }
-        void CreateToolTip(Transform parent, PickupDef pickupDefinition, int count, bool withOneMore, bool corrupted = false, int corruptedCount = 0)
+        void CreateToolTip(Transform parent, PickupDef pickupDefinition, int count, bool withOneMore, ItemCorruptionInfo corruption)
         {
             ItemDef itemDefinition = ItemCatalog.GetItemDef(pickupDefinition.itemIndex);
             EquipmentDef equipmentDef = EquipmentCatalog.GetEquipmentDef(pickupDefinition.equipmentIndex);
@@ -137,13 +191,17 @@ namespace LookingGlass.CommandItemCount
             if (isItem && ItemStats.itemStats.Value)
             {
                 string stats;
-                if (corrupted)
+                if (corruption.Type == CorruptionType.Corrupted)
                 {
                     // intentional extra </style> tag because some items have broken descriptions *glares at titanic knurl*
                     stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
-                    ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(ContagiousItemManager.GetTransformedItemIndex(pickupDefinition.itemIndex));
+                    ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(corruption.Items[0]);
                     stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
-                    stats += ItemStats.GetDescription(corruptedItemDefinition, corruptedItemDefinition.itemIndex, corruptedCount, null, withOneMore);
+                    stats += ItemStats.GetDescription(corruptedItemDefinition, corruptedItemDefinition.itemIndex, corruption.ItemCount, null, withOneMore);
+                }
+                else if (corruption.Type == CorruptionType.Void)
+                {
+                    stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, corruption.ItemCount, null, withOneMore);
                 }
                 else
                 {
@@ -155,10 +213,10 @@ namespace LookingGlass.CommandItemCount
                     content.overrideBodyText = stats;
                 }
             }
-            else if (isItem && corrupted)
+            else if (isItem && corruption.Type == CorruptionType.Corrupted)
             {
                 string stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
-                ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(ContagiousItemManager.GetTransformedItemIndex(pickupDefinition.itemIndex));
+                ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(corruption.Items[0]);
                 stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
                 stats += Language.GetString(corruptedItemDefinition.descriptionToken);
                 content.overrideBodyText = stats;
