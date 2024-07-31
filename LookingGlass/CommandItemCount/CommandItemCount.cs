@@ -201,7 +201,7 @@ namespace LookingGlass.CommandItemCount
                 }
                 else if (corruption.Type == CorruptionType.Void)
                 {
-                    stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, corruption.ItemCount, null, withOneMore);
+                    stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, corruption.ItemCount, null, withOneMore, true);
                 }
                 else
                 {
