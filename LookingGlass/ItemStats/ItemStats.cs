@@ -313,7 +313,8 @@ namespace LookingGlass.ItemStatsNameSpace
                 self.tooltipProvider.overrideBodyText = GetDescription(itemDef, newItemIndex, newItemCount, master, false);
             }
         }
-        public static string GetDescription(ItemDef itemDef, ItemIndex newItemIndex, int newItemCount, CharacterMaster master, bool withOneMore)
+        public static string GetDescription(
+            ItemDef itemDef, ItemIndex newItemIndex, int newItemCount, CharacterMaster master, bool withOneMore, bool forceNew = false)
         {
             if (Language.GetString(itemDef.descriptionToken) == itemDef.descriptionToken)
             {
@@ -327,7 +328,14 @@ namespace LookingGlass.ItemStatsNameSpace
                     ItemStatsDef itemStats = ItemDefinitions.allItemDefinitions[(int)newItemIndex];
                     if (withOneMore && itemStats.descriptions.Count != 0)
                     {
-                        itemDescription += $"\nWith one more stack, you will have:";
+                        if (newItemCount == 0 || forceNew)
+                        {
+                            itemDescription += $"\nWith this item, you will have:";
+                        }
+                        else
+                        {
+                            itemDescription += $"\nWith another stack, you will have:";
+                        }
                         newItemCount++;
                     }
                     if (master == null)
