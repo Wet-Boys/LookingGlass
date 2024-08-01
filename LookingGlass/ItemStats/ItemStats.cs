@@ -256,7 +256,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             if (badLuckCount > 0)
             {
-                calculated_skill_cooldown -= ItemDefinitions.allItemDefinitions[(int)RoR2Content.Items.LunarBadLuck.itemIndex].calculateValues(body.master, badLuckCount)[0];
+                calculated_skill_cooldown -= ItemDefinitions.allItemDefinitions[(int)RoR2Content.Items.LunarBadLuck.itemIndex].calculateValuesNew(0, badLuckCount, 1)[0];
             }
 
             if (calculated_skill_cooldown < 0.5f)
