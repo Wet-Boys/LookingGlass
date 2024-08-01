@@ -1,3 +1,6 @@
+### 1.8.4
+Added setting to uncap crit chance. Fixed Purity cooldown calculations being broken. Void item pickers have clearer text. 
+
 ### 1.8.3
 Minor fix for pickuip descriptions on items without descriptions
 
