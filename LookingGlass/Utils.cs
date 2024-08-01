@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using LookingGlass.ItemStatsNameSpace;
+using RoR2;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,12 +18,17 @@ namespace LookingGlass
 
         public static float CalculateChanceWithLuck(float baseChance, float luckIn)
         {
-            baseChance = Mathf.Min(baseChance, 1);
+            if (ItemStats.capChancePercentage.Value)
+            {
+                baseChance = Mathf.Min(baseChance, 1);
+            }
+            float chanceFloored = Mathf.Floor(baseChance);
+            float chanceMod = baseChance % 1f;
             int luck = Mathf.CeilToInt(luckIn);
             if (luck > 0)
-                return 1f - Mathf.Pow(1f - baseChance, luck + 1);
+                return chanceFloored + (1f - Mathf.Pow(1f - chanceMod, luck + 1));
             if (luck < 0)
-                return Mathf.Pow(baseChance, Mathf.Abs(luck) + 1);
+                return chanceFloored + Mathf.Pow(chanceMod, Mathf.Abs(luck) + 1);
 
             return baseChance;
         }

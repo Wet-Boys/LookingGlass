@@ -27,6 +27,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public static ConfigEntry<bool> fullDescOnPickup;
         public static ConfigEntry<bool> itemStatsOnPing;
         public static ConfigEntry<float> itemStatsFontSize;
+        public static ConfigEntry<bool> capChancePercentage;
 
         private static Hook overrideHook;
         private static Hook overrideHook2;
@@ -45,6 +46,7 @@ namespace LookingGlass.ItemStatsNameSpace
             fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", true, "Shows full item descriptions on pickup");
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world");
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
+            capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, "Caps displayed chances at 100%. May interact weirdly with luck if turned off");
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
@@ -54,6 +56,7 @@ namespace LookingGlass.ItemStatsNameSpace
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
+            ModSettingsManager.AddOption(new CheckBoxOption(capChancePercentage, new CheckBoxConfig() { restartRequired = false }));
         }
         private static bool ItemStatsDisabled()
         {
