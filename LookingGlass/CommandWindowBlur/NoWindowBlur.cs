@@ -51,9 +51,10 @@ namespace LookingGlass.CommandWindowBlur
                     BasePlugin.instance.autoSortItems.SortPickupPicker(self.options, elements, inventory, self.name.StartsWith("CommandCube"), self.panelInstanceController);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Log.Debug($"couldn't sort items: {e}");
+                Log.Debug($"couldn't sort items");
+                return;
             }
             TranslucentImage t = self.panelInstance.gameObject.GetComponentInChildren<TranslucentImage>();
             if (t is not null)

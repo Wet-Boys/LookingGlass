@@ -1,3 +1,6 @@
+### 1.8.5
+Fixed issue with CommandQueue (probably)
+
 ### 1.8.4
 Added setting to uncap crit chance. Fixed Purity cooldown calculations being broken. Void item pickers have clearer text. 
 
