@@ -1,3 +1,6 @@
+### 1.9.0
+Quick fix for Seekers of the Storm, minor visual issues but it functions.
+
 ### 1.8.5
 Fixed issue with CommandQueue (probably)
 
