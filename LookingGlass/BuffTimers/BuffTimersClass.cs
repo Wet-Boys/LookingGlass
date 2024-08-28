@@ -29,7 +29,7 @@ namespace LookingGlass.BuffTimers
         }
         public void Setup()
         {
-            var targetMethod = typeof(BuffDisplay).GetMethod(nameof(BuffDisplay.UpdateLayout), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(BuffDisplay).GetMethod(nameof(BuffDisplay.UpdateLayout), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(BuffTimersClass).GetMethod(nameof(UpdateLayout), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
             buffTimers = BasePlugin.instance.Config.Bind<bool>("Misc", "Buff Timers", true, "Enables buff timers. These are not networked in the base game, please install NetworkedTimedBuffs if you want clients to see them aswell.");
@@ -47,13 +47,13 @@ namespace LookingGlass.BuffTimers
             orig(self);
             if (self.source && StatsDisplayClass.cachedUserBody && buffTimers.Value)
             {
-                foreach (var buffIcon in self.buffIcons)
+                foreach (var buffIcon in self.buffIconDisplayData)
                 {
                     foreach (var timedBuff in StatsDisplayClass.cachedUserBody.timedBuffs)
                     {
                         if (timedBuff.buffIndex == buffIcon.buffDef.buffIndex)
                         {
-                            TextMeshProUGUI item = buffIcon.transform.GetComponentInChildren<TextMeshProUGUI>();
+                            TextMeshProUGUI item = buffIcon.buffIconComponent.GetComponentInChildren<TextMeshProUGUI>();
                             item.enabled = true;
                             item.text = $"<size={buffTimersFontSize.Value}%>{(timedBuff.timer):0.0}</size>\n";
                             if (buffIcon.buffCount > 1)

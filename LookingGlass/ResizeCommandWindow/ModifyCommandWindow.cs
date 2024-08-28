@@ -11,7 +11,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using RoR2.UI;
 using System.Collections;
-using Newtonsoft.Json.Linq;
 
 namespace LookingGlass.ResizeCommandWindow
 {

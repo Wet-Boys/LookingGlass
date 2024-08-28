@@ -15,7 +15,6 @@ using LookingGlass.StatsDisplay;
 using RoR2.Skills;
 using System.Security.Cryptography;
 using LookingGlass.ItemStatsNameSpace;
-using Newtonsoft.Json.Utilities;
 using UnityEngine;
 
 namespace LookingGlass.ItemStatsNameSpace
@@ -157,7 +156,7 @@ namespace LookingGlass.ItemStatsNameSpace
             
             int itemCount = 0;
             ItemStatsDef itemStats;
-            foreach (var item in ItemCatalog.itemDefs)
+            foreach (var item in ItemCatalog.allItemDefs)
             {
                 if (ItemDefinitions.allItemDefinitions.ContainsKey((int)item.itemIndex))
                 {
@@ -276,7 +275,7 @@ namespace LookingGlass.ItemStatsNameSpace
             if (cachingInterval > 5)
             {
                 cachingInterval = 0;
-                foreach (var item in ItemCatalog.itemDefs)
+                foreach (var item in ItemCatalog.allItemDefs)
                 {
                     if (ItemCooldownReduction.hasSkillCooldown((int)item.itemIndex))
                     {
