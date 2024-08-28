@@ -1,7 +1,7 @@
 <Project>
   <ItemGroup>
     <!-- You can add additional files to deploy with another <FilesToDeploy> tag, you should probably leave this one alone though... -->
-    <FilesToDeploy Include="$(ProjectDir)/bin/Debug/netstandard2.0/LookingGlass.dll;$(ProjectDir)/bin/Debug/netstandard2.0/LookingGlass.pdb" />
+    <FilesToDeploy Include="$(ProjectDir)/bin/Debug/netstandard2.1/LookingGlass.dll;$(ProjectDir)/bin/Debug/netstandard2.1/LookingGlass.pdb" />
     
     <!-- Add as many <DeployDirs> entries as you need, replacing what's inside of Include="..." with the path you want to deploy to -->
     <DeployDirs Include="" />

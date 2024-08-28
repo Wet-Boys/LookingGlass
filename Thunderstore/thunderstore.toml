@@ -21,11 +21,11 @@ readme = "../README.md"
 outdir = "../dist"
 
 [[build.copy]]
-source = "../LookingGlass/bin/Release/netstandard2.0/LookingGlass.dll"
+source = "../LookingGlass/bin/Release/netstandard2.1/LookingGlass.dll"
 target = "plugins/LookingGlass/"
 
 [[build.copy]]
-source = "../LookingGlass/bin/Release/netstandard2.0/LookingGlass.pdb"
+source = "../LookingGlass/bin/Release/netstandard2.1/LookingGlass.pdb"
 target = "plugins/LookingGlass/"
 
 [[build.copy]]
