@@ -863,7 +863,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                var buffCount = master.GetBody()?.GetBuffCount(DLC2Content.Buffs.IncreasePrimaryDamageBuff) ?? 0;
+                var buffCount = master.GetBody()?.GetBuffCount(DLC2Content.Buffs.ExtraStatsOnLevelUpBuff) ?? 0;
                 values.Add(0.15f + 0.05f * stackCount);
                 values.Add(buffCount * (0.2f + 0.05f * (stackCount - 1)));
                 return values;
