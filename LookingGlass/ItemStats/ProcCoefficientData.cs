@@ -123,8 +123,20 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("VOIDSURVIVOR_SECONDARY_NAME", 1f);
             skills.Add("CORRUPTED_VOIDSURVIVOR_PRIMARY_NAME", 0.625f);
             skills.Add("CORRUPTED_VOIDSURVIVOR_SECONDARY_NAME", 1f);
-
-
+            
+            // Seeker
+            skills.Add("SEEKER_PRIMARY_NAME", 1f);
+            skills.Add("SEEKER_PRIMARY_ALT1_NAME", 1f);
+            
+            // False son
+            skills.Add("FALSESON_PRIMARY_NAME", 1f);
+            skills.Add("FALSESON_SECONDARY_NAME", 1f);
+            skills.Add("FALSESON_UTILITY_NAME", 0.5f);
+            skills.Add("FALSESON_SPECIAL_NAME", 0.45f);
+            skills.Add("FALSESON_SPECIAL_ALT1_NAME", 0.5f);
+            
+            // Chef
+            skills.Add("CHEF_SECONDARY_NAME", 0.6f);
         }
     }
 }
