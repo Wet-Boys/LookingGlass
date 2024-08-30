@@ -775,26 +775,30 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //Luminous Shot
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Bonus Damage: ");
+            itemStat.descriptions.Add("Bonus Damage per Buff: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Bonus Exp On Kill Per Buff: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Max Charges: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Current Bonus Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             // Note : You get bonus xp if your luminous shot does a kill, this is never mentioned
-            itemStat.descriptions.Add("Bonus Exp: ");
+            itemStat.descriptions.Add("Current Bonus Exp On Kill: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                var buffCount = master.GetBody()?.GetBuffCount(DLC2Content.Buffs.IncreasePrimaryDamageBuff) ?? 1;
-                if (buffCount < 1)
-                {
-                    buffCount = 1;
-                }
-                values.Add(1.25f + 0.25f * stackCount * buffCount);
+                var buffCount = master.GetBody()?.GetBuffCount(DLC2Content.Buffs.IncreasePrimaryDamageBuff) ?? 0;
+                values.Add(1.25f + 0.25f * stackCount);
+                values.Add(0.1f * stackCount);
                 values.Add(4 + stackCount);
+                values.Add((1.25f + 0.25f * stackCount) * buffCount);
                 values.Add(0.1f * stackCount * buffCount);
                 return values;
             };
