@@ -161,7 +161,7 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //Chronic Expansion
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Bonus Damage Per 5 Enemy: ");
+            itemStat.descriptions.Add("Bonus Damage Per 5 Enemies: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -263,7 +263,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(Utils.CalculateChanceWithLuck(0.075f * stackCount * procChance, luck));
+                values.Add(Utils.GetHyperbolicStacking(0.075f, 0.075f, stackCount));
                 const float mass = 1.0f; // Note : figure out a better mass ?
                 // Speed vector, applied directly up, also half of it applied towards where player is looking
                 values.Add(mass * 20 + mass / 10 * (stackCount - 1)); 
