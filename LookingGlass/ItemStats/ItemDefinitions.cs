@@ -37,7 +37,26 @@ namespace LookingGlass.ItemStatsNameSpace
             };
             allItemDefinitions.Add((int)RoR2Content.Items.Bear.itemIndex, itemStat);
 
+            
+            //Antler Shield
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Reflect Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Reflect Amount: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                // Note : item description is slightly wrong
+                values.Add(Utils.CalculateChanceWithLuck(0.5f + 0.05f * (stackCount - 1), luck));
+                values.Add(0.1f * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.NegateAttack.itemIndex, itemStat);
 
+            
             //Armor-Piercing Rounds
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Bonus Damage: ");
@@ -79,7 +98,21 @@ namespace LookingGlass.ItemStatsNameSpace
             };
             allItemDefinitions.Add((int)RoR2Content.Items.FlatHealth.itemIndex, itemStat);
 
-
+            
+            //Bolstering Lantern
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Bonus Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(0.2f * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.LowerHealthHigherDamage.itemIndex, itemStat);
+            
+            
             //Bundle of Fireworks
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Fireworks: ");
@@ -124,6 +157,21 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.HealWhileSafe.itemIndex, itemStat);
+            
+            
+            //Chronic Expansion
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Bonus Damage Per 5 Enemies: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                // Note : item description slightly wrong, 6% base
+                values.Add(0.01f + 0.05f * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.IncreaseDamageOnMultiKill.itemIndex, itemStat);
 
 
             //Crowbar
@@ -203,7 +251,27 @@ namespace LookingGlass.ItemStatsNameSpace
             };
             allItemDefinitions.Add((int)RoR2Content.Items.IgniteOnKill.itemIndex, itemStat);
 
-
+            
+            //Knockback Fin
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Knock Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Knock Height: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(Utils.GetHyperbolicStacking(0.075f, 0.075f, stackCount));
+                const float mass = 1.0f; // Note : figure out a better mass ?
+                // Speed vector, applied directly up, also half of it applied towards where player is looking
+                values.Add(mass * 20 + mass / 10 * (stackCount - 1)); 
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.KnockBackHitEnemies.itemIndex, itemStat);
+            
+            
             //Lens-Maker's Glasses
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Crit Chance: ");
@@ -448,6 +516,20 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.WardOnLevel.itemIndex, itemStat);
+            
+            
+            //Warped echo
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Damage Instances: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.DelayedDamage.itemIndex, itemStat);
 
 
             // ---------- Green Items --------------------------------------------------------------------------------
@@ -498,6 +580,21 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.WarCryOnMultiKill.itemIndex, itemStat);
+            
+            
+            //Chance doll
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Item Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Shrine);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                // Note : item definition is wrong
+                values.Add(Utils.CalculateChanceWithLuck(0.3f + 0.1f * stackCount, luck));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.ExtraShrineItem.itemIndex, itemStat);
 
 
             //Chronobauble
@@ -674,6 +771,61 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.TPHealingNova.itemIndex, itemStat);
+            
+            
+            //Luminous Shot
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Bonus Damage per Buff: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Bonus Exp On Kill Per Buff: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Max Charges: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Current Bonus Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            // Note : You get bonus xp if your luminous shot does a kill, this is never mentioned
+            itemStat.descriptions.Add("Current Bonus Exp On Kill: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValues = (master, stackCount) =>
+            {
+                List<float> values = new();
+                var buffCount = master.GetBody()?.GetBuffCount(DLC2Content.Buffs.IncreasePrimaryDamageBuff) ?? 0;
+                values.Add(1.25f + 0.25f * stackCount);
+                values.Add(0.1f * stackCount);
+                values.Add(4 + stackCount);
+                values.Add((1.25f + 0.25f * stackCount) * buffCount);
+                values.Add(0.1f * stackCount * buffCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.IncreasePrimaryDamage.itemIndex, itemStat);
+            
+            
+            // Noxious Thorn
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Bleed Stacks: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Debuff Stacks: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                // NOTE ! not luck affected !
+                values.Add(0.25f);
+                values.Add(1 + stackCount);
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.TriggerEnemyDebuffs.itemIndex, itemStat);
 
 
             //Old Guillotine
@@ -704,6 +856,25 @@ namespace LookingGlass.ItemStatsNameSpace
             allItemDefinitions.Add((int)RoR2Content.Items.Phasing.itemIndex, itemStat);
 
 
+            //Prayer Beads
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Percent Stored Per Level: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Currently stored: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValues = (master, stackCount) =>
+            {
+                List<float> values = new();
+                var buffCount = master.GetBody()?.GetBuffCount(DLC2Content.Buffs.ExtraStatsOnLevelUpBuff) ?? 0;
+                values.Add(0.15f + 0.05f * stackCount);
+                values.Add(buffCount * (0.2f + 0.05f * (stackCount - 1)));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.ExtraStatsOnLevelUp.itemIndex, itemStat);
+            
+            
             //Predatory Instincts
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Max Attack Speed: ");
@@ -794,6 +965,57 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.IceRing.itemIndex, itemStat);
+            
+            
+            //Sale star
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("2 Items Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("3 Items Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("4 Items Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("5 Items Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.chanceScaling = ItemStatsDef.ChanceScaling.Hyperbolic;
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                // note : item definition is VERY wrong
+                List<float> values = new();
+                if (stackCount == 1)
+                {
+                    values.Add(1f);
+                    values.Add(0);
+                    values.Add(0);
+                    values.Add(0);
+                }
+                else
+                {
+                    float val;
+                    if (stackCount == 2)
+                    {
+                        val = 0; // Special case in code
+                    }
+                    else
+                    {
+                        val = Utils.GetHyperbolicStacking(0.05f, 0.05f, stackCount);
+                    }
+                    // 30% loss
+                    values.Add(1 - Mathf.Min(Utils.CalculateChanceWithLuck(0.3f + val, luck), 1));
+                    // 30% Win, 15% loss
+                    values.Add(Mathf.Min(Utils.CalculateChanceWithLuck(0.3f + val, luck), 1) * (1 - Mathf.Min(Utils.CalculateChanceWithLuck(0.15f + val, luck), 1)));
+                    // 30% Win, 15% win, 1% loss
+                    values.Add(Utils.CalculateChanceWithLuck(0.3f + val, luck) * Utils.CalculateChanceWithLuck(0.15f + val, luck) * (1 - Utils.CalculateChanceWithLuck(0.01f + val, luck)));
+                    // 30% Win, 15% win, 1% win
+                    values.Add(Utils.CalculateChanceWithLuck(0.3f + val, luck) * Utils.CalculateChanceWithLuck(0.15f + val, luck) * Utils.CalculateChanceWithLuck(0.01f + val, luck));
+                }
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.LowerPricedChests.itemIndex, itemStat);
 
 
             //Shipping Request Form
@@ -876,6 +1098,25 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.ChainLightning.itemIndex, itemStat);
+            
+            
+            //Unstable Transmitter
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Explosion Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Cooldown: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(3.5f * stackCount);
+                // note : Slightly different from item description, 20% cooldown reduction, can't go lower than 15s
+                values.Add(Mathf.Max(120 - 120 * ((stackCount - 1) * 0.2f), 15f));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.TeleportOnLowHealth.itemIndex, itemStat);
 
 
             //War Horn
@@ -1064,6 +1305,24 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.ExtraLife.itemIndex, itemStat);
+            
+            
+            //Electric Boomerang
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(Utils.CalculateChanceWithLuck(0.15f * procChance, luck));
+                values.Add(0.3f * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.StunAndPierce.itemIndex, itemStat);
 
 
             //Frost Relic
@@ -1078,6 +1337,26 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.Icicle.itemIndex, itemStat);
+            
+            
+            //Growth Nectar
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Bonus stats: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            // note ! not in the item's description
+            itemStat.descriptions.Add("Trigger chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(0.2f * stackCount);
+                // Unaffected by luck
+                values.Add(MathF.Min(0.25f + 0.1f * (stackCount - 1), 0.5f));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.BoostAllStats.itemIndex, itemStat);
 
 
             //H3AD-5T v2
@@ -1212,6 +1491,27 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.LaserTurbine.itemIndex, itemStat);
+            
+            
+            //Runic lens
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                // Note : also affected by attack damage
+                // Note : maxes out at 50% before luck and proc chance
+                values.Add(Utils.CalculateChanceWithLuck(MathF.Min(0.05f + stackCount * 0.01f, 0.5f) * procChance, luck));
+                // Maxes out at 7500%
+                values.Add(MathF.Min(20f + 0.5f * stackCount, 75f));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.MeteorAttackOnHighDamage.itemIndex, itemStat);
 
 
             //Sentient Meat Hook
@@ -1245,8 +1545,27 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.ArmorReductionOnHit.itemIndex, itemStat);
+            
+                        
+            //Sonorous Whispers
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Large Monster Drop Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Elite Drop Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                // Note ! it is calculated with luck, cannot trigger more than once
+                values.Add(Mathf.Min(Utils.CalculateChanceWithLuck(1f, luck), 1f));
+                values.Add(Utils.CalculateChanceWithLuck(0.1f + 0.05f * stackCount, luck));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.ResetChests.itemIndex, itemStat);
 
-
+            
             //Soulbound Catalyst
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Cooldown Reduction: ");
@@ -1315,6 +1634,21 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.HeadHunter.itemIndex, itemStat);
+            
+            
+            //War Bonds
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Gold: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValues = (master, stackCount) =>
+            {
+                List<float> values = new();
+                var level = master.GetBody()?.level ?? 1;
+                values.Add(Run.instance.GetDifficultyScaledCost((int) (50f + 1.5f * stackCount * level)));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.GoldOnStageStart.itemIndex, itemStat);
 
 
             // ---------- Boss Items --------------------------------------------------------------------------------
