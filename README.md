@@ -73,11 +73,12 @@ A fully open source UI mod, compatible with RiskUI
 - https://github.com/Moffein/ItemStats
 - https://github.com/Vl4dimyr/CommandItemCount for being great open source projects to use as reference material/code
 
-(discord tags)
-- @github.com: icon
-- @rune: coding
-- @nunchuk: coding
+
+- @github.com (discord tag): icon
+- @rune (discord tag): coding
+- @nunchuk (discord tag): coding
 - SSM240 (github tag): coding 
 - yuukotf2 (github tag): coding
 - shirograhm (github tag): coding
 - Warmek (github tag): coding
+- timoreo22 (github tag): coding

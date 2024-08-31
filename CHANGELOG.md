@@ -1,3 +1,6 @@
+### 1.9.1
+Huge thanks to timoreo22 for doing the research for the new item descriptions. Yes a lot of them don't match the in-game description, blame Gearbox for not writing good descriptions I guess.
+
 ### 1.9.0
 Quick fix for Seekers of the Storm, minor visual issues but it functions.
 
