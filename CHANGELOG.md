@@ -1,3 +1,6 @@
+### 1.9.3
+Fixed typo with razorwire
+
 ### 1.9.2
 Added config option to disable ability proc coefficients. fixed currentCombatKills showing currentCombatDamage.
 
