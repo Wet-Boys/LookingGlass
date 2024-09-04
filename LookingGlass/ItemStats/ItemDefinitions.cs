@@ -896,7 +896,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
