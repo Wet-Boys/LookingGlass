@@ -27,6 +27,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public static ConfigEntry<bool> itemStatsOnPing;
         public static ConfigEntry<float> itemStatsFontSize;
         public static ConfigEntry<bool> capChancePercentage;
+        public static ConfigEntry<bool> abilityProcCoefficients;
 
         private static Hook overrideHook;
         private static Hook overrideHook2;
@@ -46,6 +47,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world");
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
             capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, "Caps displayed chances at 100%. May interact weirdly with luck if turned off");
+            abilityProcCoefficients = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Proc Coefficients", true, "Shows ability proc coefficients on supported survivors");
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
@@ -56,6 +58,7 @@ namespace LookingGlass.ItemStatsNameSpace
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
             ModSettingsManager.AddOption(new CheckBoxOption(capChancePercentage, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(abilityProcCoefficients, new CheckBoxConfig() { restartRequired = false }));
         }
         private static bool ItemStatsDisabled()
         {
@@ -140,59 +143,64 @@ namespace LookingGlass.ItemStatsNameSpace
             orig(self);
             StringBuilder desc = new StringBuilder(Language.GetString(self.targetSkill.skillDescriptionToken));
 
-            if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
+            if (abilityProcCoefficients.Value)
             {
-                desc.Append("\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
-                desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self) + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
-            }
-
-
-            if(self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
-                desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
-
-
-
-            CharacterBody body = self.targetSkill.characterBody;
-            
-            int itemCount = 0;
-            ItemStatsDef itemStats;
-            foreach (var item in ItemCatalog.allItemDefs)
-            {
-                if (ItemDefinitions.allItemDefinitions.ContainsKey((int)item.itemIndex))
+                if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
                 {
-                    itemCount = body.inventory.GetItemCount(item.itemIndex);
-                    if (itemCount > 0)
+                    desc.Append("\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
+                    desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self) + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
+                }
+
+
+                if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                    desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
+
+
+
+                CharacterBody body = self.targetSkill.characterBody;
+
+                int itemCount = 0;
+                ItemStatsDef itemStats;
+                foreach (var item in ItemCatalog.allItemDefs)
+                {
+                    if (ItemDefinitions.allItemDefinitions.ContainsKey((int)item.itemIndex))
                     {
-                        itemStats = ItemDefinitions.allItemDefinitions[(int)item.itemIndex];
-                        if (itemStats.hasChance)
+                        itemCount = body.inventory.GetItemCount(item.itemIndex);
+                        if (itemCount > 0)
                         {
-                            desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
-
-                            desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
-
-                            if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear){
-                                desc.Append(" <style=cStack>(");
-                                desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
-                                desc.Append(" to cap)</style>");
-                            }
-
-                            if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                            itemStats = ItemDefinitions.allItemDefinitions[(int)item.itemIndex];
+                            if (itemStats.hasChance)
                             {
-                                // TODO align this text to the one above
-                                desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
+                                desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
+
+                                desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
 
                                 if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
                                 {
                                     desc.Append(" <style=cStack>(");
-                                    desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
+                                    desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
                                     desc.Append(" to cap)</style>");
+                                }
+
+                                if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                                {
+                                    // TODO align this text to the one above
+                                    desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
+
+                                    if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
+                                    {
+                                        desc.Append(" <style=cStack>(");
+                                        desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
+                                        desc.Append(" to cap)</style>");
+                                    }
                                 }
                             }
                         }
                     }
+
                 }
-                
             }
+            
 
 
 
