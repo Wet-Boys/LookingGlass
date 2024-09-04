@@ -893,10 +893,10 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Targets: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Radius: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
