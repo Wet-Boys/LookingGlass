@@ -1,3 +1,6 @@
+### 1.9.4
+Fixed issue with "Input Disables Command Prompt" not working
+
 ### 1.9.3
 Fixed typo with razorwire
 
