@@ -38,19 +38,20 @@ namespace LookingGlass.EscapeToCloseMenu
         {
             if (turnOffCommandMenu.Value)
             {
-                foreach (var item in self.panelInstance.GetComponentsInChildren<HGButton>())
-                {
-                    if (item.name.Equals("CancelButton"))
-                    {
-                        BasePlugin.instance.StartCoroutine(AddToArrayAfterFrame(item));
-                    }
-                }
+                BasePlugin.instance.StartCoroutine(AddToArrayAfterFrame(self));
             }
         }
-        IEnumerator AddToArrayAfterFrame(HGButton button)
+        IEnumerator AddToArrayAfterFrame(PickupPickerController self)
         {
             yield return new WaitForEndOfFrame();
-            buttonsToClickOnMove.Add(button);
+            yield return new WaitForEndOfFrame();
+            foreach (var item in self.panelInstance.GetComponentsInChildren<HGButton>())
+            {
+                if (item.name.Equals("CancelButton"))
+                {
+                    buttonsToClickOnMove.Add(item);
+                }
+            }
         }
         public static void CloseMenuAfterFrame()
         {
