@@ -56,8 +56,6 @@ A fully open source UI mod, compatible with RiskUI
 
 # Planned features
 
-- Ability proc calculations
-
 - More customization for the Stats Display menu
 
 # Have an issue/suggestion or want to contribute?

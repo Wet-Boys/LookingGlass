@@ -1,3 +1,6 @@
+### 1.9.5
+Fixed proc coefficient for MUL-T. Finished adding them for the new survivors.
+
 ### 1.9.4
 Fixed issue with "Input Disables Command Prompt" not working
 
