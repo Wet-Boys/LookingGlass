@@ -148,7 +148,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
                 {
                     desc.Append("\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
-                    desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self) + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
+                    desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
                 }
 
 
@@ -200,74 +200,15 @@ namespace LookingGlass.ItemStatsNameSpace
 
                 }
             }
-            
-
-
-
             self.tooltipProvider.overrideBodyText = desc.ToString();
         }
+
         float CalculateSkillCooldown(SkillIcon self)
         {
-
             if (self.targetSkill.skillDef.baseRechargeInterval < 0.5f)
                 return self.targetSkill.skillDef.baseRechargeInterval;
-            CharacterBody body = self.targetSkill.characterBody;
-            CacheObtainedItems(body);
 
-            int itemCount = 0;
-            ItemStatsDef itemStats;
-            float scale = 1f;
-            int badLuckCount = 0;
-            float calculated_skill_cooldown;
-            foreach (var item in cachedItems)
-            {
-                if (ItemCooldownReduction.hasSkillCooldown((int)item.itemIndex))
-                {
-                    itemCount = body.inventory.GetItemCount(item.itemIndex);
-
-                    if (itemCount > 0)
-                    {
-                        int reductionValueIndex = ItemCooldownReduction.GetReductionValueIndex((int)item.itemIndex);
-                        // Both items that have non scalable skill reduction happen to have the same cooldown, it should be changed if new item with different non scalable skill reduction is added
-                        if (item.itemIndex == RoR2Content.Items.LunarBadLuck.itemIndex)
-                        {
-                            badLuckCount = itemCount;
-                            continue;
-                        }
-
-                        if (reductionValueIndex < 0)
-                        {
-                            scale *= 0.33f;
-                            continue;
-                        }
-                        try//gotta be honest, this works, but I'm scared of how it might work with other item mods so I'm adding a trycatch block lol
-                        {
-                            if (ItemCooldownReduction.GetItemTargetSkill((int)item.itemIndex) == (int)SkillSlot.None || ItemCooldownReduction.GetItemTargetSkill((int)item.itemIndex) == (int)self.targetSkillSlot)
-                            {
-                                if (ItemDefinitions.allItemDefinitions[(int)item.itemIndex].calculateValues == null)
-                                {
-                                    scale *= 1 - ItemDefinitions.allItemDefinitions[(int)item.itemIndex].calculateValuesNew(1, itemCount, 1)[reductionValueIndex];
-                                }
-                                else
-                                {
-                                    scale *= 1 - ItemDefinitions.allItemDefinitions[(int)item.itemIndex].calculateValues(body.master, itemCount)[reductionValueIndex];
-                                }
-
-                            }
-                        }
-                        catch (Exception)
-                        {
-                        }
-                    }
-                }
-            }
-
-            calculated_skill_cooldown = self.targetSkill.skillDef.baseRechargeInterval * scale;
-
-            if (badLuckCount > 0)
-            {
-                calculated_skill_cooldown -= ItemDefinitions.allItemDefinitions[(int)RoR2Content.Items.LunarBadLuck.itemIndex].calculateValuesNew(0, badLuckCount, 1)[0];
-            }
+            float calculated_skill_cooldown = self.targetSkill.baseRechargeInterval * self.targetSkill.cooldownScale - self.targetSkill.flatCooldownReduction;
 
             if (calculated_skill_cooldown < 0.5f)
                 calculated_skill_cooldown = 0.5f;
@@ -276,36 +217,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
         }
         List<ItemDef> cachedItems = new List<ItemDef>();
-        float cachingInterval = 0;
-        void CacheObtainedItems(CharacterBody body)//just trying to avoid looping through the whole catalog every frame lol
-        {
-            cachingInterval += Time.deltaTime;
-            if (cachingInterval > 5)
-            {
-                cachingInterval = 0;
-                foreach (var item in ItemCatalog.allItemDefs)
-                {
-                    if (ItemCooldownReduction.hasSkillCooldown((int)item.itemIndex))
-                    {
-                        int itemCount = body.inventory.GetItemCount(item.itemIndex);
-                        if (itemCount > 0)
-                        {
-                            if (!cachedItems.Contains(item))
-                            {
-                                cachedItems.Add(item);
-                            }
-                        }
-                        else
-                        {
-                            if (cachedItems.Contains(item))
-                            {
-                                cachedItems.Remove(item);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+
         internal static void SetDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
         {
             var itemDef = ItemCatalog.GetItemDef(newItemIndex);
