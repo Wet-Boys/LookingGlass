@@ -63,7 +63,7 @@ namespace LookingGlass.EquipTimerFix
                 self.cooldownText)
             {
                 SkillIcon.sharedStringBuilder.Clear();
-                SkillIcon.sharedStringBuilder.AppendInt(Mathf.CeilToInt(self.targetSkill.cooldownRemaining), 1U, 1U);
+                SkillIcon.sharedStringBuilder.AppendInt(Mathf.CeilToInt(self.targetSkill.cooldownRemaining), 1U, uint.MaxValue);
                 self.cooldownText.SetText(SkillIcon.sharedStringBuilder);
                 self.cooldownText.gameObject.SetActive(true);
             }
