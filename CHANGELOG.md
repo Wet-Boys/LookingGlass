@@ -1,3 +1,6 @@
+### 1.9.6
+Reworked the function to calculate skill cooldowns to be slightly (maybe more idk) more performant and easier to work with in the future.
+
 ### 1.9.5
 Fixed proc coefficient for MUL-T. Finished adding them for the new survivors.
 
