@@ -31,8 +31,15 @@ namespace LookingGlass.AutoSortItems
             Mixed
         }
 
+        internal enum TierSortMode
+        {
+            Off,
+            Tier,
+            TierIgnoringAcquiredOrder
+        }
+
         public static ConfigEntry<ScrapSortMode> ScrapSorting;
-        public static ConfigEntry<bool> SortByTier;
+        public static ConfigEntry<TierSortMode> SortByTier;
         public static ConfigEntry<string> TierOrder;
         public static ConfigEntry<bool> CombineVoidTiers;
         public static ConfigEntry<bool> SortByStackSize;
@@ -65,7 +72,7 @@ namespace LookingGlass.AutoSortItems
 
             instance = this;
             ScrapSorting = BasePlugin.instance.Config.Bind<ScrapSortMode>("Auto Sort Items", "Scrap Sorting", ScrapSortMode.Start, "Where scrap should be sorted");
-            SortByTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Tier Sort", true, "Sorts by Tier");
+            SortByTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Tier Sort", TierSortMode.Tier, "Sorts by Tier");
             TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier", "How the tiers should be ordered");
             CombineVoidTiers = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
             SortByStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Stack Size Sort", true, "Sorts by Stack Size");
@@ -94,7 +101,7 @@ namespace LookingGlass.AutoSortItems
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new ChoiceOption(ScrapSorting, new ChoiceConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortByTier, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new ChoiceOption(SortByTier, new ChoiceConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit}));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Descending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use descending tiers", "Set", SetDescendingTiers));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Ascending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use ascending tiers", "Set", SetAscendingTiers));
@@ -116,7 +123,7 @@ namespace LookingGlass.AutoSortItems
         //I'm going cross-eyed looking at all these
         private static bool CheckTierSort()
         {
-            return !SortByTier.Value;
+            return SortByTier.Value == TierSortMode.Off;
         }
         private static bool CheckStackSort()
         {
@@ -306,7 +313,7 @@ namespace LookingGlass.AutoSortItems
                     }
                     //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
                 }
-                self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, SortByTier.Value, SortByStackSize.Value, DescendingStackSize.Value);
+                self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, SortByTier.Value != TierSortMode.Off, SortByStackSize.Value, DescendingStackSize.Value);
             }
             catch (Exception e)
             {
@@ -373,12 +380,16 @@ namespace LookingGlass.AutoSortItems
 
             if (sortByTier)
             {
+                bool sortByAcquired = SortByTier.Value != TierSortMode.TierIgnoringAcquiredOrder;
                 for (int i = 0; i < itemTierLists.Count; i++)
                 {
-                    itemTierLists[i] = new List<ItemIndex>(itemTierLists[i].OrderBy((item) => (
-                    (int)item)
-                    + ((descendingStackSize ? -1 : 1) * (sortByStackSize ? 1 : 0) * display.itemStacks[(int)item] * 20000)).ToArray());
+                    itemTierLists[i] = new List<ItemIndex>(itemTierLists[i].OrderBy((itemIndex) =>
+                        // if sort by acquired enabled, will ignore itemIndex
+                        (sortByAcquired ? 0 : (int) itemIndex)
+                        // if sort by stack size disabled, will ignore stacks
+                        + (!sortByStackSize ? 0 : (descendingStackSize ? -1 : 1) * display.itemStacks[(int) itemIndex] * 20000)).ToArray());
                 }
+
                 if (scrapList.Count >= 0)
                 {
                     scrapList = scrapList.OrderBy(item => tierMatcher[ItemCatalog.GetItemDef(item).tier]).ToList();
