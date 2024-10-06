@@ -141,7 +141,13 @@ namespace LookingGlass.ItemStatsNameSpace
         void SkillUpdate(Action<SkillIcon> orig, SkillIcon self)
         {
             orig(self);
-            StringBuilder desc = new StringBuilder(Language.GetString(self.targetSkill.skillDescriptionToken));
+            GenericSkill targetSkill = self.targetSkill;
+            if (targetSkill == null)
+                return;
+            string skillDescriptionToken = targetSkill.skillDescriptionToken;
+            if (skillDescriptionToken == null)
+                return;
+            StringBuilder desc = new StringBuilder(Language.GetString(skillDescriptionToken));
 
             if (abilityProcCoefficients.Value)
             {
