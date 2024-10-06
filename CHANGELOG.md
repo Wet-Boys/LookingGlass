@@ -1,3 +1,6 @@
+### 1.9.7
+Added some checks on SkillUpdate to be more lenient for skills without targetSkills (probably?). Added additional options for item sorting to use acquired order
+
 ### 1.9.6
 Reworked the function to calculate skill cooldowns to be slightly (maybe more idk) more performant and easier to work with in the future.
 
