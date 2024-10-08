@@ -1,3 +1,6 @@
+### 1.9.8
+Fixed issue with scoreboard not showing money. Maybe fixed issue with StatsDisplay stopping it's auto updates, but I could never reproduce the bug so idk.
+
 ### 1.9.7
 Added some checks on SkillUpdate to be more lenient for skills without targetSkills (probably?). Added additional options for item sorting to use acquired order
 
