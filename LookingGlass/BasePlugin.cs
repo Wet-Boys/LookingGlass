@@ -106,7 +106,14 @@ namespace LookingGlass
         IEnumerator CheckPlayerStats()
         {
             yield return new WaitForSeconds(StatsDisplayClass.statsDisplayUpdateInterval.Value);
-            statsDisplayClass.CalculateStuff();
+            try
+            {
+                statsDisplayClass.CalculateStuff();
+            }
+            catch (System.Exception e)
+            {
+                Debug.Log($"Attempted to update stats but got exception: {e}");
+            }
             StartCoroutine(CheckPlayerStats());
         }
         public static Texture2D LoadTexture(byte[] bytes, int width, int height)
