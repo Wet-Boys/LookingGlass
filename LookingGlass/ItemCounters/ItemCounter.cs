@@ -10,6 +10,7 @@ using MonoMod.RuntimeDetour;
 using RoR2.UI;
 using RoR2;
 using UnityEngine.UI;
+using TMPro;
 
 namespace LookingGlass.ItemCounters
 {
@@ -43,7 +44,7 @@ namespace LookingGlass.ItemCounters
         void SetMaster(Action<ScoreboardStrip, CharacterMaster> orig, ScoreboardStrip self, CharacterMaster newMaster)
         {
             orig(self, newMaster);
-            LayoutElement layout = self.itemCountText.GetComponent<LayoutElement>();
+            LayoutElement layout = self.itemCountText != null ? self.itemCountText.GetComponent<LayoutElement>() : self.moneyText.GetComponent<LayoutElement>();
             if (layout)
             {
                 layout.preferredWidth = 300;
@@ -55,6 +56,7 @@ namespace LookingGlass.ItemCounters
             orig(self);
             if (!self.master || !self.master.inventory || !itemCounters.Value)
                 return;
+            TextMeshProUGUI itemCountText = self.itemCountText != null ? self.itemCountText : self.moneyText;
             int whiteCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
             int greenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
             int redCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
@@ -67,14 +69,14 @@ namespace LookingGlass.ItemCounters
             int totalItemCount = whiteCount + greenCount + redCount + lunarCount + bossCount + voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount;
 
             StringBuilder sb = new StringBuilder();
-            sb.Append($"<size={self.itemCountText.fontSize * .6f}><color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
+            sb.Append($"<size={itemCountText.fontSize * .6f}><color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier2Item)}>{greenCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier3Item)}>{redCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.BossItem)}>{bossCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.LunarItem)}>{lunarCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.VoidItem)}>{voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount}</color> ");
             sb.Append($"<color=#fff>[{totalItemCount}]</color></size>");
-            self.itemCountText.text = sb.ToString();
+            itemCountText.text = sb.ToString();
         }
     }
 }

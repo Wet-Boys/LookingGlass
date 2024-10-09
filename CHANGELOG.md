@@ -1,3 +1,6 @@
+### 1.9.9
+Fixed incompat with RiskUI (RiskUI isn't technically updated but it might be soon)
+
 ### 1.9.8
 Fixed issue with scoreboard not showing money. Maybe fixed issue with StatsDisplay stopping it's auto updates, but I could never reproduce the bug so idk.
 
