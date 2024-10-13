@@ -1,3 +1,6 @@
+### 1.9.10
+Fixed niche error where a null inventory would cause sorting errors
+
 ### 1.9.9
 Fixed incompat with RiskUI (RiskUI isn't technically updated but it might be soon)
 

@@ -280,47 +280,54 @@ namespace LookingGlass.AutoSortItems
         }
         private void UpdateDisplayOverride(Action<RoR2.UI.ItemInventoryDisplay> orig, RoR2.UI.ItemInventoryDisplay self)
         {
-            display = self;
-            var temp = self.itemOrder;
-            try
+            if (self != null)
             {
-                if (!initialized)
+                display = self;
+                var temp = self.itemOrder;
+                try
                 {
-                    initialized = true;
-                    tierMatcher.Clear();
-                    itemTierLists.Clear();
-                    foreach (string tierString in TierOrder.Value.Split(' '))
+                    if (!initialized)
                     {
-                        if (Enum.TryParse(tierString, out ItemTier tier) && !tierMatcher.ContainsKey(tier))
+                        initialized = true;
+                        tierMatcher.Clear();
+                        itemTierLists.Clear();
+                        foreach (string tierString in TierOrder.Value.Split(' '))
                         {
-                            tierMatcher.Add(tier, itemTierLists.Count);
+                            if (Enum.TryParse(tierString, out ItemTier tier) && !tierMatcher.ContainsKey(tier))
+                            {
+                                tierMatcher.Add(tier, itemTierLists.Count);
+                                itemTierLists.Add(new List<ItemIndex>());
+                            }
+                        }
+                        foreach (var tierDef in RoR2.ContentManagement.ContentManager.itemTierDefs)
+                        {
+                            if (!tierMatcher.ContainsKey(tierDef.tier)) // use default ordering for any not present in the setting
+                            {
+                                tierMatcher.Add(tierDef.tier, itemTierLists.Count);
+                                itemTierLists.Add(new List<ItemIndex>());
+                            }
+                        }
+                        // apparently this is just not in itemTierDefs? wack
+                        if (!tierMatcher.ContainsKey(ItemTier.NoTier))
+                        {
+                            tierMatcher.Add(ItemTier.NoTier, itemTierLists.Count);
                             itemTierLists.Add(new List<ItemIndex>());
                         }
+                        //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
                     }
-                    foreach (var tierDef in RoR2.ContentManagement.ContentManager.itemTierDefs)
-                    {
-                        if (!tierMatcher.ContainsKey(tierDef.tier)) // use default ordering for any not present in the setting
-                        {
-                            tierMatcher.Add(tierDef.tier, itemTierLists.Count);
-                            itemTierLists.Add(new List<ItemIndex>());
-                        }
-                    }
-                    // apparently this is just not in itemTierDefs? wack
-                    if (!tierMatcher.ContainsKey(ItemTier.NoTier))
-                    {
-                        tierMatcher.Add(ItemTier.NoTier, itemTierLists.Count);
-                        itemTierLists.Add(new List<ItemIndex>());
-                    }
-                    //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
+                    self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, SortByTier.Value != TierSortMode.Off, SortByStackSize.Value, DescendingStackSize.Value);
                 }
-                self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, SortByTier.Value != TierSortMode.Off, SortByStackSize.Value, DescendingStackSize.Value);
+                catch (Exception e)
+                {
+                    Log.Debug($"Had issue when sorting items: {e}");
+                }
+                orig(self);
+                self.itemOrder = temp;
             }
-            catch (Exception e)
+            else
             {
-                Log.Debug($"Had issue when sorting items: {e}");
+                orig(self);
             }
-            orig(self);
-            self.itemOrder = temp;
         }
 
         private void SettingsChanged(object sender, EventArgs e)
