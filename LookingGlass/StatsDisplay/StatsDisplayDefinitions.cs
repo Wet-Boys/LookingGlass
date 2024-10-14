@@ -132,7 +132,7 @@ namespace LookingGlass.StatsDisplay
                 {
                     return $"{utilityString}N/A{styleString}";
                 }
-                return $"{utilityString}{(15 * Mathf.Pow(.9f, stackCount)).ToString(floatPrecision)}{styleString}";
+                return $"{utilityString}{(15 * Mathf.Pow(.9f, stackCount)).ToString(floatPrecision)}s{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("instaKillChance", cachedUserBody => {
                 int stackCount = cachedUserBody.inventory.GetItemCount(DLC1Content.Items.CritGlassesVoid);
