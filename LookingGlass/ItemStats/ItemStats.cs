@@ -106,7 +106,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 String currentCooldownFormatted = (self.currentDisplayData.equipmentDef.cooldown * body.inventory.CalculateEquipmentCooldownScale()).ToString(StatsDisplayDefinitions.floatPrecision);
                 
                 self.tooltipProvider.overrideBodyText = $"{Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken)}" +
-                    $"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>" +
+                    $"\n\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>" +
                     $"\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted} seconds</style>";
             }
 #pragma warning restore Publicizer001 // Accessing a member that was not originally public
