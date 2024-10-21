@@ -148,7 +148,8 @@ namespace LookingGlass.StatsDisplay
             // if active and not attached, move
             if (statTracker && !statsDisplayAttached.Value)
             {
-                statTracker.GetComponent<RectTransform>().anchoredPosition = detachedPosition.Value;
+                RectTransform parent = statTracker.parent as RectTransform;
+                (statTracker as RectTransform).anchoredPosition3D = new Vector3(detachedPosition.Value.x, detachedPosition.Value.y, -parent.anchoredPosition3D.z);
             }
         }
 
@@ -277,11 +278,13 @@ namespace LookingGlass.StatsDisplay
                         {
                             GameObject statsObjectContainer = new GameObject(PanelName);
                             RectTransform rectContainer = statsObjectContainer.AddComponent<RectTransform>();
-                            rectContainer.SetParent(hud.mainContainer.transform, false);
-                            rectContainer.anchoredPosition = detachedPosition.Value;
+                            RectTransform parent = hud.mainUIPanel.transform as RectTransform;
+                            rectContainer.SetParent(parent, false);
+                            rectContainer.anchoredPosition3D = new Vector3(detachedPosition.Value.x, detachedPosition.Value.y, -parent.anchoredPosition3D.z);
+                            Vector2 anchor = -parent.anchorMin / (parent.anchorMax - parent.anchorMin);
+                            rectContainer.anchorMin = anchor;
+                            rectContainer.anchorMax = anchor;
                             rectContainer.sizeDelta = Vector2.zero;
-                            rectContainer.anchorMin = Vector2.zero;
-                            rectContainer.anchorMax = Vector2.zero;
 
                             // layouts not actually needed, but this mod checks for it so adding it
                             layoutGroup = statsObjectContainer.AddComponent<VerticalLayoutGroup>();
