@@ -1,4 +1,5 @@
-﻿using RoR2;
+﻿using LookingGlass.ItemCounters;
+using RoR2;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,23 +39,26 @@ namespace LookingGlass.ItemStatsNameSpace
             allItemDefinitions.Add((int)RoR2Content.Items.Bear.itemIndex, itemStat);
 
             
-            //Antler Shield
+            //Elusive Antlers (Previously Antler Shield)
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Reflect Chance: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
+            itemStat.descriptions.Add("Min Bonus Movement Speed: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Reflect Amount: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Orb Interval: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.descriptions.Add("Max Stacks: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                // Note : item description is slightly wrong
-                values.Add(Utils.CalculateChanceWithLuck(0.5f + 0.05f * (stackCount - 1), luck));
-                values.Add(0.1f * stackCount);
+                values.Add(.07f * stackCount);
+                values.Add(10f - ((1f - 3f / (3f + (float)stackCount - 1f)) * 5f));
+                values.Add(2 + stackCount);
                 return values;
             };
-            allItemDefinitions.Add((int)DLC2Content.Items.NegateAttack.itemIndex, itemStat);
+            allItemDefinitions.Add((int)DLC2Content.Items.SpeedBoostPickup.itemIndex, itemStat);
 
             
             //Armor-Piercing Rounds
@@ -101,13 +105,17 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //Bolstering Lantern
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Bonus Damage: ");
+            itemStat.descriptions.Add("Max Attack Speed: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Range: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(0.2f * stackCount);
+                values.Add(.2f + (.2f * stackCount));
+                values.Add(15 + (5 * stackCount));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.LowerHealthHigherDamage.itemIndex, itemStat);
@@ -161,14 +169,17 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //Chronic Expansion
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Bonus Damage Per 5 Enemies: ");
+            itemStat.descriptions.Add("Damage Per Kill: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Max Stacks: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                // Note : item description slightly wrong, 6% base
-                values.Add(0.01f + 0.05f * stackCount);
+                values.Add(.025f + (.01f * stackCount));
+                values.Add(5 + (5 * stackCount));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.IncreaseDamageOnMultiKill.itemIndex, itemStat);
@@ -252,21 +263,19 @@ namespace LookingGlass.ItemStatsNameSpace
             allItemDefinitions.Add((int)RoR2Content.Items.IgniteOnKill.itemIndex, itemStat);
 
             
-            //Knockback Fin
+            //Breaching Fin (previously Knockback Fin)
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Knock Chance: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Knock Height: ");
+            itemStat.descriptions.Add("Max Launch Count: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Max Damage Bonus: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(Utils.GetHyperbolicStacking(0.075f, 0.075f, stackCount));
-                const float mass = 1.0f; // Note : figure out a better mass ?
-                // Speed vector, applied directly up, also half of it applied towards where player is looking
-                values.Add(mass * 20 + mass / 10 * (stackCount - 1)); 
+                values.Add(1 + stackCount);
+                values.Add(.2f + stackCount);
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.KnockBackHitEnemies.itemIndex, itemStat);
@@ -523,10 +532,14 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage Instances: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Recharge Time: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(stackCount);
+                values.Add(2 + stackCount);
+                values.Add(15.5f - Util.ConvertAmplificationPercentageIntoReductionPercentage(.5f * stackCount));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.DelayedDamage.itemIndex, itemStat);
@@ -590,8 +603,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                // Note : item definition is wrong
-                values.Add(Utils.CalculateChanceWithLuck(0.3f + 0.1f * stackCount, luck));
+                values.Add(Utils.CalculateChanceWithLuck(0.3f + (0.1f * stackCount), luck));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.ExtraShrineItem.itemIndex, itemStat);
@@ -775,31 +787,17 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //Luminous Shot
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Bonus Damage per Buff: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Bonus Exp On Kill Per Buff: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Max Charges: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.descriptions.Add("Current Bonus Damage: ");
+            itemStat.descriptions.Add("TOTAL Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            // Note : You get bonus xp if your luminous shot does a kill, this is never mentioned
-            itemStat.descriptions.Add("Current Bonus Exp On Kill: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                var buffCount = master.GetBody()?.GetBuffCount(DLC2Content.Buffs.IncreasePrimaryDamageBuff) ?? 0;
-                values.Add(1.25f + 0.25f * stackCount);
-                values.Add(0.1f * stackCount);
                 values.Add(4 + stackCount);
-                values.Add((1.25f + 0.25f * stackCount) * buffCount);
-                values.Add(0.1f * stackCount * buffCount);
+                values.Add(1.75f + (float)(stackCount - 1) * 0.5f);
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.IncreasePrimaryDamage.itemIndex, itemStat);
@@ -807,22 +805,17 @@ namespace LookingGlass.ItemStatsNameSpace
             
             // Noxious Thorn
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Proc Chance: ");
+            itemStat.descriptions.Add("Transfer Count: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Bleed Stacks: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.descriptions.Add("Debuff Stacks: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Range: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                // NOTE ! not luck affected !
-                values.Add(0.25f);
-                values.Add(1 + stackCount);
                 values.Add(stackCount);
+                values.Add(15 + (5 * stackCount));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.TriggerEnemyDebuffs.itemIndex, itemStat);
@@ -1102,18 +1095,13 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //Unstable Transmitter
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Explosion Damage: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Cooldown: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(3.5f * stackCount);
-                // note : Slightly different from item description, 20% cooldown reduction, can't go lower than 15s
-                values.Add(Mathf.Max(120 - 120 * ((stackCount - 1) * 0.2f), 15f));
+                values.Add(45f * (1f - Util.Hyperbolic((stackCount - 1) * 0.1f)));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.TeleportOnLowHealth.itemIndex, itemStat);
@@ -1341,19 +1329,17 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //Growth Nectar
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Bonus stats: ");
+            itemStat.descriptions.Add("Stats Per Stack: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            // note ! not in the item's description
-            itemStat.descriptions.Add("Trigger chance: ");
+            itemStat.descriptions.Add("Max Stacks: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(0.2f * stackCount);
-                // Unaffected by luck
-                values.Add(MathF.Min(0.25f + 0.1f * (stackCount - 1), 0.5f));
+                values.Add(0.07f * stackCount);
+                values.Add(4 * stackCount);
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.BoostAllStats.itemIndex, itemStat);
@@ -1495,20 +1481,20 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //Runic lens
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Proc Chance: ");
+            itemStat.descriptions.Add("Extra Proc Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Damage: ");
+            itemStat.descriptions.Add("Extra Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
+                //My brain isn't working super well right now, can't think of a way to cleaning implement the max chance stuff they changed in the new update, maybe come back to this
                 // Note : also affected by attack damage
-                // Note : maxes out at 50% before luck and proc chance
-                values.Add(Utils.CalculateChanceWithLuck(MathF.Min(0.05f + stackCount * 0.01f, 0.5f) * procChance, luck));
-                // Maxes out at 7500%
-                values.Add(MathF.Min(20f + 0.5f * stackCount, 75f));
+                // Note : maxes out at 75% before luck and proc chance
+                values.Add(MathF.Min(.03f * stackCount, 75f));
+                values.Add(1.5f + (0.5f * stackCount));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.MeteorAttackOnHighDamage.itemIndex, itemStat);
@@ -1560,7 +1546,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 List<float> values = new();
                 // Note ! it is calculated with luck, cannot trigger more than once
                 values.Add(Mathf.Min(Utils.CalculateChanceWithLuck(1f, luck), 1f));
-                values.Add(Utils.CalculateChanceWithLuck(0.1f + 0.05f * stackCount, luck));
+                values.Add(Utils.CalculateChanceWithLuck(.04f + .01f * stackCount, luck));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.ResetChests.itemIndex, itemStat);
@@ -1638,14 +1624,21 @@ namespace LookingGlass.ItemStatsNameSpace
             
             //War Bonds
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Gold: ");
+            itemStat.descriptions.Add("Max Health Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Max Extra Missiles: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("First Stack Gold Requirement: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                var level = master.GetBody()?.level ?? 1;
-                values.Add(Run.instance.GetDifficultyScaledCost((int) (50f + 1.5f * stackCount * level)));
+                values.Add(.025f * stackCount);
+                values.Add(15 + (stackCount * 5));
+                values.Add((uint)Run.instance.GetDifficultyScaledCost(25));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.GoldOnStageStart.itemIndex, itemStat);
