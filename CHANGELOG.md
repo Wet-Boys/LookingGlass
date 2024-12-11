@@ -1,3 +1,6 @@
+### 1.10.0
+Update to work with new patch. Fixed descriptions of changed items. Big thankies to isolNo for adding options for moving the statsdisplay around the screen.
+
 ### 1.9.10
 Fixed niche error where a null inventory would cause sorting errors
 

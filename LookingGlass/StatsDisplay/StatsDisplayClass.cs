@@ -317,13 +317,16 @@ namespace LookingGlass.StatsDisplay
                     }
                     textComponent.fontSize = statsDisplaySize.Value == -1 ? originalFontSize : statsDisplaySize.Value;
                     Run.instance.StartCoroutine(FixScaleAfterFrame(nlines));
-                    if (!cachedImage)
+                    if (statsDisplayAttached.Value)
                     {
-                        cachedImage = layoutElement.transform.parent.GetComponent<Image>();
-                    }
-                    if (cachedImage)
-                    {
-                        cachedImage.enabled = nlines != 0;
+                        if (!cachedImage)
+                        {
+                            cachedImage = layoutElement.transform.parent.GetComponent<Image>();
+                        }
+                        if (cachedImage)
+                        {
+                            cachedImage.enabled = nlines != 0;
+                        }
                     }
                     if (isRiskUI && layoutGroup)
                     {

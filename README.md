@@ -80,3 +80,4 @@ A fully open source UI mod, compatible with RiskUI
 - shirograhm (github tag): coding
 - Warmek (github tag): coding
 - timoreo22 (github tag): coding
+- isolno (github tag): coding
