@@ -15,6 +15,7 @@ using System.Linq;
 using TMPro;
 using MonoMod.RuntimeDetour;
 using System.Collections;
+using UnityEngine.AddressableAssets;
 
 namespace LookingGlass.StatsDisplay
 {
@@ -30,6 +31,8 @@ namespace LookingGlass.StatsDisplay
         public static ConfigEntry<bool> statsDisplayOverrideHeight;
         public static ConfigEntry<int> statsDisplayOverrideHeightValue;
         public static ConfigEntry<int> floatPrecision;
+        public static ConfigEntry<bool> statsDisplayAttached;
+        public static ConfigEntry<Vector2> detachedPosition;
         public static Dictionary<string, Func<CharacterBody, string>> statDictionary = new Dictionary<string, Func<CharacterBody, string>>();
         internal static CharacterBody cachedUserBody = null;
         Transform statTracker = null;
@@ -95,6 +98,16 @@ namespace LookingGlass.StatsDisplay
                 , $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}");
             StatsDisplayDefinitions.SetupDefs();
 
+            // position override
+            Vector2 defaultPos = new Vector2(1810, 1015);
+            statsDisplayAttached = BasePlugin.instance.Config.Bind("Stats Display", "Attach To Objective Panel", true,
+                "If enabled, will be attached to below the objective panel, otherwise position can be configured");
+            detachedPosition = BasePlugin.instance.Config.Bind("Stats Display", "Stats Display Position", defaultPos,
+                $"Position of detached Stats Display.\n[Default: {defaultPos.x:f0}, {defaultPos.y:f0}]");
+
+            statsDisplayAttached.SettingChanged += Attached_SettingChanged;
+            detachedPosition.SettingChanged += DetachedPosition_SettingChanged;
+
             var targetMethod = typeof(ScoreboardController).GetMethod(nameof(ScoreboardController.OnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(StatsDisplayClass).GetMethod(nameof(OnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
@@ -120,6 +133,26 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayDefinitions.SetupDefs();
         }
 
+        void Attached_SettingChanged(object sender, EventArgs e)
+        {
+            // if active, recreate
+            if (statTracker)
+            {
+                UnityEngine.Object.DestroyImmediate(statTracker.gameObject);
+                CalculateStuff();
+            }
+        }
+
+        void DetachedPosition_SettingChanged(object sender, EventArgs e)
+        {
+            // if active and not attached, move
+            if (statTracker && !statsDisplayAttached.Value)
+            {
+                RectTransform parent = statTracker.parent as RectTransform;
+                (statTracker as RectTransform).anchoredPosition3D = new Vector3(detachedPosition.Value.x, detachedPosition.Value.y, -parent.anchoredPosition3D.z);
+            }
+        }
+
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
@@ -133,7 +166,18 @@ namespace LookingGlass.StatsDisplay
 
             ModSettingsManager.AddOption(new CheckBoxOption(useSecondaryStatsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit, richText = false }));
+
+            // position override
+            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayAttached, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new GenericButtonOption(
+                detachedPosition.Definition.Key,
+                detachedPosition.Definition.Section,
+                detachedPosition.Description.Description,
+                "Open",
+                () => CreatePositionWindow(detachedPosition)
+            ));
         }
+
         bool isRiskUI = false;
         float originalFontSize = -1;
         VerticalLayoutGroup layoutGroup;
@@ -160,69 +204,102 @@ namespace LookingGlass.StatsDisplay
                 }
                 if (!statTracker)
                 {
-                    foreach (var item in RoR2.Run.instance.uiInstances[0].GetComponentsInChildren<VerticalLayoutGroup>())
+                    const string PanelName = "PlayerStats";
+                    GameObject gameHud = Run.instance.uiInstances[0];
+                    if (statsDisplayAttached.Value)
                     {
-                        if (item.gameObject.name == "RightInfoBar")
+                        foreach (var item in gameHud.GetComponentsInChildren<VerticalLayoutGroup>())
                         {
-                            Transform objectivePanel = item.transform.Find("ObjectivePanel");
-                            GameObject labelObject = objectivePanel.Find("Label") ? objectivePanel.Find("Label").gameObject : null;
-                            bool originalActiveState = false;
-                            if (labelObject)
+                            if (item.gameObject.name == "RightInfoBar")
                             {
-                                originalActiveState = labelObject.activeSelf;
-                                labelObject.SetActive(true);
-                            }
-                            GameObject g = GameObject.Instantiate(objectivePanel.gameObject);
-                            g.transform.parent = objectivePanel.parent.transform;
-                            g.name = "PlayerStats";
-                            if (labelObject)
-                            {
-                                labelObject.SetActive(originalActiveState);
-                            }
+                                Transform objectivePanel = item.transform.Find("ObjectivePanel");
+                                GameObject labelObject = objectivePanel.Find("Label") ? objectivePanel.Find("Label").gameObject : null;
+                                bool originalActiveState = false;
+                                if (labelObject)
+                                {
+                                    originalActiveState = labelObject.activeSelf;
+                                    labelObject.SetActive(true);
+                                }
+                                GameObject g = GameObject.Instantiate(objectivePanel.gameObject);
+                                g.transform.parent = objectivePanel.parent.transform;
+                                g.name = PanelName;
+                                if (labelObject)
+                                {
+                                    labelObject.SetActive(originalActiveState);
+                                }
 
-                            if (g.transform.Find("StripContainer"))
-                                GameObject.Destroy(g.transform.Find("StripContainer").gameObject);
-                            if (g.transform.Find("Minimap"))
-                                GameObject.DestroyImmediate(g.transform.Find("Minimap").gameObject);
-                            if (g.GetComponent<HudObjectiveTargetSetter>())
-                                UnityEngine.Object.Destroy(g.GetComponent<HudObjectiveTargetSetter>());
-                            if (g.GetComponent<ObjectivePanelController>())
-                                UnityEngine.Object.Destroy(g.GetComponent<ObjectivePanelController>());
+                                if (g.transform.Find("StripContainer"))
+                                    GameObject.Destroy(g.transform.Find("StripContainer").gameObject);
+                                if (g.transform.Find("Minimap"))
+                                    GameObject.DestroyImmediate(g.transform.Find("Minimap").gameObject);
+                                if (g.GetComponent<HudObjectiveTargetSetter>())
+                                    UnityEngine.Object.Destroy(g.GetComponent<HudObjectiveTargetSetter>());
+                                if (g.GetComponent<ObjectivePanelController>())
+                                    UnityEngine.Object.Destroy(g.GetComponent<ObjectivePanelController>());
 
-                            RectTransform r = g.GetComponent<RectTransform>();
-                            layoutGroup = g.GetComponent<VerticalLayoutGroup>();
-                            textComponent = g.GetComponentInChildren<TextMeshProUGUI>();
-                            layoutElement = g.GetComponentInChildren<LayoutElement>();
+                                RectTransform r = g.GetComponent<RectTransform>();
+                                layoutGroup = g.GetComponent<VerticalLayoutGroup>();
+                                textComponent = g.GetComponentInChildren<TextMeshProUGUI>();
+                                layoutElement = g.GetComponentInChildren<LayoutElement>();
 
-                            if (!r || !layoutGroup || !textComponent || !layoutElement)
-                            {
-                                layoutGroup = null;
-                                textComponent = null;
-                                layoutElement = null;
-                                GameObject.DestroyImmediate(g);
+                                if (!r || !layoutGroup || !textComponent || !layoutElement)
+                                {
+                                    layoutGroup = null;
+                                    textComponent = null;
+                                    layoutElement = null;
+                                    GameObject.DestroyImmediate(g);
+                                    break;
+                                }
+                                r.localPosition = Vector3.zero;
+                                r.localEulerAngles = Vector3.zero;
+                                r.localScale = Vector3.one;
+                                layoutGroup.enabled = false;
+                                layoutGroup.enabled = true;
+                                textComponent.alignment = TMPro.TextAlignmentOptions.TopLeft;
+                                textComponent.color = Color.white;
+                                textComponentGameObject = textComponent.gameObject;
+
+                                if (g.transform.Find("Seperator"))
+                                {
+                                    isRiskUI = true;
+                                    VerticalLayoutGroup v = g.transform.Find("Seperator").GetComponent<VerticalLayoutGroup>();
+                                    v.padding.top = 0;
+                                    v.childAlignment = TextAnchor.UpperLeft;
+                                }
+                                statTracker = g.transform;
                                 break;
                             }
-                            r.localPosition = Vector3.zero;
-                            r.localEulerAngles = Vector3.zero;
-                            r.localScale = Vector3.one;
-                            layoutGroup.enabled = false;
-                            layoutGroup.enabled = true;
-                            textComponent.alignment = TMPro.TextAlignmentOptions.TopLeft;
-                            textComponent.color = Color.white;
-                            textComponentGameObject = textComponent.gameObject;
+                        }
+                    }
+                    else // unattached panel
+                    {
+                        HUD hud = gameHud.GetComponentInParent<HUD>();
+                        if (hud)
+                        {
+                            GameObject statsObjectContainer = new GameObject(PanelName);
+                            RectTransform rectContainer = statsObjectContainer.AddComponent<RectTransform>();
+                            RectTransform parent = hud.mainUIPanel.transform as RectTransform;
+                            rectContainer.SetParent(parent, false);
+                            rectContainer.anchoredPosition3D = new Vector3(detachedPosition.Value.x, detachedPosition.Value.y, -parent.anchoredPosition3D.z);
+                            Vector2 anchor = -parent.anchorMin / (parent.anchorMax - parent.anchorMin);
+                            rectContainer.anchorMin = anchor;
+                            rectContainer.anchorMax = anchor;
+                            rectContainer.sizeDelta = Vector2.zero;
 
-                            if (g.transform.Find("Seperator"))
-                            {
-                                isRiskUI = true;
-                                VerticalLayoutGroup v = g.transform.Find("Seperator").GetComponent<VerticalLayoutGroup>();
-                                v.padding.top = 0;
-                                v.childAlignment = TextAnchor.UpperLeft;
-                            }
-                            statTracker = g.transform;
-                            break;
+                            // layouts not actually needed, but this mod checks for it so adding it
+                            layoutGroup = statsObjectContainer.AddComponent<VerticalLayoutGroup>();
+                            layoutElement = statsObjectContainer.AddComponent<LayoutElement>();
+
+                            textComponent = statsObjectContainer.AddComponent<TextMeshProUGUI>();
+                            textComponent.fontSize = 16;
+                            textComponent.color = Color.white;
+                            textComponent.enableWordWrapping = false;
+                            textComponentGameObject = textComponent.gameObject;
+                            statTracker = rectContainer;
                         }
                     }
                 }
+
                 if (textComponentGameObject)
                 {
                     //Log.Debug($"Somebody disabled my object :(");
@@ -274,6 +351,89 @@ namespace LookingGlass.StatsDisplay
     ? textComponent.fontSize * (nlines + 1)
     : textComponent.renderedHeight;
             layoutElement.preferredHeight = intendedHeight;
+        }
+
+        // basic version of vector2 sliders option window
+        static void CreatePositionWindow(ConfigEntry<Vector2> configEntry)
+        {
+            // canvas
+            GameObject canvasObj = new GameObject("Vector2 Popup");
+            canvasObj.layer = LayerIndex.ui.intVal;
+            Canvas canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 10;
+            CanvasScaler canvasScalar = canvasObj.AddComponent<CanvasScaler>();
+            canvasScalar.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            canvasScalar.referenceResolution = new Vector2(1920, 1080);
+            canvasScalar.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+            canvasObj.AddComponent<CanvasRenderer>();
+            canvasObj.AddComponent<GraphicRaycaster>();
+            canvasObj.AddComponent<RiskOfOptions.Components.Options.RooEscapeRouter>().escapePressed.AddListener(Close);
+
+            // window, a rect in center of screen
+            GameObject windowObj = new GameObject("Window");
+            RectTransform windowRect = windowObj.AddComponent<RectTransform>();
+            windowRect.SetParent(canvasObj.transform, false);
+            windowRect.anchorMin = new Vector2(0.5f, 0.5f);
+            windowRect.anchorMax = new Vector2(0.5f, 0.5f);
+            windowRect.pivot = new Vector2(0.5f, 0.5f);
+            windowRect.sizeDelta = new Vector2(450, 160);
+            windowObj.AddComponent<VerticalLayoutGroup>();
+
+            // background
+            GameObject background = new GameObject("Background");
+            RectTransform backRect = background.AddComponent<RectTransform>();
+            backRect.SetParent(windowRect.transform, false);
+            backRect.anchorMin = new Vector2(-0.25f, -0.25f);
+            backRect.anchorMax = new Vector2(1.25f, 1.25f);
+            backRect.pivot = new Vector2(0.5f, 0.5f);
+            background.AddComponent<Image>().color = new Color(0.125f, 0.25f, 0.4f, 1);
+            background.AddComponent<LayoutElement>().ignoreLayout = true;
+
+            // slider
+            GameObject sliderPrefab = Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/SettingsSliderControl.prefab").WaitForCompletion();
+            CreateSlider("X", 0, 0, 1920);
+            CreateSlider("Y", 1, 0, 1080);
+
+            // close button
+            GameObject closeButton = UnityEngine.Object.Instantiate(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/GenericMenuButton.prefab").WaitForCompletion(), windowRect);
+            closeButton.GetComponent<LanguageTextMeshController>().token = "Close";
+            closeButton.AddComponent<LayoutElement>().minHeight = 32;
+            closeButton.GetComponentInChildren<HGButton>().onClick.AddListener(Close);
+
+            void CreateSlider(string name, int index, float min, float max)
+            {
+                GameObject sliderObj = UnityEngine.Object.Instantiate(sliderPrefab, windowRect);
+
+                // ror2 slider
+                SettingsSlider origSlider = sliderObj.GetComponent<SettingsSlider>();
+                origSlider.nameLabel.token = name;
+                Slider slider = origSlider.slider;
+                slider.GetComponent<RectTransform>().sizeDelta = new Vector2(300, 40);
+
+                // remove ror2 slider
+                UnityEngine.Object.DestroyImmediate(origSlider);
+#pragma warning disable CS0618 // Type or member is obsolete
+                UnityEngine.Object.DestroyImmediate(sliderObj.GetComponent<SelectableDescriptionUpdater>());
+#pragma warning restore CS0618 // Type or member is obsolete
+
+                // roo slider
+                SliderWithText rooSlider = sliderObj.AddComponent<SliderWithText>();
+                rooSlider.Setup(slider, sliderObj.GetComponentInChildren<TMP_InputField>(), min, max);
+
+                // on slider changed
+                rooSlider.onValueChanged.AddListener(newValue =>
+                {
+                    Vector2 pos = configEntry.Value;
+                    pos[index] = newValue;
+                    configEntry.Value = pos;
+                });
+
+                // set initial value
+                rooSlider.Value = configEntry.Value[index];
+            }
+
+            void Close() => UnityEngine.Object.Destroy(canvasObj);
         }
     }
 }
