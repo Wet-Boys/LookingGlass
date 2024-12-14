@@ -41,21 +41,11 @@ namespace LookingGlass.CommandWindowBlur
         }
         void OnDisplayBegin(Action<RoR2.PickupPickerController, NetworkUIPromptController, LocalUser, CameraRigController> orig, RoR2.PickupPickerController self, NetworkUIPromptController networkUIPromptController, LocalUser localUser, CameraRigController cameraRigController)
         {
+
+            BasePlugin.instance.commandItemCountClass.isFromOnDisplayBegin = true; // tell the scrapper sorting that it was called from OnDisplayBegin
+
             orig(self, networkUIPromptController, localUser, cameraRigController);
-            try
-            {
-                if (self.name.StartsWith("CommandCube") || self.name.StartsWith("Scrapper"))
-                {
-                    ReadOnlyCollection<MPButton> elements = self.panelInstanceController.buttonAllocator.elements;
-                    Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
-                    BasePlugin.instance.autoSortItems.SortPickupPicker(self.options, elements, inventory, self.name.StartsWith("CommandCube"), self.panelInstanceController);
-                }
-            }
-            catch (Exception)
-            {
-                Log.Debug($"couldn't sort items");
-                return;
-            }
+
             TranslucentImage t = self.panelInstance.gameObject.GetComponentInChildren<TranslucentImage>();
             if (t is not null)
             {
