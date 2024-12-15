@@ -90,20 +90,25 @@ namespace LookingGlass.CommandItemCount
         void PickupPickerPanel(Action<PickupPickerPanel, PickupPickerController.Option[]> orig, PickupPickerPanel self, PickupPickerController.Option[] options)
         {
 
-            if (isFromOnDisplayBegin && !NetworkServer.active) //Called from FromOnDisplayBegin and is a client, therefore do nothing
-            {   // as a client, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
+            string parentName = self.gameObject.name;
+
+            if (isFromOnDisplayBegin && !NetworkServer.active && !parentName.StartsWith("FragmentPotentialPicker"))
+            {
+                //Called from FromOnDisplayBegin and is a client, therefore do nothing
+                // as a client, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
                 // The call from OnDisplayBegin has incorrect values for the options list. It contains the list from the previous time the function was called, idk why somthing to due with networking.
+
+                //Except for the Aurelionite Fragments, they only call this function once
                 isFromOnDisplayBegin = false;
                 return;
             }
-
+                
             if (options.Length < 1)
             {
                 orig(self, options);
                 return;
             }
 
-            string parentName = self.gameObject.name;
             bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
