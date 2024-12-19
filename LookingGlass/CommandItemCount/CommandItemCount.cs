@@ -29,8 +29,8 @@ namespace LookingGlass.CommandItemCount
         public static ConfigEntry<bool> commandToolTips;
         public static ConfigEntry<bool> showCorruptedItems;
 
-        private List<int> optionMap;
-        public bool isFromOnDisplayBegin = false;
+        private List<int> optionMap = [-1];
+        private bool isFromOnDisplayBegin = false;
 
         // needs to be a list because some void items corrupt multiple items
         private Dictionary<ItemIndex, List<ItemIndex>> transformedToOriginal;
@@ -76,7 +76,7 @@ namespace LookingGlass.CommandItemCount
         {
             orig();
             transformedToOriginal = new();
-            foreach(var info in ContagiousItemManager.transformationInfos)
+            foreach (var info in ContagiousItemManager.transformationInfos)
             {
                 if (!transformedToOriginal.TryGetValue(info.transformedItem, out List<ItemIndex> originalItemList))
                 {
@@ -84,6 +84,12 @@ namespace LookingGlass.CommandItemCount
                 }
                 originalItemList.Add(info.originalItem);
             }
+        }
+
+        public void OnDisplayBeginStuff()
+        {
+            isFromOnDisplayBegin = true; // tell the scrapper sorting that it was called from OnDisplayBegin
+            optionMap[0] = -1; // set option map to be "unsorted". Fixes isues with Command Queue picking the wrong item
         }
 
         //Largely copied from https://github.com/Vl4dimyr/CommandItemCount/blob/master/CommandItemCountPlugin.cs#L191
@@ -97,19 +103,17 @@ namespace LookingGlass.CommandItemCount
             }
 
             string parentName = self.gameObject.name;
-            
-            //Log.Debug($"{parentName}, StackTrace {Environment.StackTrace}");
-
             bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
-            
+
             // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
             (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
 
             orig(self, options);
 
-            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("ScrapperPickerPanel") || parentName.StartsWith("CommandPickerPanel"))){
+            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("ScrapperPickerPanel") || parentName.StartsWith("CommandPickerPanel")))
+            {
                 // as a client interacting with a scrapper or command menu, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
                 // This prevetnts the numbers being created the first time the funciton is called as the options list is effectively garbage data on the first call because of wierd networking stuff
                 // thus preventing the item counts being incorrect and/or doubled
@@ -173,7 +177,7 @@ namespace LookingGlass.CommandItemCount
             // change selected option based on option map
             // if the first element in optionMap < 0 , the options were never sorted
             int newIndex = (optionMap[0] >= 0) ? optionMap[index] : index;
-            
+
             //Log.Debug($"Pressed {index}, Redirected {newIndex}");
 
             orig(self, newIndex);

@@ -41,8 +41,7 @@ namespace LookingGlass.CommandWindowBlur
         }
         void OnDisplayBegin(Action<RoR2.PickupPickerController, NetworkUIPromptController, LocalUser, CameraRigController> orig, RoR2.PickupPickerController self, NetworkUIPromptController networkUIPromptController, LocalUser localUser, CameraRigController cameraRigController)
         {
-
-            BasePlugin.instance.commandItemCountClass.isFromOnDisplayBegin = true; // tell the scrapper sorting that it was called from OnDisplayBegin
+            BasePlugin.instance.commandItemCountClass.OnDisplayBeginStuff(); // needs to be for orig() inorder to set up option menu sorting correctly
 
             orig(self, networkUIPromptController, localUser, cameraRigController);
 
