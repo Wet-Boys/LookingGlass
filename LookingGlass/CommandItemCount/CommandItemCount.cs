@@ -90,24 +90,15 @@ namespace LookingGlass.CommandItemCount
         void PickupPickerPanel(Action<PickupPickerPanel, PickupPickerController.Option[]> orig, PickupPickerPanel self, PickupPickerController.Option[] options)
         {
 
-            string parentName = self.gameObject.name;
-
-            if (isFromOnDisplayBegin && !NetworkServer.active && !parentName.StartsWith("FragmentPotentialPicker"))
-            {
-                //Called from FromOnDisplayBegin and is a client, therefore do nothing
-                // as a client, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
-                // The call from OnDisplayBegin has incorrect values for the options list. It contains the list from the previous time the function was called, idk why somthing to due with networking.
-
-                //Except for the Aurelionite Fragments, they only call this function once
-                isFromOnDisplayBegin = false;
-                return;
-            }
-                
             if (options.Length < 1)
             {
                 orig(self, options);
                 return;
             }
+
+            string parentName = self.gameObject.name;
+            
+            //Log.Debug($"{parentName}, StackTrace {Environment.StackTrace}");
 
             bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
@@ -117,6 +108,16 @@ namespace LookingGlass.CommandItemCount
             (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
 
             orig(self, options);
+
+            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("ScrapperPickerPanel") || parentName.StartsWith("CommandPickerPanel"))){
+                // as a client interacting with a scrapper or command menu, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
+                // This prevetnts the numbers being created the first time the funciton is called as the options list is effectively garbage data on the first call because of wierd networking stuff
+                // thus preventing the item counts being incorrect and/or doubled
+                isFromOnDisplayBegin = false;
+                return;
+            }
+
+            isFromOnDisplayBegin = false;
 
             for (int i = 0; i < options.Length; i++)
             {
