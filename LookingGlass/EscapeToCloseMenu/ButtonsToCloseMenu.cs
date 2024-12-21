@@ -62,7 +62,7 @@ namespace LookingGlass.EscapeToCloseMenu
             }
         }
 
-        public void HandleMenuClose()
+        public void Update()
         {
 
             if (buttonsToClickOnMove.Count != 0 && Input.anyKeyDown && !Input.GetMouseButtonDown(0))

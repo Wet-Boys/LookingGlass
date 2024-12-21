@@ -96,10 +96,7 @@ namespace LookingGlass
 
         private void Update()
         {
-            if (ButtonsToCloseMenu.buttonsToClickOnMove.Count != 0 && Input.anyKeyDown && !Input.GetMouseButtonDown(0))
-            {
-                ButtonsToCloseMenu.CloseMenuAfterFrame();
-            }
+            buttonsToCloseMenu.Update();
             dpsMeter.Update();
         }
         
