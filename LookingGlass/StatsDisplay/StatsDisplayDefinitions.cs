@@ -96,6 +96,8 @@ namespace LookingGlass.StatsDisplay
                 return $"{voidString}False{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("dps", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.damageDealtSincePeriod / DPSMeter.DPS_MAX_TIME}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("percentDps", cachedUserBody
+                => $"{damageString}{(BasePlugin.instance.dpsMeter.damageDealtSincePeriod / cachedUserBody.damageFromRecalculateStats / DPSMeter.DPS_MAX_TIME).ToString(floatPrecision)}{styleString}");
             StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("remainingComboDuration", cachedUserBody => { return $"{utilityString}{(int)BasePlugin.instance.dpsMeter.timer + 1}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxCombo", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.maxCombo}{styleString}"; });
