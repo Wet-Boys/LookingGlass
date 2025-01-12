@@ -1,4 +1,7 @@
-﻿using BepInEx.Configuration;
+﻿#if DEBUG
+#define ENABLE_PROFILER // enables Profiler.BeginSample
+#endif
+using BepInEx.Configuration;
 using LookingGlass.Base;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
@@ -15,7 +18,9 @@ using System.Linq;
 using TMPro;
 using MonoMod.RuntimeDetour;
 using System.Collections;
+using Unity.Jobs;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Profiling;
 
 namespace LookingGlass.StatsDisplay
 {
@@ -42,17 +47,22 @@ namespace LookingGlass.StatsDisplay
         Image cachedImage;
         private static Hook overrideHook;
         private static Hook overrideHook2;
-        bool scoreBoardOpen = false;
+        static bool scoreBoardOpen;
+        static readonly Regex statsRegex = new(@"(?<!\\)\[(\w+)\]", RegexOptions.Compiled);
+        static JobHandle regexHandle;
+        // using timer as updating canvas with large changed strings is not cheap
+        float timer;
 
         public StatsDisplayClass()
         {
             Setup();
             SetupRiskOfOptions();
         }
-        const string syntaxList = " \n luck \n baseDamage \n crit \n attackSpeed \n armor \n armorDamageReduction \n regen \n speed \n availableJumps \n maxJumps \n killCount \n mountainShrines \n experience \n level \n maxHealth \n maxBarrier \n barrierDecayRate \n maxShield \n acceleration \n jumpPower \n maxJumpHeight \n damage \n critMultiplier \n bleedChance \n visionDistance \n critHeal \n cursePenalty \n hasOneShotProtection \n isGlass \n canPerformBackstab \n canReceiveBackstab \n healthPercentage \n goldPortal \n msPortal \n shopPortal \n dps \n currentCombatDamage \n remainingComboDuration \n maxCombo \n maxComboThisRun \n currentCombatKills \n maxKillCombo \n maxKillComboThisRun \n critWithLuck \n bleedChanceWithLuck \n velocity \n teddyBearBlockChance \n saferSpacesCD \n instaKillChance \n voidPortal \n difficultyCoefficient \n stage";
+        const string syntaxList = " \n luck \n baseDamage \n crit \n attackSpeed \n armor \n armorDamageReduction \n regen \n speed \n availableJumps \n maxJumps \n killCount \n mountainShrines \n experience \n level \n maxHealth \n maxBarrier \n barrierDecayRate \n maxShield \n acceleration \n jumpPower \n maxJumpHeight \n damage \n critMultiplier \n bleedChance \n visionDistance \n critHeal \n cursePenalty \n hasOneShotProtection \n isGlass \n canPerformBackstab \n canReceiveBackstab \n healthPercentage \n goldPortal \n msPortal \n shopPortal \n dps \n percentDps \n currentCombatDamage \n remainingComboDuration \n maxCombo \n maxComboThisRun \n currentCombatKills \n maxKillCombo \n maxKillComboThisRun \n critWithLuck \n bleedChanceWithLuck \n velocity \n teddyBearBlockChance \n saferSpacesCD \n instaKillChance \n voidPortal \n difficultyCoefficient \n stage";
         public void Setup()
         {
             statsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "StatsDisplay", true, "Enables Stats Display");
+            statsDisplay.SettingChanged += Display_SettingChanged;
             statsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Stats Display String",
                 "<size=120%>Stats</size>\n" +
                 "Luck: [luck]\n" +
@@ -71,7 +81,8 @@ namespace LookingGlass.StatsDisplay
                 "Max Combo: [maxCombo]"
                 , $"String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is:{syntaxList}");
             statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay font size", -1, "General font size of the stats display menu. If set to -1, will copy the font size from the objective panel");
-            statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay update interval", 0.33f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance");
+            statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay update interval", 0.1f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance for large texts");
+            statsDisplayUpdateInterval.SettingChanged += Display_SettingChanged;
             builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, "Uses the default styling for stats display syntax items.");
             builtInColors.SettingChanged += BuiltInColors_SettingChanged;
             statsDisplayOverrideHeight = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Override Stats Display Height", false, "Sets a user-specified height for Stats Display (may be necessary if you get particularly creative with formatting)");
@@ -105,7 +116,7 @@ namespace LookingGlass.StatsDisplay
             detachedPosition = BasePlugin.instance.Config.Bind("Stats Display", "Stats Display Position", defaultPos,
                 $"Position of detached Stats Display.\n[Default: {defaultPos.x:f0}, {defaultPos.y:f0}]");
 
-            statsDisplayAttached.SettingChanged += Attached_SettingChanged;
+            statsDisplayAttached.SettingChanged += Display_SettingChanged;
             detachedPosition.SettingChanged += DetachedPosition_SettingChanged;
 
             var targetMethod = typeof(ScoreboardController).GetMethod(nameof(ScoreboardController.OnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -119,13 +130,13 @@ namespace LookingGlass.StatsDisplay
         void OnEnable(Action<ScoreboardController> orig, ScoreboardController self)
         {
             scoreBoardOpen = true;
-            CalculateStuff();
+            ForceUpdate();
             orig(self);
         }
         void OnDisable(Action<ScoreboardController> orig, ScoreboardController self)
         {
             scoreBoardOpen = false;
-            CalculateStuff();
+            ForceUpdate();
             orig(self);
         }
         private void BuiltInColors_SettingChanged(object sender, EventArgs e)
@@ -133,13 +144,13 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayDefinitions.SetupDefs();
         }
 
-        void Attached_SettingChanged(object sender, EventArgs e)
+        void Display_SettingChanged(object sender, EventArgs e)
         {
             // if active, recreate
             if (statTracker)
             {
                 UnityEngine.Object.DestroyImmediate(statTracker.gameObject);
-                CalculateStuff();
+                ForceUpdate();
             }
         }
 
@@ -181,27 +192,13 @@ namespace LookingGlass.StatsDisplay
         bool isRiskUI = false;
         float originalFontSize = -1;
         VerticalLayoutGroup layoutGroup;
-        public void CalculateStuff()
+        
+        public void CalculateStuff(string statsText)
         {
-            if (!cachedUserBody)
-            {
-                try
-                {
-                    cachedUserBody = LocalUserManager.GetFirstLocalUser().cachedBody;
-                }
-                catch (Exception)
-                {
-                }
-            }
             if (!statsDisplay.Value)
                 return;
             if (cachedUserBody)
             {
-                string stats = useSecondaryStatsDisplay.Value && scoreBoardOpen ? secondaryStatsDisplayString.Value : statsDisplayString.Value;
-                foreach (var item in statDictionary.Keys)
-                {
-                    stats = Regex.Replace(stats, $@"(?<!\\)\[{item}\]", statDictionary[item](cachedUserBody));
-                }
                 if (!statTracker)
                 {
                     const string PanelName = "PlayerStats";
@@ -307,10 +304,12 @@ namespace LookingGlass.StatsDisplay
                 }
                 if (textComponent && layoutElement)
                 {
-                    textComponent.text = stats;
+                    // canvas gets updated in postlateupdate if text is different
+                    textComponent.text = statsText;
+                    
                     int nlines = statsDisplayOverrideHeight.Value
                         ? statsDisplayOverrideHeightValue.Value
-                        : stats.Split('\n').Length;
+                        : statsText.Split('\n').Length;
                     if (originalFontSize == -1)
                     {
                         originalFontSize = textComponent.fontSize;
@@ -437,6 +436,77 @@ namespace LookingGlass.StatsDisplay
             }
 
             void Close() => UnityEngine.Object.Destroy(canvasObj);
+        }
+        
+        internal void Update()
+        {
+            if (statsDisplay.Value && cachedUserBody)
+            {
+                // job is scheduled if timer <= 0
+                if (timer <= 0)
+                {
+                    timer += statsDisplayUpdateInterval.Value;
+                    Profiler.BeginSample("LookingGlass.StatsDisplay");
+                    
+                    // complete regex job
+                    regexHandle.Complete();
+                    CalculateStuff(RegexJob.output);
+                    
+                    Profiler.EndSample();
+                }
+                
+                timer -= Time.deltaTime;
+                // if interval has passed
+                if (timer <= 0)
+                {
+                    // start new job that will be completed next tick
+                    regexHandle = new RegexJob().Schedule();
+                }
+            }
+        }
+
+        static string GenerateStatsText()
+        {
+            Profiler.BeginSample("LookingGlass.StatsDisplay.Regex");
+            
+            string statsText = useSecondaryStatsDisplay.Value && scoreBoardOpen ? secondaryStatsDisplayString.Value : statsDisplayString.Value;
+            statsText = statsRegex.Replace(statsText, MatchEvaluator);
+            
+            Profiler.EndSample();
+            return statsText;
+        }
+
+        // replace matched [statname]
+        static string MatchEvaluator(Match match)
+        {
+            Profiler.BeginSample("LookingGlass.StatsDisplay.Regex.Match");
+            string replacement = statDictionary.TryGetValue(match.Groups[1].Value, out var replacer) ? replacer(cachedUserBody) : match.Value;
+            Profiler.EndSample();
+            return replacement;
+        }
+
+        // if setting changed, force update next tick
+        void ForceUpdate()
+        {
+            if (statsDisplay.Value && cachedUserBody)
+            {
+                regexHandle = new RegexJob().Schedule(regexHandle);
+                timer = 0;
+            }
+        }
+        
+        struct RegexJob : IJob
+        {
+            internal static string output = "";
+    
+            public void Execute()
+            {
+                try
+                {
+                    output = GenerateStatsText();
+                }
+                catch (Exception e) { Log.Error(e); }
+            }
         }
     }
 }

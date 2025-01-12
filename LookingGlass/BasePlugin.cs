@@ -87,7 +87,6 @@ namespace LookingGlass
             unHiddenItems = new UnHiddenItems();
             buffDescriptions = new BuffDescriptionsClass();
             pickupNotifDurationClass = new PickupNotifDurationClass();
-            StartCoroutine(CheckPlayerStats());
             ItemCatalog.availability.CallWhenAvailable(() =>
             {
                 itemStats = new ItemStats();
@@ -101,21 +100,15 @@ namespace LookingGlass
                 ButtonsToCloseMenu.CloseMenuAfterFrame();
             }
             dpsMeter.Update();
+            
+            // get current camera body target
+            StatsDisplayClass.cachedUserBody = LocalUserManager.GetFirstLocalUser()?.cameraRigController ?
+                LocalUserManager.GetFirstLocalUser().cameraRigController.targetBody :
+                null;
+            
+            statsDisplayClass.Update();
         }
-        
-        IEnumerator CheckPlayerStats()
-        {
-            yield return new WaitForSeconds(StatsDisplayClass.statsDisplayUpdateInterval.Value);
-            try
-            {
-                statsDisplayClass.CalculateStuff();
-            }
-            catch (System.Exception e)
-            {
-                Debug.Log($"Attempted to update stats but got exception: {e}");
-            }
-            StartCoroutine(CheckPlayerStats());
-        }
+
         public static Texture2D LoadTexture(byte[] bytes, int width, int height)
         {
             Texture2D Tex2D = new Texture2D(width, height, TextureFormat.ARGB32, false, false);
