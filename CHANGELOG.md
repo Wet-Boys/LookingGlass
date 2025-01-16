@@ -1,3 +1,9 @@
+### 1.10.2
+Potential fix for the statsDisplay randomly breaking.
+
+### 1.10.1
+Thanks to isolno for this update. Updated stats display to use regex calls to increase performance. Fixed velocity stat not working. Added percentDps stat.
+
 ### 1.10.0
 Update to work with new patch. Fixed descriptions of changed items. Big thankies to isolNo for adding options for moving the statsdisplay around the screen. Adjusted safer spaces cooldown display, thanks itsschwer
 

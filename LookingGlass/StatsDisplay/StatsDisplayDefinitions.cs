@@ -11,6 +11,8 @@ namespace LookingGlass.StatsDisplay
     internal class StatsDisplayDefinitions
     {
         internal static string floatPrecision;
+        
+        // these delegates are called on a seperate thread, so using most of unity api is illegal here
         internal static void SetupDefs()
         {
             string utilityString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsUtility>" : "";
@@ -85,7 +87,8 @@ namespace LookingGlass.StatsDisplay
                 }
                 foreach (var item in TeleporterInteraction.instance.portalSpawners)
                 {
-                    if (item.portalSpawnCard.name == "iscVoidPortal" && item.NetworkwillSpawn)
+                    // Object.name is illegal outside of main thread in unity debug build, so using something else
+                    if (item.previewChildName == "VoidPortalIndicator" && item.NetworkwillSpawn)
                     {
                         return $"{voidString}True{styleString}";
                     }
@@ -93,6 +96,8 @@ namespace LookingGlass.StatsDisplay
                 return $"{voidString}False{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("dps", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.damageDealtSincePeriod / DPSMeter.DPS_MAX_TIME}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("percentDps", cachedUserBody
+                => $"{damageString}{(BasePlugin.instance.dpsMeter.damageDealtSincePeriod / cachedUserBody.damageFromRecalculateStats / DPSMeter.DPS_MAX_TIME).ToString(floatPrecision)}{styleString}");
             StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("remainingComboDuration", cachedUserBody => { return $"{utilityString}{(int)BasePlugin.instance.dpsMeter.timer + 1}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxCombo", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.maxCombo}{styleString}"; });
@@ -115,12 +120,12 @@ namespace LookingGlass.StatsDisplay
 
             StatsDisplayClass.statDictionary.Add("velocity", cachedUserBody =>
             {
-                Rigidbody r = cachedUserBody.GetComponent<Rigidbody>();
-                if (r)
-                {
-                    return $"{utilityString}{r.velocity.magnitude.ToString(floatPrecision)}{styleString}";
-                }
-                return $"{utilityString}N/A{styleString}";
+                string velocity =
+                    cachedUserBody.characterMotor ? cachedUserBody.characterMotor.velocity.magnitude.ToString(floatPrecision) :
+                    // rigidbody.velocity is illegal in unity debug build
+                    cachedUserBody.rigidbody ? cachedUserBody.rigidbody.velocity.magnitude.ToString(floatPrecision) :
+                    "N/A";
+                return $"{utilityString}{velocity}{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("teddyBearBlockChance", cachedUserBody => {
                 int stackCount = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Bear);
@@ -139,8 +144,8 @@ namespace LookingGlass.StatsDisplay
                 float instakillChance = Utils.CalculateChanceWithLuck(.005f * stackCount, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
                 return $"{damageString}{instakillChance.ToString(floatPrecision)}%{styleString}";
             });
-            StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{Run.instance.difficultyCoefficient}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("stage", cachedUserBody => { return $"{utilityString}{Language.GetString(RoR2.Stage.instance.sceneDef.nameToken)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{(Run.instance ? Run.instance.difficultyCoefficient.ToString(floatPrecision) : "N/A")}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("stage", cachedUserBody => { return $"{utilityString}{Language.GetString(Stage.instance ? Stage.instance.sceneDef.nameToken : "N/A")}{styleString}"; });
 
         }
     }
