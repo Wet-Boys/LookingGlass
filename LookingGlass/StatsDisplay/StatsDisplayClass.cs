@@ -203,6 +203,8 @@ namespace LookingGlass.StatsDisplay
                 {
                     const string PanelName = "PlayerStats";
                     GameObject gameHud = Run.instance.uiInstances[0];
+                    if (!gameHud)
+                        return;
                     if (statsDisplayAttached.Value)
                     {
                         foreach (var item in gameHud.GetComponentsInChildren<VerticalLayoutGroup>())
