@@ -114,11 +114,11 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(.2f + (.2f * stackCount));
+                values.Add(.15f + (.15f * stackCount));
                 values.Add(15 + (5 * stackCount));
                 return values;
             };
-            allItemDefinitions.Add((int)DLC2Content.Items.LowerHealthHigherDamage.itemIndex, itemStat);
+            allItemDefinitions.Add((int)DLC2Content.Items.AttackSpeedPerNearbyAllyOrEnemy.itemIndex, itemStat);
             
             
             //Bundle of Fireworks
@@ -275,7 +275,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 List<float> values = new();
                 values.Add(1 + stackCount);
-                values.Add(.2f + stackCount);
+                values.Add(.2f + (.1f * stackCount));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.KnockBackHitEnemies.itemIndex, itemStat);
@@ -1094,17 +1094,17 @@ namespace LookingGlass.ItemStatsNameSpace
             
             
             //Unstable Transmitter
-            itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Cooldown: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
-            {
-                List<float> values = new();
-                values.Add(45f * (1f - Util.Hyperbolic((stackCount - 1) * 0.1f)));
-                return values;
-            };
-            allItemDefinitions.Add((int)DLC2Content.Items.TeleportOnLowHealth.itemIndex, itemStat);
+            // itemStat = new ItemStatsDef();
+            // itemStat.descriptions.Add("Cooldown: ");
+            // itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            // itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            // itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            // {
+            //     List<float> values = new();
+            //     values.Add(45f * (1f - Util.Hyperbolic((stackCount - 1) * 0.1f)));
+            //     return values;
+            // };
+            // allItemDefinitions.Add((int)DLC2Content.Items.TeleportOnLowHealth.itemIndex, itemStat);
 
 
             //War Horn
@@ -1338,7 +1338,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(0.07f * stackCount);
+                values.Add(0.04f * stackCount);
                 values.Add(4 * stackCount);
                 return values;
             };
@@ -1549,7 +1549,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 values.Add(Utils.CalculateChanceWithLuck(.04f + .01f * stackCount, luck));
                 return values;
             };
-            allItemDefinitions.Add((int)DLC2Content.Items.ResetChests.itemIndex, itemStat);
+            allItemDefinitions.Add((int)DLC2Content.Items.ItemDropChanceOnKill.itemIndex, itemStat);
 
             
             //Soulbound Catalyst
@@ -1638,10 +1638,10 @@ namespace LookingGlass.ItemStatsNameSpace
                 List<float> values = new();
                 values.Add(.025f * stackCount);
                 values.Add(15 + (stackCount * 5));
-                values.Add((uint)Run.instance.GetDifficultyScaledCost(25));
+                values.Add((uint)Run.instance.GetDifficultyScaledCost(50));
                 return values;
             };
-            allItemDefinitions.Add((int)DLC2Content.Items.GoldOnStageStart.itemIndex, itemStat);
+            allItemDefinitions.Add((int)DLC2Content.Items.OnLevelUpFreeUnlock.itemIndex, itemStat);
 
 
             // ---------- Boss Items --------------------------------------------------------------------------------

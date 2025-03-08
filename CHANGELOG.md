@@ -1,3 +1,6 @@
+### 1.11.0
+Update to work with new patch
+
 ### 1.10.2
 Potential fix for the statsDisplay randomly breaking.
 
