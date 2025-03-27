@@ -76,7 +76,7 @@ namespace LookingGlass.CommandItemCount
         {
             orig();
             transformedToOriginal = new();
-            foreach (var info in ContagiousItemManager.transformationInfos)
+            foreach(var info in ContagiousItemManager.transformationInfos)
             {
                 if (!transformedToOriginal.TryGetValue(info.transformedItem, out List<ItemIndex> originalItemList))
                 {

@@ -183,7 +183,7 @@ namespace LookingGlass.AutoSortItems
         internal (PickupPickerController.Option[], List<int>) SortPickupPicker(PickupPickerController.Option[] options, bool isCommand)
         {
             List<ItemIndex> items = new List<ItemIndex>();
-            List<ItemIndex> unSortedItems = new List<ItemIndex>();
+            List<ItemIndex> unSortedItems = new List<ItemIndex>(); //used to make mapping of what changed when sorting
             List<int> mapping = new List<int>(options.Length);
 
             for (int i = 0; i < options.Length; i++)
@@ -214,21 +214,12 @@ namespace LookingGlass.AutoSortItems
             }
 
             // make mapping of what was changed
-            mapping = Enumerable.ToList<int>(
-                Enumerable.Select<ItemIndex, int>
-                (items, (ItemIndex item) => unSortedItems.IndexOf(item))
-            );
+            mapping = Enumerable.ToList(Enumerable.Select(items, (ItemIndex item) => unSortedItems.IndexOf(item)));
 
+            // apply mapping to options
+            PickupPickerController.Option[] sortedOptions = Enumerable.ToArray(Enumerable.Select(mapping, (int index) => options[index]));
 
-            return (
-                // apply mapping to options and return it
-                Enumerable.ToArray<PickupPickerController.Option>(
-                    Enumerable.Select<int, PickupPickerController.Option>
-                        (mapping, (int index) => options[index])
-                    )
-                , 
-                // return mapping
-                mapping);
+            return (sortedOptions,mapping);
             
 
         }

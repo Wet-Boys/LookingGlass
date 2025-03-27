@@ -70,12 +70,12 @@ namespace LookingGlass.EscapeToCloseMenu
                 CloseMenuAfterFrame();
             }
 
-            if (interactHoldBlocker && (!LocalUserManager.GetFirstLocalUser().inputPlayer.GetButton(5) || Time.time >= holdBlockerStartTime + 0.5)) //if blocker is active and  player is not holding interact
-            {
-
+            // Interact hold blocker to prevent rappidly opening/closing menu because that breaks the menu
+            if (interactHoldBlocker && (!LocalUserManager.GetFirstLocalUser().inputPlayer.GetButton(5) || Time.time >= holdBlockerStartTime + 0.5))
+            {//if blocker is active and  player is not holding interact or it has been more than 0.5 seconds
                 interactHoldBlocker = false; //turn off blocker
                 
-                if (pickupPickerController != null) // the command menu destorys the pickupPickerController before thus runs, so must check if it is null
+                if (pickupPickerController != null) // the command menu destroys the pickupPickerController before thus runs, so must check if it is null
                 {
                     pickupPickerController.enabled = true;
                     // toggle the pickupPickerController like this and not with PickupPickerController.available because this way isnt networked, and the networking is what was causing issues
@@ -93,7 +93,7 @@ namespace LookingGlass.EscapeToCloseMenu
                     buttonsToClickOnMove[0].InvokeClick();
                     interactHoldBlocker = true;
 
-                    if (pickupPickerController != null) // the command menu destorys the pickupPickerController before thus runs, so must check if it is null
+                    if (pickupPickerController != null) // the command menu destroys the pickupPickerController before thus runs, so must check if it is null
                     {
                         pickupPickerController.enabled = false;
                         // toggle the pickupPickerController like this and not with PickupPickerController.available because this way isnt networked, and the networking is what was causing issues
