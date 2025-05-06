@@ -180,19 +180,22 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        internal void SortPickupPicker(PickupPickerController.Option[] options, ReadOnlyCollection<MPButton> elements, Inventory inventory, bool isCommand, PickupPickerPanel panel)
+        internal (PickupPickerController.Option[], List<int>) SortPickupPicker(PickupPickerController.Option[] options, bool isCommand)
         {
-            Dictionary<ItemIndex, GameObject> stuff = new Dictionary<ItemIndex, GameObject>();
             List<ItemIndex> items = new List<ItemIndex>();
+            List<ItemIndex> unSortedItems = new List<ItemIndex>(); //used to make mapping of what changed when sorting
+            List<int> mapping = new List<int>(options.Length);
+
             for (int i = 0; i < options.Length; i++)
             {
                 ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
                 if (itemIndex == ItemIndex.None)
                 {
-                    return;
+                    return (options, [-1]); // -1 indicates no sorting
                 }
-                stuff.Add(itemIndex, elements[i].gameObject);
                 items.Add(itemIndex);
+                unSortedItems.Add(itemIndex);
+
             }
             if ((isCommand && SortCommandAlphabetical.Value) || (!isCommand && SortScrapperAlphabetical.Value))
             {
@@ -209,11 +212,16 @@ namespace LookingGlass.AutoSortItems
             {
                 items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, isCommand ? false : SortScrapperTier.Value, isCommand ? SortCommand.Value : SortScrapper.Value, isCommand ? SortCommandDescending.Value : SortScrapperDescending.Value));
             }
-            foreach (var item in items)
-            {
-                stuff[item].transform.SetAsLastSibling();
-            }
-            Run.instance.StartCoroutine(ReOrganizeItems(options, panel));
+
+            // make mapping of what was changed
+            mapping = Enumerable.ToList(Enumerable.Select(items, (ItemIndex item) => unSortedItems.IndexOf(item)));
+
+            // apply mapping to options
+            PickupPickerController.Option[] sortedOptions = Enumerable.ToArray(Enumerable.Select(mapping, (int index) => options[index]));
+
+            return (sortedOptions,mapping);
+            
+
         }
         IEnumerator ReOrganizeItems(PickupPickerController.Option[] options, PickupPickerPanel self)
         {

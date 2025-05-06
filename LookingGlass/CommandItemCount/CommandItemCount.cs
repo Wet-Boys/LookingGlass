@@ -15,6 +15,7 @@ using RiskOfOptions;
 using RoR2.Items;
 using System.Reflection;
 using System.Linq;
+using UnityEngine.Networking;
 
 namespace LookingGlass.CommandItemCount
 {
@@ -22,10 +23,14 @@ namespace LookingGlass.CommandItemCount
     {
         private static Hook overrideHook;
         private static Hook contagiousItemsHook;
+        private static Hook submitChoiceHook;
         public static ConfigEntry<bool> commandItemCount;
         public static ConfigEntry<bool> hideCountIfZero;
         public static ConfigEntry<bool> commandToolTips;
         public static ConfigEntry<bool> showCorruptedItems;
+
+        private List<int> optionMap = [-1];
+        private bool isFromOnDisplayBegin = false;
 
         // needs to be a list because some void items corrupt multiple items
         private Dictionary<ItemIndex, List<ItemIndex>> transformedToOriginal;
@@ -42,6 +47,9 @@ namespace LookingGlass.CommandItemCount
             var targetMethod2 = typeof(ContagiousItemManager).GetMethod(nameof(ContagiousItemManager.InitTransformationTable), BindingFlags.NonPublic | BindingFlags.Static);
             var destMethod2 = typeof(CommandItemCountClass).GetMethod(nameof(InitializeTransformedToOriginal), BindingFlags.NonPublic | BindingFlags.Instance);
             contagiousItemsHook = new Hook(targetMethod2, destMethod2, this);
+            var targetMethod3 = typeof(PickupPickerController).GetMethod(nameof(PickupPickerController.SubmitChoice), BindingFlags.Public | BindingFlags.Instance);
+            var destMethod3 = typeof(CommandItemCountClass).GetMethod(nameof(SubmitChoice), BindingFlags.NonPublic | BindingFlags.Instance);
+            submitChoiceHook = new Hook(targetMethod3, destMethod3, this);
             commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
             hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, "Hides the item count if you have none of an item");
             commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
@@ -78,18 +86,43 @@ namespace LookingGlass.CommandItemCount
             }
         }
 
+        public void OnDisplayBeginStuff()
+        {
+            isFromOnDisplayBegin = true; // tell the scrapper sorting that it was called from OnDisplayBegin
+            optionMap[0] = -1; // set option map to be "unsorted". Fixes isues with Command Queue picking the wrong item
+        }
+
         //Largely copied from https://github.com/Vl4dimyr/CommandItemCount/blob/master/CommandItemCountPlugin.cs#L191
         void PickupPickerPanel(Action<PickupPickerPanel, PickupPickerController.Option[]> orig, PickupPickerPanel self, PickupPickerController.Option[] options)
         {
-            orig(self, options);
+
             if (options.Length < 1)
             {
+                orig(self, options);
                 return;
             }
+
             string parentName = self.gameObject.name;
             bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
+
+            // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
+            (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
+
+            orig(self, options);
+
+            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("ScrapperPickerPanel") || parentName.StartsWith("CommandPickerPanel")))
+            {
+                // as a client interacting with a scrapper or command menu, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
+                // This prevetnts the numbers being created the first time the funciton is called as the options list is effectively garbage data on the first call because of wierd networking stuff
+                // thus preventing the item counts being incorrect and/or doubled
+                isFromOnDisplayBegin = false;
+                return;
+            }
+
+            isFromOnDisplayBegin = false;
+
             for (int i = 0; i < options.Length; i++)
             {
                 ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
@@ -138,6 +171,19 @@ namespace LookingGlass.CommandItemCount
                     CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count, withOneMore, corruption);
             }
         }
+
+        private void SubmitChoice(Action<PickupPickerController, int> orig, PickupPickerController self, int index)
+        {
+            // change selected option based on option map
+            // if the first element in optionMap < 0 , the options were never sorted
+            int newIndex = (optionMap[0] >= 0) ? optionMap[index] : index;
+
+            //Log.Debug($"Pressed {index}, Redirected {newIndex}");
+
+            orig(self, newIndex);
+        }
+
+
         void CreateNumber(Transform parent, int count, ItemCorruptionInfo corruption)
         {
             GameObject textContainer = new GameObject();
