@@ -1,3 +1,6 @@
+### 1.12.0
+Functional with seekers patch 3. Thanks to Bumperdo09 for restructuing PickupPickerPanel sorting to work better with multiplayer.
+
 ### 1.11.0
 Update to work with new patch
 
