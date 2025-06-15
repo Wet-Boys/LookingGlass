@@ -108,7 +108,7 @@ namespace LookingGlass.CommandItemCount
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
 
             // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
-            (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
+            (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, parentName);
 
             orig(self, options);
 
