@@ -38,22 +38,28 @@ namespace LookingGlass.AutoSortItems
             TierIgnoringAcquiredOrder
         }
 
+        internal enum SortMode
+        {
+            Off,
+            StackSize,
+            StackSizeDecending,
+            Alphabetical,
+            AlphabeticalDecending,
+        }
+
         public static ConfigEntry<ScrapSortMode> ScrapSorting;
         public static ConfigEntry<TierSortMode> SortByTier;
         public static ConfigEntry<string> TierOrder;
         public static ConfigEntry<bool> CombineVoidTiers;
-        public static ConfigEntry<bool> SortByStackSize;
-        public static ConfigEntry<bool> DescendingStackSize;
-        public static ConfigEntry<bool> SortCommand;
-        public static ConfigEntry<bool> SortScrapper;
-        public static ConfigEntry<bool> SortCommandDescending;
-        public static ConfigEntry<bool> SortScrapperDescending;
+
+        public static ConfigEntry<SortMode> InventorySorting;
+        public static ConfigEntry<bool> SortInventoryTier;
+
+        public static ConfigEntry<SortMode> CommandSorting;
+
+        public static ConfigEntry<SortMode> ScrapperSorting;
         public static ConfigEntry<bool> SortScrapperTier;
 
-        public static ConfigEntry<bool> SortCommandAlphabetical;
-        public static ConfigEntry<bool> SortScrapperAlphabetical;
-        public static ConfigEntry<bool> SortCommandAlphabeticalDescending;
-        public static ConfigEntry<bool> SortScrapperAlphabeticalDescending;
 
         public static AutoSortItemsClass instance;
         RoR2.UI.ItemInventoryDisplay display;
@@ -71,28 +77,29 @@ namespace LookingGlass.AutoSortItems
         {
 
             instance = this;
-            ScrapSorting = BasePlugin.instance.Config.Bind<ScrapSortMode>("Auto Sort Items", "Scrap Sorting", ScrapSortMode.Start, "Where scrap should be sorted");
-            SortByTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Tier Sort", TierSortMode.Tier, "Sorts by Tier");
+            ScrapSorting = BasePlugin.instance.Config.Bind("Auto Sort Items", "Scrap Sorting", ScrapSortMode.Start, "Where scrap should be sorted");
+            SortByTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Tier Sort", TierSortMode.Tier, "How Tiers should be sorted");
             TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier", "How the tiers should be ordered");
             CombineVoidTiers = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
-            SortByStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Stack Size Sort", true, "Sorts by Stack Size");
-            DescendingStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Stack Size Sort", true, "Sorts by Stack Size Descending");
-            SortCommand = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Command Menu", true, "Sorts command menu by stack count");
-            SortCommandDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Command Menu Descending", true, "Sorts command menu descending");
-            SortScrapper = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper", true, "Sorts Scrapper by stack count");
-            SortScrapperDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Scrapper Descending", true, "Sorts Scrapper by descending");
-            SortScrapperTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Tier", false, "Sorts Scrapper by tier");
 
-            SortCommandAlphabetical = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Command Menu Alphabetically", false, "Sorts command menu alphabetically");
-            SortCommandAlphabeticalDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Command Menu Alphabetically Descending", true, "Sorts command alphabetically descending");
-            SortScrapperAlphabetical = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Alphabetically", false, "Sorts Scrapper alphabetically");
-            SortScrapperAlphabeticalDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Scrapper Alphabetically Descending", true, "Sorts Scrapper alphabetically descending");
+            InventorySorting = BasePlugin.instance.Config.Bind("Auto Sort Items", "Inventory Sorting", SortMode.StackSizeDecending, "How should the inventory be sorted");
+            SortInventoryTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Inventory Sort Tiers", true, "Should the inventory be sorted by tiers");
+
+            CommandSorting = BasePlugin.instance.Config.Bind("Auto Sort Items", "Command Sorting", SortMode.StackSizeDecending, "How should the command menu be sorted");
+
+            ScrapperSorting = BasePlugin.instance.Config.Bind("Auto Sort Items", "Scrapper Sorting", SortMode.StackSizeDecending, "How should the scrapper menu be sorted");
+            SortScrapperTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Tier", true, "Sorts Scrapper by tier");
+
+
             ScrapSorting.SettingChanged += SettingsChanged;
             SortByTier.SettingChanged += SettingsChanged;
             TierOrder.SettingChanged += SettingsChanged;
             CombineVoidTiers.SettingChanged += SettingsChanged;
-            SortByStackSize.SettingChanged += SettingsChanged;
-            DescendingStackSize.SettingChanged += SettingsChanged;
+            InventorySorting.SettingChanged += SettingsChanged;
+            SortInventoryTier.SettingChanged += SettingsChanged;
+            CommandSorting.SettingChanged += SettingsChanged;
+            ScrapperSorting.SettingChanged += SettingsChanged;
+            SortScrapperTier.SettingChanged += SettingsChanged;
 
             InitHooks();
             SetupRiskOfOptions();
@@ -102,60 +109,33 @@ namespace LookingGlass.AutoSortItems
         {
             ModSettingsManager.AddOption(new ChoiceOption(ScrapSorting, new ChoiceConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new ChoiceOption(SortByTier, new ChoiceConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit}));
+            ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit }));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Descending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use descending tiers", "Set", SetDescendingTiers));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Ascending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use ascending tiers", "Set", SetAscendingTiers));
             ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortByStackSize, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(DescendingStackSize, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckStackSort }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(SortCommand, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotCommandSortAlphabetical }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortCommandDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckCommandSort }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapper, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckScrapperSort }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
+            ModSettingsManager.AddOption(new ChoiceOption(InventorySorting, new ChoiceConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortInventoryTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckSortInventoryTier }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(SortCommandAlphabetical, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortCommandAlphabeticalDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckCommandSortAlphabetical }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperAlphabetical, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperAlphabeticalDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckScrapperSortTierAlphabetical }));
+            ModSettingsManager.AddOption(new ChoiceOption(CommandSorting, new ChoiceConfig() { restartRequired = false }));
+
+            ModSettingsManager.AddOption(new ChoiceOption(ScrapperSorting, new ChoiceConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckSortScrapperTier }));
         }
         //I'm going cross-eyed looking at all these
         private static bool CheckTierSort()
         {
             return SortByTier.Value == TierSortMode.Off;
         }
-        private static bool CheckStackSort()
+
+        private static bool CheckSortInventoryTier()
         {
-            return !SortByStackSize.Value;
+            return SortByTier.Value == TierSortMode.Off || InventorySorting.Value == SortMode.Off || InventorySorting.Value == SortMode.Alphabetical || InventorySorting.Value == SortMode.AlphabeticalDecending;
         }
-        private static bool CheckCommandSort()
+
+        private static bool CheckSortScrapperTier()
         {
-            return !SortCommand.Value || SortCommandAlphabetical.Value;
-        }
-        private static bool CheckScrapperSort()
-        {
-            return !SortScrapper.Value || SortScrapperAlphabetical.Value;
-        }
-        private static bool CheckScrapperSortTier()
-        {
-            return !SortScrapperTier.Value || SortScrapperAlphabetical.Value;
-        }
-        private static bool CheckCommandSortAlphabetical()
-        {
-            return !SortCommandAlphabetical.Value;
-        }
-        private static bool CheckScrapperSortTierAlphabetical()
-        {
-            return !SortScrapperAlphabetical.Value;
-        }
-        private static bool CheckNotCommandSortAlphabetical()
-        {
-            return SortCommandAlphabetical.Value;
-        }
-        private static bool CheckNotScrapperSortTierAlphabetical()
-        {
-            return SortScrapperAlphabetical.Value;
+            return SortByTier.Value == TierSortMode.Off || ScrapperSorting.Value == SortMode.Off || ScrapperSorting.Value == SortMode.Alphabetical || ScrapperSorting.Value == SortMode.AlphabeticalDecending;
         }
 
         private void SetDescendingTiers()
@@ -180,8 +160,20 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        internal (PickupPickerController.Option[], List<int>) SortPickupPicker(PickupPickerController.Option[] options, bool isCommand)
+        internal (PickupPickerController.Option[], List<int>) SortPickupPicker(PickupPickerController.Option[] options, string parentName)
         {
+            SortMode mode;
+            bool sortTiers;
+            bool isCommand = parentName.StartsWith("CommandPickerPanel");
+            bool isScrapper = parentName.StartsWith("ScrapperPickerPanel");
+
+            if (isCommand) { mode = CommandSorting.Value; sortTiers = false; }
+            else if (isScrapper) { mode = ScrapperSorting.Value; sortTiers = SortScrapperTier.Value; }
+            else { return (options, [-1]); }
+
+            if (mode == SortMode.Off) { return (options, [-1]); }
+
+
             List<ItemIndex> items = new List<ItemIndex>();
             List<ItemIndex> unSortedItems = new List<ItemIndex>(); //used to make mapping of what changed when sorting
             List<int> mapping = new List<int>(options.Length);
@@ -195,23 +187,11 @@ namespace LookingGlass.AutoSortItems
                 }
                 items.Add(itemIndex);
                 unSortedItems.Add(itemIndex);
+            }
 
-            }
-            if ((isCommand && SortCommandAlphabetical.Value) || (!isCommand && SortScrapperAlphabetical.Value))
-            {
-                items.Sort(delegate (ItemIndex index, ItemIndex index2)
-                {
-                    return Language.GetString(ItemCatalog.GetItemDef(index).nameToken).CompareTo(Language.GetString(ItemCatalog.GetItemDef(index2).nameToken));
-                });
-                if ((isCommand && !SortCommandAlphabeticalDescending.Value) || (!isCommand && !SortScrapperAlphabeticalDescending.Value))
-                {
-                    items.Reverse();
-                }
-            }
-            else
-            {
-                items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, isCommand ? false : SortScrapperTier.Value, isCommand ? SortCommand.Value : SortScrapper.Value, isCommand ? SortCommandDescending.Value : SortScrapperDescending.Value));
-            }
+            //sort items
+            items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, mode, sortTiers));
+
 
             // make mapping of what was changed
             mapping = Enumerable.ToList(Enumerable.Select(items, (ItemIndex item) => unSortedItems.IndexOf(item)));
@@ -219,9 +199,7 @@ namespace LookingGlass.AutoSortItems
             // apply mapping to options
             PickupPickerController.Option[] sortedOptions = Enumerable.ToArray(Enumerable.Select(mapping, (int index) => options[index]));
 
-            return (sortedOptions,mapping);
-            
-
+            return (sortedOptions, mapping);
         }
         IEnumerator ReOrganizeItems(PickupPickerController.Option[] options, PickupPickerPanel self)
         {
@@ -292,38 +270,15 @@ namespace LookingGlass.AutoSortItems
             {
                 display = self;
                 var temp = self.itemOrder;
+
+                if (tierMatcher.Count == 0) //initialize tierMatcher if not done already
+                {
+                    SetupTierMatcher();
+                }
+
                 try
                 {
-                    if (!initialized)
-                    {
-                        initialized = true;
-                        tierMatcher.Clear();
-                        itemTierLists.Clear();
-                        foreach (string tierString in TierOrder.Value.Split(' '))
-                        {
-                            if (Enum.TryParse(tierString, out ItemTier tier) && !tierMatcher.ContainsKey(tier))
-                            {
-                                tierMatcher.Add(tier, itemTierLists.Count);
-                                itemTierLists.Add(new List<ItemIndex>());
-                            }
-                        }
-                        foreach (var tierDef in RoR2.ContentManagement.ContentManager.itemTierDefs)
-                        {
-                            if (!tierMatcher.ContainsKey(tierDef.tier)) // use default ordering for any not present in the setting
-                            {
-                                tierMatcher.Add(tierDef.tier, itemTierLists.Count);
-                                itemTierLists.Add(new List<ItemIndex>());
-                            }
-                        }
-                        // apparently this is just not in itemTierDefs? wack
-                        if (!tierMatcher.ContainsKey(ItemTier.NoTier))
-                        {
-                            tierMatcher.Add(ItemTier.NoTier, itemTierLists.Count);
-                            itemTierLists.Add(new List<ItemIndex>());
-                        }
-                        //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
-                    }
-                    self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, SortByTier.Value != TierSortMode.Off, SortByStackSize.Value, DescendingStackSize.Value);
+                    self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, InventorySorting.Value, SortInventoryTier.Value);
                 }
                 catch (Exception e)
                 {
@@ -340,7 +295,9 @@ namespace LookingGlass.AutoSortItems
 
         private void SettingsChanged(object sender, EventArgs e)
         {
-            initialized = false; // force re-initialization
+            // force re-initialization
+
+            SetupTierMatcher();
             try
             {
                 if (display)
@@ -353,8 +310,67 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        ItemIndex[] SortItems(ItemIndex[] items, int count, RoR2.UI.ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize) //This really should be refactored but it works so...
+        private void SetupTierMatcher()
         {
+            tierMatcher.Clear();
+            itemTierLists.Clear();
+            foreach (string tierString in TierOrder.Value.Split(' '))
+            {
+                if (Enum.TryParse(tierString, out ItemTier tier) && !tierMatcher.ContainsKey(tier))
+                {
+                    tierMatcher.Add(tier, itemTierLists.Count);
+                    itemTierLists.Add(new List<ItemIndex>());
+                }
+            }
+            foreach (var tierDef in RoR2.ContentManagement.ContentManager.itemTierDefs)
+            {
+                if (!tierMatcher.ContainsKey(tierDef.tier)) // use default ordering for any not present in the setting
+                {
+                    tierMatcher.Add(tierDef.tier, itemTierLists.Count);
+                    itemTierLists.Add(new List<ItemIndex>());
+                }
+            }
+            // apparently this is just not in itemTierDefs? wack
+            if (!tierMatcher.ContainsKey(ItemTier.NoTier))
+            {
+                tierMatcher.Add(ItemTier.NoTier, itemTierLists.Count);
+                itemTierLists.Add(new List<ItemIndex>());
+            }
+        }
+
+        ItemIndex[] SortItems(ItemIndex[] items, int count, RoR2.UI.ItemInventoryDisplay display, SortMode mode, bool sortByTier) //This really should be refactored but it works so...
+        {
+
+            if (mode == SortMode.Off) { return items; };
+
+            if (mode == SortMode.Alphabetical || mode == SortMode.AlphabeticalDecending) { 
+
+                //Log.Debug("Sorting Alphabetical");
+
+                items = items[0..count]; //remove everything past length of items. IDK why its there to begin with 
+
+                Array.Sort(items, (ItemIndex index, ItemIndex index2) =>
+                {
+                    return Language.GetString(ItemCatalog.GetItemDef(index).nameToken).CompareTo(Language.GetString(ItemCatalog.GetItemDef(index2).nameToken));
+                });
+                if (mode == SortMode.AlphabeticalDecending)
+                {
+                    items.Reverse();
+                }
+
+                return items;
+            }
+
+
+           // Log.Debug("Sorting Everything Else");
+
+            sortByTier = sortByTier && (SortByTier.Value != TierSortMode.Off);
+
+            bool seperateScrap = ScrapSorting.Value != ScrapSortMode.Mixed;
+            bool sortByStackSize = (mode == SortMode.StackSize || mode == SortMode.StackSizeDecending);
+            bool descendingStackSize = mode == SortMode.StackSizeDecending;
+
+
             foreach (var tierList in itemTierLists)
             {
                 tierList.Clear();

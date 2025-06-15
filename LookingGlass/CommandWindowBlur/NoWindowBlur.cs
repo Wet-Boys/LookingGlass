@@ -45,13 +45,17 @@ namespace LookingGlass.CommandWindowBlur
 
             orig(self, networkUIPromptController, localUser, cameraRigController);
 
-            TranslucentImage t = self.panelInstance.gameObject.GetComponentInChildren<TranslucentImage>();
-            if (t is not null)
-            {
-                t.enabled = !disable.Value;
+            //CommandQueue will sometimes remove the panelInstance so must check if null
+            if (self.panelInstance is not null) { 
+                TranslucentImage t = self.panelInstance.gameObject.GetComponentInChildren<TranslucentImage>();
+                if (t is not null)
+                {
+                    t.enabled = !disable.Value;
+                }
+
+                BasePlugin.instance.resizeCommandWindowClass.ResizeWindow(self); //also tries to access self.panelInstance
+                BasePlugin.instance.buttonsToCloseMenu.OnDisplayBeginStuff(self);
             }
-            BasePlugin.instance.buttonsToCloseMenu.OnDisplayBeginStuff(self);
-            BasePlugin.instance.resizeCommandWindowClass.ResizeWindow(self);
         }
     }
 }
