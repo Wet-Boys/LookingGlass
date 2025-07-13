@@ -74,7 +74,6 @@ namespace LookingGlass
 
 
             statsDisplayClass = new StatsDisplayClass(); //More important config to have in first slot?
-
             autoSortItems = new AutoSortItemsClass();
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();

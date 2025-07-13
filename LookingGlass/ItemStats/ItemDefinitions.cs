@@ -115,12 +115,12 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Max Buff Count: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(.065f + (.035f * stackCount));
-                values.Add((.65f + (.035f * stackCount))*(2+ stackCount));
+                values.Add(.065f + .035f * stackCount);
+                values.Add((.065f + .035f * stackCount)*(2+ stackCount));
                 values.Add(2 +stackCount);
                 return values;
             };
