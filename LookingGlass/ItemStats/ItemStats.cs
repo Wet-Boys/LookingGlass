@@ -297,6 +297,7 @@ namespace LookingGlass.ItemStatsNameSpace
                             switch (itemStats.valueTypes[i])
                             {
                                 case ItemStatsDef.ValueType.Healing:
+                                case ItemStatsDef.ValueType.Armor:
                                     itemDescription += "<style=\"cIsHealing";
                                     break;
                                 case ItemStatsDef.ValueType.Damage:
@@ -305,6 +306,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                 case ItemStatsDef.ValueType.Utility:
                                     itemDescription += "<style=\"cIsUtility";
                                     break;
+
                                 case ItemStatsDef.ValueType.Health:
                                     itemDescription += "<style=\"cIsHealth";
                                     break;
@@ -342,7 +344,6 @@ namespace LookingGlass.ItemStatsNameSpace
                                 case ItemStatsDef.ValueType.Shrine:
                                     itemDescription += "<style=\"cShrine";
                                     break;
-                                case ItemStatsDef.ValueType.Armor:
                                 case ItemStatsDef.ValueType.Event:
                                     itemDescription += "<style=\"cEvent";
                                     break;
