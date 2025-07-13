@@ -398,7 +398,7 @@ namespace LookingGlass.ItemStatsNameSpace
             //Repulsion Armor Plate
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Damage Reduction: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
@@ -1565,7 +1565,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 List<float> values = new();
                 // Note ! it is calculated with luck, cannot trigger more than once
-                values.Add(1f);
+                values.Add(1f); 
                 values.Add(Utils.CalculateChanceWithLuck(.04f + .01f * stackCount, luck));
                 return values;
             };
@@ -1872,7 +1872,7 @@ namespace LookingGlass.ItemStatsNameSpace
             //Titanic Knurl
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Bonus Health: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Health);
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.FlatHealth);
             itemStat.descriptions.Add("Healing: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
