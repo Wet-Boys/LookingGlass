@@ -25,6 +25,14 @@ namespace LookingGlass.ItemStatsNameSpace
             //Proc Chance -> Color of category of item (Damage -> Damage)
             //Lunar Downside -> ValueType.Death
 
+            #region Base Game
+            #endregion
+            #region DLC1 SotV
+            #endregion
+            #region DLC2 SotS
+            #endregion
+            #region DLC3 AC
+            #endregion
 
             #region ---------- White Items --------------------------------------------------------------------------------
 
@@ -271,25 +279,6 @@ namespace LookingGlass.ItemStatsNameSpace
             };
             allItemDefinitions.Add((int)RoR2Content.Items.IgniteOnKill.itemIndex, itemStat);
 
-            
-            //Breaching Fin (previously Knockback Fin)
-            itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Max Launch Count: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.descriptions.Add("Max Damage Bonus: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
-            {
-                List<float> values = new();
-                values.Add(1 + stackCount);
-                values.Add(.2f + (.1f * stackCount));
-                return values;
-            };
-            allItemDefinitions.Add((int)DLC2Content.Items.KnockBackHitEnemies.itemIndex, itemStat);
-            
-            
             //Lens-Maker's Glasses
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Crit Chance: ");
@@ -555,6 +544,8 @@ namespace LookingGlass.ItemStatsNameSpace
             #endregion
 
             #region ---------- Green Items --------------------------------------------------------------------------------
+
+
 
             //AtG Missile Mk. 1
             itemStat = new ItemStatsDef();
@@ -1100,10 +1091,29 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.ChainLightning.itemIndex, itemStat);
-            
-            
-             //Unstable Transmitter
-             itemStat = new ItemStatsDef();
+
+
+
+
+            //Breaching Fin (previously Knockback Fin)
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Max Launch Count: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Max Damage Bonus: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(1 + stackCount);
+                values.Add(.2f + (.1f * stackCount));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC2Content.Items.KnockBackHitEnemies.itemIndex, itemStat);
+
+            //Unstable Transmitter
+            itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Remaining Uses On Stage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
