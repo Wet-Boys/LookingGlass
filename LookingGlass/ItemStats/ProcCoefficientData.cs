@@ -108,6 +108,12 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("TREEBOT_SPECIAL_NAME", 1f);
             skills.Add("TREEBOT_SPECIAL_ALT1_NAME", 1f);
 
+            // Heretic
+            skills.Add("SKILL_LUNAR_PRIMARY_REPLACEMENT_NAME", 1f); //0.1 initial hit
+            skills.Add("SKILL_LUNAR_SECONDARY_REPLACEMENT_NAME", 0.2f); //1 on explosion, 0.2 on rapid hits.
+            skills.Add("SKILL_LUNAR_SPECIAL_REPLACEMENT_NAME", 1f);
+            
+            //DLC1
             // Railgunner
             skills.Add("RAILGUNNER_PRIMARY_NAME", 1f);
             skills.Add("RAILGUNNER_SECONDARY_NAME", 1f);
@@ -116,9 +122,16 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("RAILGUNNER_UTILITY_ALT_NAME", 0f);
             skills.Add("RAILGUNNER_SPECIAL_NAME", 3f);
             skills.Add("RAILGUNNER_SPECIAL_ALT_NAME", 1.5f);
+            //The M1 replacements
+            skills.Add("RAILGUNNER_SNIPE_HEAVY_NAME", 1f);
+            skills.Add("RAILGUNNER_SNIPE_LIGHT_NAME", 1f);
+            skills.Add("RAILGUNNER_SNIPE_SUPER_NAME", 3f);
+            skills.Add("RAILGUNNER_SNIPE_CRYO_NAME", 1.5f);
+
 
             // Void Fiend
             // TODO differentiate between corrupted and normal
+            // Corrupt skills do not have different name tokens
             skills.Add("VOIDSURVIVOR_PRIMARY_NAME", 1f);
             skills.Add("VOIDSURVIVOR_SECONDARY_NAME", 1f);
             skills.Add("CORRUPTED_VOIDSURVIVOR_PRIMARY_NAME", 0.625f);
@@ -126,25 +139,31 @@ namespace LookingGlass.ItemStatsNameSpace
             
             // Seeker
             skills.Add("SEEKER_PRIMARY_NAME", 1f);
-            skills.Add("SEEKER_PRIMARY_ALT1_NAME", 1f);
             skills.Add("SEEKER_SECONDARY_NAME", 1f);
             skills.Add("SEEKER_SECONDARY_ALT1_NAME", 1f);
             skills.Add("SEEKER_UTILITY_NAME", 1f);
+            skills.Add("SEEKER_UTILITY_ALT1_NAME", 1f);
             skills.Add("SEEKER_SPECIAL_NAME", 1f);
+            skills.Add("SEEKER_SPECIAL_ALT1_NAME", 1f);
 
             // False son
             skills.Add("FALSESON_PRIMARY_NAME", 1f);
             skills.Add("FALSESON_SECONDARY_NAME", 1f);
-            skills.Add("FALSESON_UTILITY_NAME", 0.5f);
+            skills.Add("FALSESON_SECONDARY_ALT1_NAME", 1f);
+            skills.Add("FALSESON_UTILITY_NAME", 1f);
+            skills.Add("FALSESON_UTILITY_ALT1_NAME", 0f);
             skills.Add("FALSESON_SPECIAL_NAME", 0.45f);
-            skills.Add("FALSESON_SPECIAL_ALT1_NAME", 0.5f);
+            skills.Add("FALSESON_SPECIAL_ALT1_NAME", 1f);
             
             // Chef
-            skills.Add("CHEF_PRIMARY_NAME", 0.5f);
-            skills.Add("CHEF_SECONDARY_NAME", 0.6f);
-            skills.Add("CHEF_UTILITY_NAME", 1f);
-            skills.Add("CHEF_SPECIAL_NAME", 1f);
-            skills.Add("CHEF_SPECIAL_ALT1_NAME", 0.32f);
+            //Boosted skills do not have unique name tokens (Would have unique desc tho)
+            skills.Add("CHEF_PRIMARY_NAME", 1f);        //Cleaver Held / Boosted 1.5
+            skills.Add("CHEF_SECONDARY_NAME", 1f);      //Boosted 1
+            skills.Add("CHEF_SECONDARY_ALT_NAME", 1f);  //Boosted 1
+            skills.Add("CHEF_UTILITY_NAME", 1f);        //Boosted 1
+            skills.Add("CHEF_UTILITY_ALT_NAME", 1f);    //Boosted 1
+            skills.Add("CHEF_SPECIAL_NAME", 1f);        //Oil Puddle 0.1
+            skills.Add("CHEF_SPECIAL_ALT1_NAME", 1f);
         }
     }
 }
