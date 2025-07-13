@@ -73,13 +73,15 @@ namespace LookingGlass
             }
 
 
+            statsDisplayClass = new StatsDisplayClass(); //More important config to have in first slot?
+
             autoSortItems = new AutoSortItemsClass();
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();
             hidePickupNotifications = new HidePickupNotifications();
             commandItemCountClass = new CommandItemCountClass();
             resizeCommandWindowClass = new ModifyCommandWindow();
-            statsDisplayClass = new StatsDisplayClass();
+            
             buffTimers = new BuffTimersClass();
             dpsMeter = new DPSMeter();
             itemCounter = new ItemCounter();

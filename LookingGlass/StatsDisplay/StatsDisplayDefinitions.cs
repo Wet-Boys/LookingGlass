@@ -47,9 +47,9 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("mountainShrines", cachedUserBody => { return $"{utilityString}{((TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shrineBonusStacks : "N/A"))}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("experience", cachedUserBody => { return $"{utilityString}{(cachedUserBody.experience).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("level", cachedUserBody => { return $"{utilityString}{(cachedUserBody.level)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healthString}{(cachedUserBody.maxHealth)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("maxBarrier", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxBarrier)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("barrierDecayRate", cachedUserBody => { return $"{utilityString}{(cachedUserBody.barrierDecayRate).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxHealth)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("maxBarrier", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxBarrier)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("barrierDecayRate", cachedUserBody => { return $"{healingString}{(cachedUserBody.barrierDecayRate).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxShield", cachedUserBody => { return $"{utilityString}{(cachedUserBody.maxShield)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("acceleration", cachedUserBody => { return $"{utilityString}{(cachedUserBody.acceleration).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("jumpPower", cachedUserBody => { return $"{utilityString}{(cachedUserBody.jumpPower).ToString(floatPrecision)}{styleString}"; });

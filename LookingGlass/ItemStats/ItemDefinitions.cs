@@ -40,6 +40,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             
             //Elusive Antlers (Previously Antler Shield)
+            //Changed to 3 per stack from 3 + 1
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Min Bonus Movement Speed: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
@@ -55,7 +56,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 List<float> values = new();
                 values.Add(.07f * stackCount);
                 values.Add(10f - ((1f - 3f / (3f + (float)stackCount - 1f)) * 5f));
-                values.Add(2 + stackCount);
+                values.Add(3 * stackCount);
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.SpeedBoostPickup.itemIndex, itemStat);
@@ -104,18 +105,23 @@ namespace LookingGlass.ItemStatsNameSpace
 
             
             //Bolstering Lantern
+            //Changed to no longer increase Radius
             itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Attack Speed Per Nearby: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Max Attack Speed: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Range: ");
+            itemStat.descriptions.Add("Max Buff Count: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(.15f + (.15f * stackCount));
-                values.Add(15 + (5 * stackCount));
+                values.Add(.065f + (.035f * stackCount));
+                values.Add((.65f + (.035f * stackCount))*(2+ stackCount));
+                values.Add(2 +stackCount);
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.AttackSpeedPerNearbyAllyOrEnemy.itemIndex, itemStat);
@@ -1328,17 +1334,14 @@ namespace LookingGlass.ItemStatsNameSpace
             
             
             //Growth Nectar
+            //Removed stacking -> Increasing Stats per buff
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Stats Per Stack: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Max Stacks: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(0.04f * stackCount);
                 values.Add(4 * stackCount);
                 return values;
             };

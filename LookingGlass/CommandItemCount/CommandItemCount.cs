@@ -16,6 +16,7 @@ using RoR2.Items;
 using System.Reflection;
 using System.Linq;
 using UnityEngine.Networking;
+using LookingGlass.AutoSortItems;
 
 namespace LookingGlass.CommandItemCount
 {
@@ -102,13 +103,23 @@ namespace LookingGlass.CommandItemCount
                 return;
             }
 
+            bool potentialOrFragment = false;
+            if (self.pickerController)
+            {
+                potentialOrFragment = self.pickerController.GetComponent<PickupIndexNetworker>(); //Good enough
+                //Both Fragments and Potentials would have a pickup
+            }
+
             string parentName = self.gameObject.name;
             bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
 
             // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
-            (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
+            if (!potentialOrFragment || AutoSortItemsClass.SortPotentials.Value)
+            {
+                (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
+            }
 
             orig(self, options);
 

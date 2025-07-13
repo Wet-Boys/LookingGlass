@@ -65,6 +65,11 @@ namespace LookingGlass.BuffDescriptions
                 TooltipProvider toolTip = self.GetComponent<TooltipProvider>();
                 if (!toolTip)
                 {
+                    if (self.GetComponentInParent<Canvas>() == null)
+                    {
+                        //Issue with disabled Huds tht can go on forever
+                        return;
+                    }
                     if (!self.GetComponentInParent<Canvas>().gameObject.GetComponent<GraphicRaycaster>())
                     {
                         self.GetComponentInParent<Canvas>().gameObject.AddComponent<GraphicRaycaster>();

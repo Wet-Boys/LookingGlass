@@ -56,7 +56,7 @@ namespace LookingGlass.BuffTimers
                             TextMeshProUGUI item = buffIcon.buffIconComponent.GetComponentInChildren<TextMeshProUGUI>();
                             item.enabled = true;
                             item.text = $"<size={buffTimersFontSize.Value}%>{(timedBuff.timer):0.0}</size>\n";
-                            if (buffIcon.buffCount > 1)
+                            if (buffIcon.buffDef.canStack && buffIcon.buffCount > 1)
                             {
                                 item.text += $"x{buffIcon.buffCount}";
                             }
