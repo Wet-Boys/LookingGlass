@@ -210,9 +210,14 @@ namespace LookingGlass.ItemStatsNameSpace
         }
 
         float CalculateSkillCooldown(SkillIcon self)
-        {
+        {   
             if (self.targetSkill.skillDef.baseRechargeInterval < 0.5f)
                 return self.targetSkill.skillDef.baseRechargeInterval;
+
+            //Post-SotS AttackSpeedCDR skills bypass the 0.5f cooldown cap
+            //By modifying the .baseRechargeInterval
+            if (self.targetSkill.baseRechargeInterval < 0.5f)
+                return self.targetSkill.baseRechargeInterval;
 
             float calculated_skill_cooldown = self.targetSkill.baseRechargeInterval * self.targetSkill.cooldownScale - self.targetSkill.flatCooldownReduction;
 
