@@ -484,9 +484,6 @@ namespace LookingGlass.StatsDisplay
                                 Transform defaultStrip = objectivePanel.Find("StripContainer/ObjectiveStrip/Label");
                                 if (defaultStrip)
                                 {
-                                    Debug.Log(labelObject.GetComponent<HGTextMeshProUGUI>().fontSize);
-                                                                     Debug.Log(defaultStrip.GetComponent<HGTextMeshProUGUI>().fontSize);
-
                                     textComponent.fontSize = (labelObject.GetComponent<HGTextMeshProUGUI>().fontSize + defaultStrip.GetComponent<HGTextMeshProUGUI>().fontSize) / 2f;
                                 }
                                 else
