@@ -2565,6 +2565,12 @@ namespace LookingGlass.ItemStatsNameSpace
             allItemDefinitions.Add((int)DLC1Content.Items.MushroomVoid.itemIndex, itemStat);
 
             #endregion
+
+            #region Equipment
+
+            //I dont know how Proc Coeffs for Equipment could be added as im not familiar with the base of the mod
+
+            #endregion
         }
     }
 }

@@ -294,7 +294,9 @@ namespace LookingGlass.StatsDisplay
                     break;
                 case StatDisplayPreset.DPSMeter:
                     useSecondaryStatsDisplay.Value = false;
-                    new1 = "DPS: [dps]";
+                    new1 = "<size=110%>" +
+                        "DPS: [dps] | [percentDps]%" +
+                        "</size></margin>";
                     //secondaryStatsDisplayString.Value = "DPS: [dps]";
                     break;
                 case StatDisplayPreset.Minimal:
