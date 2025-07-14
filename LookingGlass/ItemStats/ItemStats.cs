@@ -179,7 +179,7 @@ namespace LookingGlass.ItemStatsNameSpace
                             {
                                 desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
 
-                                desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
+                                desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.0")).Append("%</style>");
 
                                 if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
                                 {
