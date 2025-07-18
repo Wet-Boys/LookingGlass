@@ -178,7 +178,7 @@ namespace LookingGlass.BuffDescriptions
             LookingGlassLanguageAPI.SetupToken(en, $"NAME_{RoR2Content.Buffs.Weak.name}", $"Weak");
             LookingGlassLanguageAPI.SetupToken(en, $"DESCRIPTION_{RoR2Content.Buffs.Weak.name}", $"Reduces {utilityString}armor{styleString} by 30%, reduces {utilityString}movement speed and damage{styleString} by 40%. ");
 
-            //TODO TOSTYLE TOMAKEBETTER
+            //TODO : STYLE
             RegisterBuff(en, DLC1Content.Buffs.VoidRaidCrabWardWipeFog, "Voidling Fog", $"Deals a small amount of {damageString}damage{styleString} multiple times per second, {healthString}increasing with each tick{styleString}. Until you return to Voidling. ");
 
             #region DLC2
