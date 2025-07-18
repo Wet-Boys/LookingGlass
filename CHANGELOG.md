@@ -1,4 +1,25 @@
-### 1.13.0
+### 1.13.0 (TBD)
+Default Config changes:
+-Shrunk down stat display a bit.
+-Removed Luck & ComboTimer
+-Changed maxCombo to maxComboPerRun
+-Added marging to stat display
+
+Added some Stat Display Preset to experiment/reset more easily.
+Config to move purchase text so it doesnt clip into Stat Display. (Default: True)
+
+Items no longer sorted on Death Screen and when choosing from Fragments/Potentials.
+
+Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they got.
+Added Stats for Longstanding Solitude & Unstable Transmitter
+Added some extra stats to some items. (Empathy Cores -> Current Damage Bonus, Max Boost of Chronic/Lantern/Nectar)
+Added Proc Coeffs of Items to their ItemStats
+
+Electric Boomerang & Runic Lens now show for procs on skills.
+Updated/Added Proc Coeffs of Phase 3 Skills & Heretic
+
+Multiplied percentDps value by 100 so it's actually percent
+
 Fixed unstackable timed buffs showing stacks.
 Fixed listed CDR never going below 0.5, if it's an AttackSpeedCDR skill (Arti Primary), despite it not being capped at 0.5
 Fixed Stone & Flux Pauldron listing 0% downsides

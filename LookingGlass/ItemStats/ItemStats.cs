@@ -154,15 +154,13 @@ namespace LookingGlass.ItemStatsNameSpace
                 if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
                 {
                     desc.Append("\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
-                    desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
                 }
-
-
                 if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                     desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
 
-
-
+                //Why was there a "In Proc Dict" check for this?
+                desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
+                
                 CharacterBody body = self.targetSkill.characterBody;
 
                 int itemCount = 0;
