@@ -193,13 +193,17 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage Per Kill: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Max Damage Increase: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Max Stacks: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
                 values.Add(.025f + (.01f * stackCount));
+                values.Add((.025f + (.01f * stackCount))*(5 + (5 * stackCount)));
                 values.Add(5 + (5 * stackCount));
                 return values;
             };

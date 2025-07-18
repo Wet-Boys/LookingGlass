@@ -48,7 +48,7 @@ namespace LookingGlass.EquipTimerFix
             {
                 BasePlugin.instance.itemStats.EquipText(self);
             }
-            if (permanentEquipCooldownText.Value && self.hasEquipment && newDisplayData.stock != newDisplayData.maxStock && self.cooldownText)
+            if (permanentEquipCooldownText.Value && self.hasEquipment && newDisplayData.stock < newDisplayData.maxStock && self.cooldownText)
             {
                 self.cooldownText.gameObject.SetActive(true);
             }
@@ -59,7 +59,7 @@ namespace LookingGlass.EquipTimerFix
             if (permanentSkillCooldownText.Value &&
                 self.targetSkill &&
                 self.targetSkill.stock > 0 &&
-                self.targetSkill.stock != self.targetSkill.maxStock &&
+                self.targetSkill.stock < self.targetSkill.maxStock &&
                 self.cooldownText)
             {
                 SkillIcon.sharedStringBuilder.Clear();

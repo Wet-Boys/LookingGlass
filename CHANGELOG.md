@@ -1,3 +1,12 @@
+### 1.13.0
+Fixed unstackable timed buffs showing stacks.
+Fixed listed CDR never going below 0.5, if it's an AttackSpeedCDR skill (Arti Primary), despite it not being capped at 0.5
+Fixed Stone & Flux Pauldron listing 0% downsides
+Fixed War Bonds stats being on Long Standing Solitude.
+Fixed PermamentCooldown showing 0 if you had more than maxStock. (ie Lost a Fuel Cell, would permamently show 0, various modded skills had this issue)
+Fixed an issue with disabling Huds and Buff Icons.
+-W
+
 ### 1.12.0
 Functional with seekers patch 3. Thanks to Bumperdo09 for restructuing PickupPickerPanel sorting to work better with multiplayer.
 
