@@ -27,13 +27,6 @@ namespace LookingGlass.BuffDescriptions
             //    Log.Debug($"Language:   {item}");
             //}
             Language en = Language.languagesByName["en"];
-            Debug.LogWarning("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-            Debug.LogWarning(en);
-            Debug.LogWarning(RoR2Content.Buffs.AffixRed);
-
-            string a = $"NAME_{RoR2Content.Buffs.AffixRed.name}";
-            Debug.LogWarning(a);
-
             LookingGlassLanguageAPI.SetupToken(en, $"NAME_{RoR2Content.Buffs.AffixRed.name}", $"Blazing");
             LookingGlassLanguageAPI.SetupToken(en, $"DESCRIPTION_{RoR2Content.Buffs.AffixRed.name}", $"Leave a fire trail that hurts enemies, and apply a 50% total damage {damageString}burn{styleString} on hit.");
             LookingGlassLanguageAPI.SetupToken(en, $"NAME_{RoR2Content.Buffs.AffixHaunted.name}", $"Celestine");
@@ -190,44 +183,44 @@ namespace LookingGlass.BuffDescriptions
 
             #region DLC2
             //Survivors
-            RegisterBuff(en, DLC2Content.Buffs.ChakraBuff, "Tranquility", "Improves Seekers skills in various ways.");
-            RegisterBuff(en, DLC2Content.Buffs.RevitalizeBuff, "Saving Grace", "Increase your stats by 7%. You will be revived by Seeker upon death.");
-            RegisterBuff(en, DLC2Content.Buffs.SeekerRevivedOnce, "Grace Consumed", "You were revived by Seeker and cannot be revived by her again until the next stage.");
+            RegisterBuff(en, DLC2Content.Buffs.ChakraBuff, "Tranquility", $"Improves Seekers skills in various ways.");
+            RegisterBuff(en, DLC2Content.Buffs.RevitalizeBuff, "Saving Grace", $"Increase your stats by 7%. You will be revived by Seeker upon death.");
+            RegisterBuff(en, DLC2Content.Buffs.SeekerRevivedOnce, "Grace Consumed", $"You were revived by Seeker and cannot be revived by her again until the next stage.");
 
-            RegisterBuff(en, DLC2Content.Buffs.Boosted, "Yes CHEF", "CHEFs next attack will be upgraded. Emit an aura of fire/ice depending on your secondary (?)");
+            RegisterBuff(en, DLC2Content.Buffs.Boosted, "Yes, CHEF!", $"CHEFs next attack will be upgraded.");
             //The cooking buffs really dont matter
 
-            RegisterBuff(en, DLC2Content.Buffs.EnergizedCore, "Meridians Will", "Lunar Spike stat changes will be twice as effective.");
-            RegisterBuff(en, DLC2Content.Buffs.lunarruin, "Lunar Ruin", "Increase damage taken by 10% per buff. Decrease healing by 20%");
+            RegisterBuff(en, DLC2Content.Buffs.EnergizedCore, "Meridians Will", "$Lunar Spike stat changes will be twice as effective.");
+            RegisterBuff(en, DLC2Content.Buffs.lunarruin, "Lunar Ruin", "$Increase damage taken by 10% per buff. Decrease healing by 20%");
             //
             // Other
-            RegisterBuff(en, DLC2Content.Buffs.DisableAllSkills, "All Skills Disabled", "Your skills and equipment are disabled.");
-            RegisterBuff(en, DLC2Content.Buffs.ExtraLifeBuff, "Extra Life", "Revive once per stage");
-            RegisterBuff(en, DLC2Content.Buffs.SoulCost, "Soul Cost", "Reduce health by 10%");
+            RegisterBuff(en, DLC2Content.Buffs.DisableAllSkills, "All Skills Disabled", $"Your skills and equipment are disabled.");
+            RegisterBuff(en, DLC2Content.Buffs.ExtraLifeBuff, "Extra Life", $"Revive once per stage");
+            RegisterBuff(en, DLC2Content.Buffs.SoulCost, "Soul Cost", $"Reduce health by 10%");
             //    
             ////Items
-            RegisterBuff(en, DLC2Content.Buffs.AttackSpeedPerNearbyAllyOrEnemyBuff, "Bolstering Lantern", "Gain a attack speed boost because a ally is nearby");
-            RegisterBuff(en, DLC2Content.Buffs.DelayedDamageBuff, "Warped Echo", "Warped Echo is ready to split damage.");
-            RegisterBuff(en, DLC2Content.Buffs.DelayedDamageDebuff, "Damage Echo", "Instances of Echoed split damage.");
-            RegisterBuff(en, DLC2Content.Buffs.ElusiveAntlersBuff, "Elusive Antler", "Temporarily increase speed by 12% for 12s. Refreshes stack duration when reapplied");
-            RegisterBuff(en, DLC2Content.Buffs.IncreaseDamageBuff, "Chronic Expansion", "Increase your damage.");
+            RegisterBuff(en, DLC2Content.Buffs.AttackSpeedPerNearbyAllyOrEnemyBuff, "Bolstering Lantern", $"Gain a attack speed boost because a ally is nearby");
+            RegisterBuff(en, DLC2Content.Buffs.DelayedDamageBuff, "Warped Echo", $"Warped Echo is ready to split damage.");
+            RegisterBuff(en, DLC2Content.Buffs.DelayedDamageDebuff, "Damage Echo", $"Instances of Echoed split damage.");
+            RegisterBuff(en, DLC2Content.Buffs.ElusiveAntlersBuff, "Elusive Antler", $"Temporarily increase speed by 12% for 12s. Refreshes stack duration when reapplied");
+            RegisterBuff(en, DLC2Content.Buffs.IncreaseDamageBuff, "Chronic Expansion", $"Increase your damage.");
 
-            RegisterBuff(en, DLC2Content.Buffs.KnockBackAvailable, "Breaching Fin Ready", "Breaching Fin is Ready");
-            RegisterBuff(en, DLC2Content.Buffs.KnockBackUnavailable, "Breaching Fin Cooldown", "Breaching Fin is on cooldown for 15s");
-            RegisterBuff(en, DLC2Content.Buffs.ExtraStatsOnLevelUpBuff, "Prayer Beads XP", "Stored Experience that will grant the stats of 0.2 (+0.05 per Prayer Beads) levels upon removal of a Prayer Bead");
-            RegisterBuff(en, DLC2Content.Buffs.IncreasePrimaryDamageBuff, "Luminous Charge", "Stored Lightning for your next primary attack. Can only be used at 3 stacks or higher.");
-            RegisterBuff(en, DLC2Content.Buffs.TeleportOnLowHealthActive, "Unstable", "Your Unstable Transmitter has activated a dimensional Aura. Enemies that touch it and die will increase duration by 1s.");
+            RegisterBuff(en, DLC2Content.Buffs.KnockBackAvailable, "Breaching Fin Ready", $"Breaching Fin is Ready");
+            RegisterBuff(en, DLC2Content.Buffs.KnockBackUnavailable, "Breaching Fin Cooldown", $"Breaching Fin is on cooldown for 15s");
+            RegisterBuff(en, DLC2Content.Buffs.ExtraStatsOnLevelUpBuff, "Prayer Beads XP", $"Stored Experience that will grant the stats of 0.2 (+0.05 per Prayer Beads) levels upon removal of a Prayer Bead");
+            RegisterBuff(en, DLC2Content.Buffs.IncreasePrimaryDamageBuff, "Luminous Charge", $"Stored Lightning for your next primary attack. Can only be used at 3 stacks or higher.");
+            RegisterBuff(en, DLC2Content.Buffs.TeleportOnLowHealthActive, "Unstable", $"Your Unstable Transmitter has activated a dimensional Aura. Enemies that touch it and die will increase duration by 1s.");
 
-            RegisterBuff(en, DLC2Content.Buffs.BoostAllStatsBuff, "Growth Nectar", "Increase all stats by 4%");
-            RegisterBuff(en, DLC2Content.Buffs.ExtraBossMissile, "War Missile", "Stored Missiles dealing 2.5% max Hp damage, for the next boss or Scavenger encounter");
+            RegisterBuff(en, DLC2Content.Buffs.BoostAllStatsBuff, "Growth Nectar", $"Increase all stats by 4%");
+            RegisterBuff(en, DLC2Content.Buffs.ExtraBossMissile, "War Missile", $"Stored Missiles dealing 2.5% max Hp damage, for the next boss or Scavenger encounter");
 
-            RegisterBuff(en, DLC2Content.Buffs.FreeUnlocks, "Free Purchase", "Your next purchase is free");
+            RegisterBuff(en, DLC2Content.Buffs.FreeUnlocks, "Free Purchase", $"Your next purchase is free");
             //
             ////Equipment
-            RegisterBuff(en, DLC2Content.Buffs.EliteAurelionite, "Gilded", "Fire out a Gilded Spike every 10-15s. Doing damage has a chance to produce extra Gold.");
-            RegisterBuff(en, DLC2Content.Buffs.EliteBead, "Twisted", "Give nearby allies 300 Armor. Unleash a Twisted Spike after nearby allies are hurt 10 times. This ability has a 10s cooldown.");
+            RegisterBuff(en, DLC2Content.Buffs.EliteAurelionite, "Gilded", $"Fire out a Gilded Spike every 10-15s. Doing damage has a chance to produce extra Gold.");
+            RegisterBuff(en, DLC2Content.Buffs.EliteBead, "Twisted", $"Give nearby allies 300 Armor. Unleash a Twisted Spike after nearby allies are hurt 10 times. This ability has a 10s cooldown.");
 
-            RegisterBuff(en, DLC2Content.Buffs.BeadArmor, "Twisted Armor", "Gain 300 Armor");
+            RegisterBuff(en, DLC2Content.Buffs.BeadArmor, "Twisted Armor", $"Gain 300 Armor");
 
             #endregion
             #region DLC3

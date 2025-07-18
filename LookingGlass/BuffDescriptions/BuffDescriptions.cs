@@ -80,7 +80,8 @@ namespace LookingGlass.BuffDescriptions
                         self.GetComponentInParent<Canvas>().gameObject.AddComponent<GraphicRaycaster>();
                     }
                     TooltipContent content = new TooltipContent();
-                    content.titleColor = self.buffDef.buffColor;
+                    //Use colors if not white, else gray because can be hard to read on white.
+                    content.titleColor = self.buffDef.buffColor == Color.white ? Color.gray: self.buffDef.buffColor;
                     content.bodyColor = Color.blue;
                     content.disableTitleRichText = false;
                     content.disableBodyRichText = false;

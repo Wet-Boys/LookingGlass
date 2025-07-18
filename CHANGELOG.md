@@ -1,4 +1,4 @@
-### 1.13.0 (TBD)
+### 1.13.0
 Default Config changes:
 -Shrunk down stat display a bit.
 -Removed Luck & ComboTimer
@@ -21,7 +21,7 @@ Updated/Added Proc Coeffs of Phase 3 Skills & Heretic
 Multiplied percentDps value by 100 so it's actually percent
 
 Buff Descriptions now use the buffs color instead just gray.
-Added buff descriptions to DLC2 Buffs.
+Added buff descriptions for DLC2 Buffs.
 
 Fixed some skills not showing cooldown.
 Fixed unstackable timed buffs showing stacks.
