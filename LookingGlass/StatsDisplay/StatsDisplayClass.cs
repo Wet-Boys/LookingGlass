@@ -289,7 +289,8 @@ namespace LookingGlass.StatsDisplay
                                      "Jumps: [availableJumps]/[maxJumps]\n" +
                                      "Kills: [killCount]\n" +
                                      "Mountain Shrines: [mountainShrines]\n" +
-                                     "<size=70%>Bazaar: [shopPortal] Gold: [goldPortal] Void: [voidPortal]</size>" +
+                                     "Bazaar Portal: [shopPortal]\n" +
+                                     //"<size=70%>Bazaar: [shopPortal] Gold: [goldPortal] Void: [voidPortal]</size>" +
                                      "</line-height></margin>";
                     break;
                 case StatDisplayPreset.DPSMeter:

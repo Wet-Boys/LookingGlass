@@ -12,8 +12,7 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
-using static RoR2.CharacterBody;
-
+ 
 namespace LookingGlass.BuffTimers
 {
     public class BuffTimersClass : BaseThing

@@ -5,7 +5,7 @@ Default Config changes:
 -Changed maxCombo to maxComboPerRun
 -Added marging to stat display
 
-Added some Stat Display Preset to experiment/reset more easily.
+Added some Stat Display Presets to experiment/reset more easily & in game.
 Config to move purchase text so it doesnt clip into Stat Display. (Default: True)
 
 Items no longer sorted on Death Screen and when choosing from Fragments/Potentials.
@@ -20,12 +20,16 @@ Updated/Added Proc Coeffs of Phase 3 Skills & Heretic
 
 Multiplied percentDps value by 100 so it's actually percent
 
+Buff Descriptions now use the buffs color instead just gray.
+Added buff descriptions to DLC2 Buffs.
+
 Fixed some skills not showing cooldown.
 Fixed unstackable timed buffs showing stacks.
 Fixed listed CDR never going below 0.5, if it's an AttackSpeedCDR skill (Arti Primary), despite it not being capped at 0.5
 Fixed Stone & Flux Pauldron listing 0% downsides
 Fixed War Bonds stats being on Long Standing Solitude.
 Fixed PermamentCooldown showing 0 if you had more than maxStock. (ie Lost a Fuel Cell, would permamently show 0, various modded skills had this issue)
+Fixed Buff names & descriptions not functioning
 Fixed an issue with disabling Huds and Buff Icons.
 -W
 
