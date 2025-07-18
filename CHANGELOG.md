@@ -20,6 +20,7 @@ Updated/Added Proc Coeffs of Phase 3 Skills & Heretic
 
 Multiplied percentDps value by 100 so it's actually percent
 
+Fixed some skills not showing cooldown.
 Fixed unstackable timed buffs showing stacks.
 Fixed listed CDR never going below 0.5, if it's an AttackSpeedCDR skill (Arti Primary), despite it not being capped at 0.5
 Fixed Stone & Flux Pauldron listing 0% downsides
