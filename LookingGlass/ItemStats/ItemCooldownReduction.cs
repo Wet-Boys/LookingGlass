@@ -27,6 +27,9 @@ namespace LookingGlass.ItemStatsNameSpace
 
         static ItemCooldownReduction()
         {
+            //No longer used
+            //Cooldown determined with GenericSkill or EquipmentSlot
+
             SkillCooldownReduction.Add((int)RoR2Content.Items.AlienHead.itemIndex, (int)SkillSlot.None);
             SkillReductionValueIndex.Add((int)RoR2Content.Items.AlienHead.itemIndex, 0);
 

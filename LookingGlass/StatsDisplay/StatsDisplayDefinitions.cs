@@ -78,6 +78,9 @@ namespace LookingGlass.StatsDisplay
                 }
                 return $"{healthString}{(cachedUserBody.healthComponent.combinedHealthFraction * 100f).ToString(floatPrecision)}{styleString}"; 
             });
+            //Would be good to have a way to check for PortalSpawner in HalcyoniteShrines or really in general
+            //But they do not have an .instance
+            //If it was just tracked in a custom way that'd be good
             StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{damageString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnGoldshoresPortal.ToString() : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnMSPortal.ToString() : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("shopPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shouldAttemptToSpawnShopPortal.ToString() : "N/A")}{styleString}"; });

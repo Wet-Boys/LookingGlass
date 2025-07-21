@@ -52,10 +52,12 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
+            //Config that people are likelier to turn off should be higher up in Risk Menu
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
+            
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
             ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
             ModSettingsManager.AddOption(new CheckBoxOption(capChancePercentage, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(abilityProcCoefficients, new CheckBoxConfig() { restartRequired = false }));
@@ -151,6 +153,10 @@ namespace LookingGlass.ItemStatsNameSpace
 
             if (abilityProcCoefficients.Value)
             {
+                //Why was there a "In Proc Dict" check for this?
+                //Maybe could do if cooldown == 0 then dont show but it's fine
+                desc.Append("\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
+
                 bool blacklistedSkill = false;
                 if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
                 {
@@ -159,17 +165,17 @@ namespace LookingGlass.ItemStatsNameSpace
                     //So it doesn't say like "10% ATG" on Mando Slide
                     if (!blacklistedSkill)
                     {
-                        desc.Append("\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
+                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
                     }
+                    //If 0, show that it has 0 Proc Coeff for clarity
+                    //But still don't show like "0 % chance to trigger all the items"
+                    blacklistedSkill = blacklistedSkill || ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) == 0;
                 }
                 else if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                 {
                     desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
                 }
-            
-                //Why was there a "In Proc Dict" check for this?
-                desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
-                
+      
                 if (!blacklistedSkill)
                 {
                     CharacterBody body = self.targetSkill.characterBody;

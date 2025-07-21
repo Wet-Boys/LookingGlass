@@ -27,7 +27,7 @@ namespace LookingGlass.HiddenItems
             var targetMethod = typeof(ItemCatalog).GetMethod(nameof(ItemCatalog.Init), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             var destMethod = typeof(UnHiddenItems).GetMethod(nameof(ItemCatalogInit), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-            noHiddenItems = BasePlugin.instance.Config.Bind<bool>("Misc", "Unhide Hidden Items", false, "Removes the hidden flag from items");
+            noHiddenItems = BasePlugin.instance.Config.Bind<bool>("Misc", "Unhide Hidden Items", false, "Unhides normally hidden items such as the Drizzle/MonsoonHelpers");
         }
 
         public void SetupRiskOfOptions()

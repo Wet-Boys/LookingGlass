@@ -178,23 +178,31 @@ namespace LookingGlass.BuffDescriptions
             LookingGlassLanguageAPI.SetupToken(en, $"NAME_{RoR2Content.Buffs.Weak.name}", $"Weak");
             LookingGlassLanguageAPI.SetupToken(en, $"DESCRIPTION_{RoR2Content.Buffs.Weak.name}", $"Reduces {utilityString}armor{styleString} by 30%, reduces {utilityString}movement speed and damage{styleString} by 40%. ");
 
-            //TODO : STYLE
+       
             RegisterBuff(en, DLC1Content.Buffs.VoidRaidCrabWardWipeFog, "Voidling Fog", $"Deals a small amount of {damageString}damage{styleString} multiple times per second, {healthString}increasing with each tick{styleString}. Until you return to Voidling. ");
-
+            //TODO : STYLE
             #region DLC2
             //Survivors
-            RegisterBuff(en, DLC2Content.Buffs.ChakraBuff, "Tranquility", $"Improves Seekers skills in various ways.");
-            RegisterBuff(en, DLC2Content.Buffs.RevitalizeBuff, "Saving Grace", $"Increase your stats by 7%. You will be revived by Seeker upon death.");
-            RegisterBuff(en, DLC2Content.Buffs.SeekerRevivedOnce, "Grace Consumed", $"You were revived by Seeker and cannot be revived by her again until the next stage.");
+            RegisterBuff(en, DLC2Content.Buffs.ChakraBuff, "Tranquility", $"Improves Seekers skills in various ways."); //Mentioning 7 different buffs sounds like, uhh no?
+            RegisterBuff(en, DLC2Content.Buffs.RevitalizeBuff, "Saving Grace", $"Increase your stats by 7%. You will be revived by upon death.");
+            RegisterBuff(en, DLC2Content.Buffs.SeekerRevivedOnce, "Consumed Grace", $"You were revived by Seeker and cannot be revived by her again until the next stage.");
 
             RegisterBuff(en, DLC2Content.Buffs.Boosted, "Yes, CHEF!", $"CHEFs next attack will be upgraded.");
-            //The cooking buffs really dont matter
+            RegisterBuff(en, DLC2Content.Buffs.Oiled, "Oily", $"You take +300% Burn damage");
+            RegisterBuff(en, DLC2Content.Buffs.Frost, "Frost", $"Slows you by stacking amounts. Freeze upon getting 6 stacks or if Oiled."); //0.11, 0.25, 0.42 slows like uhh
 
-            RegisterBuff(en, DLC2Content.Buffs.EnergizedCore, "Meridians Will", "$Lunar Spike stat changes will be twice as effective.");
+            string cookingDesc = $"Enemies with 2 Cooking buffs drop Food. Food heals for 2hp + 4% max hp for each unique cooking buff";
+            RegisterBuff(en, DLC2Content.Buffs.CookingChopped, "Cooking", cookingDesc);
+            RegisterBuff(en, DLC2Content.Buffs.CookingRoasted, "Cooking", cookingDesc);
+            RegisterBuff(en, DLC2Content.Buffs.CookingChilled, "Cooking", cookingDesc);
+            RegisterBuff(en, DLC2Content.Buffs.CookingRolled, "Cooking", cookingDesc);
+            RegisterBuff(en, DLC2Content.Buffs.CookingOiled, "Cooking", cookingDesc);
+ 
+            RegisterBuff(en, DLC2Content.Buffs.EnergizedCore, "Energized Core", "$Lunar Tampering stat changes will be three times as effective.");
             RegisterBuff(en, DLC2Content.Buffs.lunarruin, "Lunar Ruin", "$Increase damage taken by 10% per buff. Decrease healing by 20%");
             //
             // Other
-            RegisterBuff(en, DLC2Content.Buffs.DisableAllSkills, "All Skills Disabled", $"Your skills and equipment are disabled.");
+            RegisterBuff(en, DLC2Content.Buffs.DisableAllSkills, "Skills Disabled", $"Your skills and equipment are disabled.");
             RegisterBuff(en, DLC2Content.Buffs.ExtraLifeBuff, "Extra Life", $"Revive once per stage");
             RegisterBuff(en, DLC2Content.Buffs.SoulCost, "Soul Cost", $"Reduce health by 10%");
             //    
@@ -209,7 +217,7 @@ namespace LookingGlass.BuffDescriptions
             RegisterBuff(en, DLC2Content.Buffs.KnockBackUnavailable, "Breaching Fin Cooldown", $"Breaching Fin is on cooldown for 15s");
             RegisterBuff(en, DLC2Content.Buffs.ExtraStatsOnLevelUpBuff, "Prayer Beads XP", $"Stored Experience that will grant the stats of 0.2 (+0.05 per Prayer Beads) levels upon removal of a Prayer Bead");
             RegisterBuff(en, DLC2Content.Buffs.IncreasePrimaryDamageBuff, "Luminous Charge", $"Stored Lightning for your next primary attack. Can only be used at 3 stacks or higher.");
-            RegisterBuff(en, DLC2Content.Buffs.TeleportOnLowHealthActive, "Unstable", $"Your Unstable Transmitter has activated a dimensional Aura. Enemies that touch it and die will increase duration by 1s.");
+            RegisterBuff(en, DLC2Content.Buffs.TeleportOnLowHealthActive, "Unstable Aura", $"Unstable Transmitter has activated a dimensional Aura. Enemies that touch it and die will increase duration by 1s.");
 
             RegisterBuff(en, DLC2Content.Buffs.BoostAllStatsBuff, "Growth Nectar", $"Increase all stats by 4%");
             RegisterBuff(en, DLC2Content.Buffs.ExtraBossMissile, "War Missile", $"Stored Missiles dealing 2.5% max Hp damage, for the next boss or Scavenger encounter");

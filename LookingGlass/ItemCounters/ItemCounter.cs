@@ -17,6 +17,7 @@ namespace LookingGlass.ItemCounters
     internal class ItemCounter : BaseThing //https://github.com/MCMrARM/ror2-mods pretty good reference material for this
     {
         public static ConfigEntry<bool> itemCounters;
+        public static ConfigEntry<float> itemCountersSize;
         private static Hook overrideHook;
         private static Hook overrideHook2;
 
@@ -68,15 +69,21 @@ namespace LookingGlass.ItemCounters
             int voidBossCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.VoidBoss);
             int totalItemCount = whiteCount + greenCount + redCount + lunarCount + bossCount + voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount;
 
+            //Replaced font size with % so it can still dynamically be reduced/fitted
+            //itemCountText.enableAutoSizing = true;
+            //itemCountText.fontSizeMax = 25; //Vanilla extends far for some reason, idk how you'd change bounds?
             StringBuilder sb = new StringBuilder();
-            sb.Append($"<size={itemCountText.fontSize * .6f}><color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
+            sb.Append($"<size=65%>");
+            sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier2Item)}>{greenCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier3Item)}>{redCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.BossItem)}>{bossCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.LunarItem)}>{lunarCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.VoidItem)}>{voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount}</color> ");
-            sb.Append($"<color=#fff>[{totalItemCount}]</color></size>");
+            sb.Append($"</size><size=80%><color=#fff>[{totalItemCount}]</color>");
+            //Total item should be a little bigger?
             itemCountText.text = sb.ToString();
+            
         }
     }
 }

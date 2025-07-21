@@ -1394,7 +1394,10 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.descriptions.Add("Hit Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Rapid Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.hasChance = true;
@@ -1405,6 +1408,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 values.Add(Utils.CalculateChanceWithLuck(0.15f * procChance, luck));
                 values.Add(0.3f * stackCount);
                 values.Add(1f); //1x2 + 0.2 rapidly
+                values.Add(0.2f); //1x2 + 0.2 rapidly
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.StunAndPierce.itemIndex, itemStat);
@@ -1534,13 +1538,17 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Healing Stored: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Current Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
                 values.Add(stackCount);
+                values.Add(master.GetBody() ? (master.GetBody().maxHealth * 0.25f / master.GetBody().damage) : 0);
                 values.Add(0.2f);
                 return values;
             };
@@ -1549,7 +1557,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Pocket I.C.B.M.
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Bonus Damage: ");
+            itemStat.descriptions.Add("Bonus Missile Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -1615,9 +1623,10 @@ namespace LookingGlass.ItemStatsNameSpace
                 //My brain isn't working super well right now, can't think of a way to cleaning implement the max chance stuff they changed in the new update, maybe come back to this
                 // Note : also affected by attack damage
                 // Note : maxes out at 75% before luck and proc chance
-                values.Add(MathF.Min(.03f * stackCount, 75f));
-                values.Add(0.5f);
-                values.Add(1.5f + (0.5f * stackCount));
+                //Damage limited to 7500%
+                values.Add(MathF.Min(.03f * stackCount, 0.75f));
+                values.Add(MathF.Min(1f + (0.5f * stackCount), 75f));
+                values.Add(0.5f);              
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.MeteorAttackOnHighDamage.itemIndex, itemStat);
@@ -1893,9 +1902,20 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Wisp Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Wisp Cooldown: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValues = (master, stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(3f * stackCount);
+                values.Add(master.GetBody() ? (1f / (0.08571429f * master.GetBody().moveSpeed)) : 1.667f);
+                values.Add(1f);
+                return values;
+            };
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2108,9 +2128,9 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(1f);
                 values.Add(3 * 1 / stackCount);
                 values.Add(2 + stackCount);
+                values.Add(1f);
                 return values;
             };
             allItemDefinitions.Add((int)DLC1Content.Items.LunarSun.itemIndex, itemStat);
@@ -2124,11 +2144,15 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
                 values.Add(10 * stackCount);
                 values.Add(8 * stackCount);
+                values.Add(1f);
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.LunarSpecialReplacement.itemIndex, itemStat);
@@ -2188,11 +2212,19 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.descriptions.Add("Rapid Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Explosion Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
                 values.Add(3 * stackCount);
                 values.Add(5 * stackCount);
+                values.Add(0.2f);
+                values.Add(1f);
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.LunarSecondaryReplacement.itemIndex, itemStat);
@@ -2324,11 +2356,19 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.descriptions.Add("Initial Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Main Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
                 values.Add(12 * stackCount);
                 values.Add(2 * stackCount);
+                values.Add(0.1f);
+                values.Add(1f);
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.LunarPrimaryReplacement.itemIndex, itemStat);
@@ -2352,12 +2392,12 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             #endregion
-            
-            #region ---------- Void Items --------------------------------------------------------------------------------
 
+            #region ---------- Void Items --------------------------------------------------------------------------------
+ 
             //Benthic Bloom
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Items Upgraded: ");
+            itemStat.descriptions.Add("Stacks Upgraded: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
