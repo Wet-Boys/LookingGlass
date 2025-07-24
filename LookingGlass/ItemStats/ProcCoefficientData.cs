@@ -8,6 +8,7 @@ namespace LookingGlass.ItemStatsNameSpace
     {
         //Shouldn't this be public so people can add to it??
         public static readonly Dictionary<string, float> skills = new Dictionary<string, float>();
+        //public static readonly Dictionary<string, string> skillsProcString = new Dictionary<string, string>();
 
         public static float GetProcCoefficient(string name)
         {
@@ -24,8 +25,9 @@ namespace LookingGlass.ItemStatsNameSpace
             //Use -1 on movement & non damaging skills
             //This prevens proc data from being shown
 
-            //Tbh would've been nice to have it as string.
+            //Would be nice to have an alt dict with string
             //so Boosted, Corrupted, or other additional effects could be mentioned
+            //But would prevent getting the float easily so dunno
 
             // Acrid
             skills.Add("CROCO_PRIMARY_NAME", 1f);
@@ -136,6 +138,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("SKILL_LUNAR_SECONDARY_REPLACEMENT_NAME", 0.2f); //1 on explosion, 0.2 on rapid hits.
             skills.Add("SKILL_LUNAR_UTILITY_REPLACEMENT_NAME", -1f);
             skills.Add("SKILL_LUNAR_SPECIAL_REPLACEMENT_NAME", 1f);
+            skills.Add("HERETIC_DEFAULT_SKILL_NAME", -1f);
 
             //DLC1
             // Railgunner
@@ -180,9 +183,12 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("FALSESON_UTILITY_ALT1_NAME", 0f);
             skills.Add("FALSESON_SPECIAL_NAME", 0.45f);
             skills.Add("FALSESON_SPECIAL_ALT1_NAME", 1f);
-            
+
             // Chef
             //Boosted skills do not have unique name tokens (Do have unique desc tho)
+
+            //skillsProcString.Add("CHEF_PRIMARY_NAME", ":1\nBoosted & Held: 2.25");
+
             skills.Add("CHEF_PRIMARY_NAME", 1f);        //Cleaver Held / Boosted 1.5
             skills.Add("CHEF_SECONDARY_NAME", 1f);      //Boosted 1
             skills.Add("CHEF_SECONDARY_ALT_NAME", 1f);  //Boosted 1

@@ -11,6 +11,8 @@ namespace LookingGlass.ItemStatsNameSpace
     public class ItemDefinitions
     {
         public static Dictionary<int, ItemStatsDef> allItemDefinitions = new Dictionary<int, ItemStatsDef>();
+        public static Dictionary<int, ItemStatsDef> allEquipmentDefinitions = new Dictionary<int, ItemStatsDef>();
+        
         public static void RegisterItemStatsDef(ItemStatsDef itemStatsDef, ItemIndex itemIndex)
         {
             allItemDefinitions.Add((int)itemIndex, itemStatsDef);
@@ -1424,7 +1426,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Proc Coefficients <style=cIsUtility>1</style> + <style=cIsUtility>0.2</style> <style=cSub>On Contact</style>");
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsUtility>1</style> + <style=cIsUtility>0.2</style> <style=cSub>Rapid Contact</style>");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
             itemStat.hasChance = true;
@@ -2663,11 +2665,116 @@ namespace LookingGlass.ItemStatsNameSpace
             #endregion
 
             #region Equipment
+            //Could probably be made better / cleaner
 
-            //I dont know how Proc Coeffs for Equipment could be added as im not familiar with the base of the mod
+
+            //1.0, No need to make a StatsDef for each individual if all it shows is Proc 
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(1f);
+                return values;
+            };
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.FireBallDash.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.CommandMissile.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.Lightning.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.GoldGat.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.AffixLunar.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.AffixPoison.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.Meteor.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)DLC1Content.Equipment.VendingMachine.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)DLC2Content.Equipment.EliteBeadEquipment.equipmentIndex, itemStat);
+
+            //0.7
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(0.75f);
+                return values;
+            };
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.AffixWhite.equipmentIndex, itemStat);
+
+            //0.0
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(0f);
+                return values;
+            };
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.QuestVolatileBattery.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.AffixRed.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.AffixBlue.equipmentIndex, itemStat);
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.BurnNearby.equipmentIndex, itemStat);
 
 
-            //Egg 1
+
+            //BFG Preon
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1</style> + <style=cIsUtility>0.1</style> <style=cSub>Tendrils</style>");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(1f);
+                return values;
+            };
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.BFG.equipmentIndex, itemStat);
+
+            //Saw
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1</style> + <style=cIsUtility>0.2</style> <style=cSub>Rapid Contact</style>");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(1f);
+                return values;
+            };
+            allEquipmentDefinitions.Add((int)RoR2Content.Equipment.Saw.equipmentIndex, itemStat);
+
+
+            //Molotov
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1</style> + <style=cIsDamage>0.5</style> <style=cSub>Puddle</style>");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(1f);
+                return values;
+            };
+            allEquipmentDefinitions.Add((int)DLC1Content.Equipment.Molotov.equipmentIndex, itemStat);
+
+            //Gold knocked out stat?
+            //Elite Aur
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1</style> <style=cSub>Inner</style> + <style=cIsDamage>0.1</style> <style=cSub>Outer</style>");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(1f);
+                return values;
+            };
+            allEquipmentDefinitions.Add((int)DLC2Content.Equipment.EliteAurelioniteEquipment.equipmentIndex, itemStat);
+
+
             #endregion
         }
     }

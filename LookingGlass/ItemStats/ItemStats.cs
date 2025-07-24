@@ -16,6 +16,7 @@ using RoR2.Skills;
 using System.Security.Cryptography;
 using LookingGlass.ItemStatsNameSpace;
 using UnityEngine;
+using RoR2.Stats;
 
 namespace LookingGlass.ItemStatsNameSpace
 {
@@ -40,7 +41,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public void Setup()
         {
             InitHooks();
-            ItemDefinitions.RegisterAll();
+            ItemCatalog.availability.CallWhenAvailable(ItemDefinitions.RegisterAll);
             itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows full item descriptions on mouseover");
             itemStatsCalculations = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats Calculations", true, "Gives calculations for vanilla items and modded items which have added specific support. (Sadly, items are not designed in a way to allow this to be automatic)");
             fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", true, "Shows full item descriptions on pickup");
@@ -109,7 +110,8 @@ namespace LookingGlass.ItemStatsNameSpace
                 
                 self.tooltipProvider.overrideBodyText = $"{Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken)}" +
                     $"\n\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>" +
-                    $"\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted} seconds</style>";
+                    $"\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted} seconds</style>"+
+                    GetEquipmentExtras(self.currentDisplayData.equipmentDef.equipmentIndex);
             }
 #pragma warning restore Publicizer001 // Accessing a member that was not originally public
         }
@@ -155,7 +157,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 //Why was there a "In Proc Dict" check for this?
                 //Maybe could do if cooldown == 0 then dont show but it's fine
-                desc.Append("\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
+                desc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
 
                 bool blacklistedSkill = false;
                 if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
@@ -167,8 +169,9 @@ namespace LookingGlass.ItemStatsNameSpace
                     {
                         desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
                     }
+                    //If -1, show nothing
                     //If 0, show that it has 0 Proc Coeff for clarity
-                    //But still don't show like "0 % chance to trigger all the items"
+                    //But don't show like "0 % chance to trigger all the items"
                     blacklistedSkill = blacklistedSkill || ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) == 0;
                 }
                 else if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
@@ -318,98 +321,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     }
                     if (values is not null)
                     {
-                        for (int i = 0; i < itemStats.descriptions.Count; i++)
-                        {
-                            itemDescription += $"\n<color=\"white\">{itemStats.descriptions[i]}</color>";
-                            switch (itemStats.valueTypes[i])
-                            {
-                                case ItemStatsDef.ValueType.Healing:
-                                case ItemStatsDef.ValueType.Armor:
-                                    itemDescription += "<style=\"cIsHealing";
-                                    break;
-                                case ItemStatsDef.ValueType.Damage:
-                                    itemDescription += "<style=\"cIsDamage";
-                                    break;
-                                case ItemStatsDef.ValueType.Utility:
-                                    itemDescription += "<style=\"cIsUtility";
-                                    break;
-                                case ItemStatsDef.ValueType.Health:
-                                    itemDescription += "<style=\"cIsHealth";
-                                    break;
-                                case ItemStatsDef.ValueType.Void:
-                                    itemDescription += "<style=\"cIsVoid";
-                                    break;
-                                case ItemStatsDef.ValueType.Gold:
-                                case ItemStatsDef.ValueType.HumanObjective:
-                                    itemDescription += "<style=\"cHumanObjective";
-                                    break;
-                                case ItemStatsDef.ValueType.LunarObjective:
-                                    itemDescription += "<style=\"cLunarObjective";
-                                    break;
-                                case ItemStatsDef.ValueType.Stack:
-                                    itemDescription += "<style=\"cStack";
-                                    break;
-                                case ItemStatsDef.ValueType.WorldEvent:
-                                    itemDescription += "<style=\"cWorldEvent";
-                                    break;
-                                case ItemStatsDef.ValueType.Artifact:
-                                    itemDescription += "<style=\"cArtifact";
-                                    break;
-                                case ItemStatsDef.ValueType.UserSetting:
-                                    itemDescription += "<style=\"cUserSetting";
-                                    break;
-                                case ItemStatsDef.ValueType.Death:
-                                    itemDescription += "<style=\"cDeath";
-                                    break;
-                                case ItemStatsDef.ValueType.Sub:
-                                    itemDescription += "<style=\"cSub";
-                                    break;
-                                case ItemStatsDef.ValueType.Mono:
-                                    itemDescription += "<style=\"cMono";
-                                    break;
-                                case ItemStatsDef.ValueType.Shrine:
-                                    itemDescription += "<style=\"cShrine";
-                                    break;
-                                case ItemStatsDef.ValueType.Event:
-                                    itemDescription += "<style=\"cEvent";
-                                    break;
-                                    //case ItemStatsDef.ValueType.Other:
-                                    //    itemDescription += "<color=\"white";
-                                    //    break;
-                            }
-                            switch (itemStats.measurementUnits[i])
-                            {
-                                case ItemStatsDef.MeasurementUnits.Meters:
-                                    itemDescription += $"\">{values[i]:0.###}m</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.Percentage:
-                                    itemDescription += $"\">{values[i] * 100:0.###}%</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.FlatHealth:
-                                    itemDescription += $"\">{values[i]:0.###} HP</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.PercentHealth:
-                                    itemDescription += $"\">{values[i] * 100:0.###}% HP</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.FlatHealing:
-                                    itemDescription += $"\">{values[i]:0.###} HP/s</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.PercentHealing:
-                                    itemDescription += $"\">{values[i] * 100:0.###}% HP/s</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.Number:
-                                    itemDescription += $"\">{values[i]:0.###}</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.Money:
-                                    itemDescription += $"\">{values[i]:0.###}$</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.Seconds:
-                                    itemDescription += $"\">{values[i]:0.###} seconds</style>";
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                        GetItemStatsFormatted(ref itemStats, ref values, ref itemDescription, true);
                     }
                 }
             }
@@ -418,6 +330,141 @@ namespace LookingGlass.ItemStatsNameSpace
             }
             itemDescription += "</size>";
             return itemDescription;
+        }
+
+
+        //What does ref do pls help
+        public static void GetItemStatsFormatted(ref ItemStatsDef statsDef, ref List<float> values, ref string input, bool white)
+        {
+            for (int i = 0; i < statsDef.descriptions.Count; i++)
+            {
+                if (white)
+                {
+                    input += $"\n<color=\"white\">{statsDef.descriptions[i]}</color>";
+                }
+                else
+                {
+                    input += $"\n{statsDef.descriptions[i]}";
+                }
+                switch (statsDef.valueTypes[i])
+                {
+                    case ItemStatsDef.ValueType.Healing:
+                    case ItemStatsDef.ValueType.Armor:
+                        input += "<style=\"cIsHealing";
+                        break;
+                    case ItemStatsDef.ValueType.Damage:
+                        input += "<style=\"cIsDamage";
+                        break;
+                    case ItemStatsDef.ValueType.Utility:
+                        input += "<style=\"cIsUtility";
+                        break;
+                    case ItemStatsDef.ValueType.Health:
+                        input += "<style=\"cIsHealth";
+                        break;
+                    case ItemStatsDef.ValueType.Void:
+                        input += "<style=\"cIsVoid";
+                        break;
+                    case ItemStatsDef.ValueType.Gold:
+                    case ItemStatsDef.ValueType.HumanObjective:
+                        input += "<style=\"cHumanObjective";
+                        break;
+                    case ItemStatsDef.ValueType.LunarObjective:
+                        input += "<style=\"cLunarObjective";
+                        break;
+                    case ItemStatsDef.ValueType.Stack:
+                        input += "<style=\"cStack";
+                        break;
+                    case ItemStatsDef.ValueType.WorldEvent:
+                        input += "<style=\"cWorldEvent";
+                        break;
+                    case ItemStatsDef.ValueType.Artifact:
+                        input += "<style=\"cArtifact";
+                        break;
+                    case ItemStatsDef.ValueType.UserSetting:
+                        input += "<style=\"cUserSetting";
+                        break;
+                    case ItemStatsDef.ValueType.Death:
+                        input += "<style=\"cDeath";
+                        break;
+                    case ItemStatsDef.ValueType.Sub:
+                        input += "<style=\"cSub";
+                        break;
+                    case ItemStatsDef.ValueType.Mono:
+                        input += "<style=\"cMono";
+                        break;
+                    case ItemStatsDef.ValueType.Shrine:
+                        input += "<style=\"cShrine";
+                        break;
+                    case ItemStatsDef.ValueType.Event:
+                        input += "<style=\"cEvent";
+                        break;
+                        //case ItemStatsDef.ValueType.Other:
+                        //    itemDescription += "<color=\"white";
+                        //    break;
+                }
+                switch (statsDef.measurementUnits[i])
+                {
+                    case ItemStatsDef.MeasurementUnits.Meters:
+                        input += $"\">{values[i]:0.###}m</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.Percentage:
+                        input += $"\">{values[i] * 100:0.###}%</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.FlatHealth:
+                        input += $"\">{values[i]:0.###} HP</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.PercentHealth:
+                        input += $"\">{values[i] * 100:0.###}% HP</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.FlatHealing:
+                        input += $"\">{values[i]:0.###} HP/s</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.PercentHealing:
+                        input += $"\">{values[i] * 100:0.###}% HP/s</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.Number:
+                        input += $"\">{values[i]:0.###}</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.Money:
+                        input += $"\">{values[i]:0.###}$</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.Seconds:
+                        input += $"\">{values[i]:0.###} seconds</style>";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public static string GetEquipmentExtras(EquipmentIndex equipmentIndex)
+        {
+            //Put the formatting values in it's own method, hopefully it doesn't create issues.
+            string equipmentProcInfo = string.Empty;
+            try
+            {
+                if (itemStatsCalculations.Value && ItemDefinitions.allEquipmentDefinitions.ContainsKey((int)equipmentIndex))
+                {
+                    ItemStatsDef statsDef = ItemDefinitions.allEquipmentDefinitions[(int)equipmentIndex];
+                    List<float> values;
+                    if (statsDef.calculateValues == null)
+                    {
+                        values = statsDef.calculateValuesNew(0, 1, 1f);
+                    }
+                    else
+                    {
+                        values = statsDef.calculateValues(null, 1);
+                    }
+                    if (values is not null)
+                    {
+                        GetItemStatsFormatted(ref statsDef, ref values, ref equipmentProcInfo, false);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+            return equipmentProcInfo;
         }
 
 

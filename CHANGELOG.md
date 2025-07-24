@@ -1,35 +1,41 @@
 ### 1.13.0
-Default Config changes:\
+Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they recieved.\
+Added Stats for Longstanding Solitude & Unstable Transmitter.\
+Added some extra stats to some items. (More unlisted stats, Max Boost, more item specific damage/cooldowns)
+
+Added Proc Coeff info to Items.\
+Added Proc Coeff info to Equipment.\
+Updated/Added Proc Coeffs for Phase 3 Skills & Heretic\
+Hid item procs on 0 proc & movement skills.
+
+\
+Added Stat Display Presets to reset it more easily in game, and add simpler/alternative variants.\
+Config to move purchase text so it doesnt clip into Stat Display. (Default: True)
+
+Default Stat Display Config changes:\
 \- Shrunk down stat display a bit.\
+\- Enabled Secondary stat display by default.\
 \- Removed Luck & ComboTimer\
 \- Changed maxCombo to maxComboPerRun\
 \- Added marging to stat display
-\- Enabled Secondary stat display by default.
 
-Added some Stat Display Presets to reset & experiment more easily in game.\
-Config to move purchase text so it doesnt clip into Stat Display. (Default: True)
 
-Items are no longer sorted on Death Screen and when choosing from Fragments/Potentials.
-
-Item Stat Updates:
-Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they got.\
-Added Stats for Longstanding Solitude & Unstable Transmitter.\
-Added some extra stats to some items. (Proc Coeffs, more unlisted stats, other fun & useful stuff)
-
-Electric Boomerang & Runic Lens now show for procs on skills.\
-Updated/Added Proc Coeffs for Phase 3 Skills & Heretic
-Hid item procs on 0 proc & movement skills.
-
+\
 Buff Descriptions tooltip now buff colored instead just gray.\
 Added buff descriptions for DLC2 Buffs.
 
+Items are no longer sorted on Death Screen.\
+Items are no longer sorted in Fragments/Potentials.
+
+
+\
 Multiplied percentDps value by 100 so it's actually percent\
 Fixed some vanilla and most modded skills not showing cooldown.\
 Fixed PermamentCooldown showing 0 if you had more than maxStock. 
 \- (Lost a Fuel Cell, would permamently show 0 until used, various modded skills had this issue)\
 Fixed unstackable timed buffs showing stacks.\
-Fixed listed CDR never going below 0.5, if it's an AttackSpeedCDR skill (Arti Primary), despite it not being capped at 0.5\
-Fixed various wrong item stats.\
+Fixed listed CDR never going below 0.5 for AttackSpeedCDR Skills (Arti Primary), despite it not being capped at 0.5\
+Fixed various wrong or bugged item stats. (Mostly minor issues)\
 Fixed Buff names & descriptions not functioning\
 Fixed an issue with disabling Huds and Buff Icons.\
 -Wolfo

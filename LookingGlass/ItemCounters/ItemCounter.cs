@@ -69,18 +69,24 @@ namespace LookingGlass.ItemCounters
             int voidBossCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.VoidBoss);
             int totalItemCount = whiteCount + greenCount + redCount + lunarCount + bossCount + voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount;
 
-            //Replaced font size with % so it can still dynamically be reduced/fitted
-            //itemCountText.enableAutoSizing = true;
-            //itemCountText.fontSizeMax = 25; //Vanilla extends far for some reason, idk how you'd change bounds?
+            //Made TotalItems larger
+            //Removed the [] because it just kinda misaligned it
+            //Made it resize so it doesn't get shrunk into ... with very large amounts of items.
+            //But also keeps it larger at low item counts for readability.
+
+            itemCountText.fontSizeMax = 28; //Kinda breaks if above, but keeps it in line
+            //Tho clips a bit
+            //Doubt other huds would change anything about the spacing but might be worth checking
+            itemCountText.enableAutoSizing = true;
             StringBuilder sb = new StringBuilder();
-            sb.Append($"<size=65%>");
+            sb.Append($"<size=60%>");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier2Item)}>{greenCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier3Item)}>{redCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.BossItem)}>{bossCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.LunarItem)}>{lunarCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.VoidItem)}>{voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount}</color> ");
-            sb.Append($"</size><size=80%><color=#fff>[{totalItemCount}]</color>");
+            sb.Append($"</size><size=75%><color=#fff>{totalItemCount}</color>");
             //Total item should be a little bigger?
             itemCountText.text = sb.ToString();
             

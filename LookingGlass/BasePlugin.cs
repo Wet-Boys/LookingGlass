@@ -75,23 +75,22 @@ namespace LookingGlass
 
             statsDisplayClass = new StatsDisplayClass(); //More important config to have in first slot?
             autoSortItems = new AutoSortItemsClass();
+
+            itemStats = new ItemStats();
+
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();
             hidePickupNotifications = new HidePickupNotifications();
             commandItemCountClass = new CommandItemCountClass();
             resizeCommandWindowClass = new ModifyCommandWindow();
-            
+            itemCounter = new ItemCounter();
             buffTimers = new BuffTimersClass();
             dpsMeter = new DPSMeter();
-            itemCounter = new ItemCounter();
             equipFixer = new CooldownFixer();
             unHiddenItems = new UnHiddenItems();
             buffDescriptions = new BuffDescriptionsClass();
             pickupNotifDurationClass = new PickupNotifDurationClass();
-            ItemCatalog.availability.CallWhenAvailable(() =>
-            {
-                itemStats = new ItemStats();
-            });
+
         }
 
         private void Update()

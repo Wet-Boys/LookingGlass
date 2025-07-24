@@ -30,7 +30,7 @@ namespace LookingGlass.ItemStatsNameSpace
             //No longer used
             //Cooldown should be determined with GenericSkill or EquipmentSlot
 
-            SkillCooldownReduction.Add((int)RoR2Content.Items.AlienHead.itemIndex, (int)SkillSlot.None);
+            /*SkillCooldownReduction.Add((int)RoR2Content.Items.AlienHead.itemIndex, (int)SkillSlot.None);
             SkillReductionValueIndex.Add((int)RoR2Content.Items.AlienHead.itemIndex, 0);
 
             SkillCooldownReduction.Add((int)RoR2Content.Items.UtilitySkillMagazine.itemIndex, (int)SkillSlot.Utility);
@@ -43,7 +43,7 @@ namespace LookingGlass.ItemStatsNameSpace
             SkillReductionValueIndex.Add((int)RoR2Content.Items.LunarBadLuck.itemIndex, 0);
 
             SkillCooldownReduction.Add((int)DLC1Content.Items.EquipmentMagazineVoid.itemIndex, (int)SkillSlot.Special);
-            SkillReductionValueIndex.Add((int)DLC1Content.Items.EquipmentMagazineVoid.itemIndex, -1);
+            SkillReductionValueIndex.Add((int)DLC1Content.Items.EquipmentMagazineVoid.itemIndex, -1);*/
         }
     }
 }
