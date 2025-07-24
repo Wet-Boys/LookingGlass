@@ -8,7 +8,7 @@ namespace LookingGlass.ItemStatsNameSpace
     {
         //Shouldn't this be public so people can add to it??
         public static readonly Dictionary<string, float> skills = new Dictionary<string, float>();
-        //public static readonly Dictionary<string, string> skillsProcString = new Dictionary<string, string>();
+        //public static readonly Dictionary<string, string> skillsAdditional = new Dictionary<string, string>();
 
         public static float GetProcCoefficient(string name)
         {
@@ -28,6 +28,8 @@ namespace LookingGlass.ItemStatsNameSpace
             //Would be nice to have an alt dict with string
             //so Boosted, Corrupted, or other additional effects could be mentioned
             //But would prevent getting the float easily so dunno
+            //Maybe just skills<float> (main) + skillsAditional<string> which goes uncalculated but still visible?
+            //Very extra extra ig
 
             // Acrid
             skills.Add("CROCO_PRIMARY_NAME", 1f);

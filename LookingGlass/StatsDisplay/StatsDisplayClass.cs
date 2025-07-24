@@ -32,14 +32,13 @@ namespace LookingGlass.StatsDisplay
             Set,
             LookingGlass,
             Simpler,
-            DPSMeter,
+            Extra,
             Minimal,
             Classic,
         }
         public static ConfigEntry<StatDisplayPreset> statStringPresets;
         public static ConfigEntry<bool> movePurchaseText; //-240x
-        //public static ConfigEntry<bool> matchingLeftPadding; //
-
+        
         public static ConfigEntry<bool> statsDisplay;
         public static ConfigEntry<bool> useSecondaryStatsDisplay;
         public static ConfigEntry<string> secondaryStatsDisplayString;
@@ -72,7 +71,39 @@ namespace LookingGlass.StatsDisplay
             Setup();
             SetupRiskOfOptions();
         }
-        const string syntaxList = " \n luck \n baseDamage \n crit \n attackSpeed \n armor \n armorDamageReduction \n regen \n speed \n availableJumps \n maxJumps \n killCount \n mountainShrines \n experience \n level \n maxHealth \n maxBarrier \n barrierDecayRate \n maxShield \n acceleration \n jumpPower \n maxJumpHeight \n damage \n critMultiplier \n bleedChance \n visionDistance \n critHeal \n cursePenalty \n hasOneShotProtection \n isGlass \n canPerformBackstab \n canReceiveBackstab \n healthPercentage \n goldPortal \n msPortal \n shopPortal \n dps \n percentDps \n currentCombatDamage \n remainingComboDuration \n maxCombo \n maxComboThisRun \n currentCombatKills \n maxKillCombo \n maxKillComboThisRun \n critWithLuck \n bleedChanceWithLuck \n velocity \n teddyBearBlockChance \n saferSpacesCD \n instaKillChance \n voidPortal \n difficultyCoefficient \n stage";
+        const string syntaxList =
+            "\n\n damage " +
+            "\n crit , critWithLuck , critMultiplier" +
+            "\n bleedChance , bleedChanceWithLuck" +
+            "\n attackSpeed " +
+
+            "\n maxHealth, maxShield, maxBarrier " +
+            "\n barrierDecayRate" +
+            "\n healthPercentage" +
+            "\n regen " +
+            "\n armor, armorDamageReduction" +
+            "\n curseHealthReduction " +
+            "\n hasOneShotProtection " +
+
+            "\n speed , velocity" +
+            "\n acceleration " +
+            "\n availableJumps, maxJumps" +
+            "\n jumpPower, maxJumpHeight " +
+            "\n level , experience " +
+            "\n luck " +
+
+            "\n mountainShrines " +
+            "\n shopPortal, goldPortal, msPortal, voidPortal, greenPortal" +
+
+            "\n killCount " +
+            "\n dps, percentDps " +
+            "\n currentCombatDamage " +
+            "\n remainingComboDuration" +
+            "\n maxCombo , maxComboThisRun " +
+            "\n currentCombatKills, maxKillCombo , maxKillComboThisRun" +
+            "\n teddyBearBlockChance, saferSpacesCD " +
+            "\n instaKillChance " +
+            "\n difficultyCoefficient , stage";
         public void Setup()
         {
             statsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "StatsDisplay", true, "Enables Stats Display");
@@ -81,23 +112,19 @@ namespace LookingGlass.StatsDisplay
                 "<margin-left=0.6em>"
                 + "<size=115%>Stats</size>\n"
                 + "Damage: [damage]\n"
-                + "Crit Chance: [critWithLuck]\n"
                 + "Attack Speed: [attackSpeed]\n"
+                + "Crit Chance: [critWithLuck]\n"         
                 + "Armor: [armor] | [armorDamageReduction]\n"
                 + "Regen: [regen]\n"
                 + "Speed: [speed]\n"
-                + "Jumps: [availableJumps]/[maxJumps]\n"
-                //+ "Luck: [luck]\n" //Not needed
+                + "Jumps: [availableJumps] / [maxJumps]\n"
+                //+ "Luck: [luck]\n" //Not a real stat just 2 items, -> Added to Expanded only
                 + "Kills: [killCount]\n"
-                //+ "Mountain Shrines: [mountainShrines]\n" //Changes rather infrequently, better off being on secondary only
+                //+ "Mountain Shrines: [mountainShrines]\n" //Changes infrequently, better off being on secondary only
                 + "DPS: [dps]\n"
                 + "Combo: [currentCombatDamage]\n"
                 //+ "Combo Timer: [remainingComboDuration]\n" //I don't think this is really needed.
-                //You already have the run resetting version why isnt this used.
-                //It's so ugly having a giant number stuck on screen forever.
-                //Probably also better to just have it on the secondary display tbh.
-                //Especially if Secondary is kept as default
-                //"Max Combo: [maxComboThisRun]\n"+
+                //"Max Combo: [maxComboThisRun]\n"+ //Better off on secondary only
                 + "</margin>"
                 , $"String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is:{syntaxList}");
             statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display font size", -1, "General font size of the stats display menu. If set to -1, will copy the font size from the objective panel Header. Objective Header is font size 16, Objectives are font size 12 for reference.");
@@ -115,20 +142,21 @@ namespace LookingGlass.StatsDisplay
                 "<margin-left=0.6em>"
                 + "<size=115%>Stats</size>\n"
                 + "Damage: [damage]\n"
-                + "Crit Chance: [critWithLuck]\n" //Maybe Crit damage here?
-                //"Crit Damage: [critMultiplier]\n" //Modded items or DLCS might add more critDamage items, for now this is 1 Item and Railgunner.
+                + "Attack Speed: [attackSpeed]\n" //AS first because Crit expands into Crit + Crit Damage + Bleed
+                + "Crit Chance: [critWithLuck]\n"
+                //+ "Crit Multiplier: [critMultiplier]\n" //DLC3 is adding a Crit Damage item so maybe
                 + "Bleed Chance: [bleedChanceWithLuck]\n"
-                + "Attack Speed: [attackSpeed]\n"
                 + "Armor: [armor] | [armorDamageReduction]\n"
                 + "Regen: [regen]\n"
                 + "Speed: [speed]\n"
-                + "Jumps: [availableJumps]/[maxJumps]\n"
-                //+ "Luck: [luck]\n" //Not really a real stat, just 2 items, not smth I ever saw a Mod take adventage of.
-                + "Kills: [killCount]\n"
+                + "Jumps: [availableJumps] / [maxJumps]\n"
+                //+ "Luck: [luck]\n" //If any mods/DLCs add Luck items maybe worth having on default secondary
+                //+ "Kills: [killCount]\n"
+                + "Total Kills: [killCountRun]\n"
                 + "Max Combo: [maxComboThisRun]\n"
                 + "Mountain Shrines: [mountainShrines]\n"
                 + "<size=115%>Portals:</size> \n"
-                + "<size=50%>Shop:[shopPortal] Gold:[goldPortal] Celestial:[msPortal] Void:[voidPortal]</size>"
+                + "<size=67%>Bazaar: [shopPortal] Storm: [greenPortal] Gold: [goldPortal]</size>"
                 + "</margin>"
                 , $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}");
             StatsDisplayDefinitions.SetupDefs();
@@ -151,8 +179,12 @@ namespace LookingGlass.StatsDisplay
             overrideHook2 = new Hook(targetMethod, destMethod, this);
 
 
-      
-            statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Stats Display Preset", StatDisplayPreset.Set, "Override current Stat Display settings with a premade preset,\nfurther changes can made from there.");
+
+            statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Stats Display Preset", StatDisplayPreset.Set, "Override current Stat Display settings with a premade preset,\nfurther changes can made from there.\n\n" +
+                "Extra: Include Crit Damage, Luck, CurseFrac on Tab\n\n" +
+                "Simpler: Dont include DPS, Combo\n\n" +
+                "Minimal: DPS + Jump, Few stats on Tab for mathing certain cap-able stats affected by multiple items.\n\n");
+
             statStringPresets.SettingChanged += StatStringPresets_SettingChanged;
             movePurchaseText = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Move Purchase Text", true, "Move purchase text further to the left to avoid clipping with larger Stat Displays or generally fuller RightSideInfos.");
             movePurchaseText.SettingChanged += MovePurchase;
@@ -230,8 +262,8 @@ namespace LookingGlass.StatsDisplay
             //Classic : Before changes
             //LookingGlass : After Changes
             //Simpler : No DPS/Combo stuff
-            //DPSMeter : Specifically whatever is best for people who just want to nerd out to DPS
-            //Minimal : Secondary only, only stats you might need to math or check occasionally
+            //Extra : Include stats that often would be on 0.
+            //Minimal : DPS + Jumps on Main, Secondary only stats you might need to math or Teleporter stuff
             //Maybe add another one or two
 
             switch (statStringPresets.Value)
@@ -272,59 +304,59 @@ namespace LookingGlass.StatsDisplay
                           + "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>";
                     break;
                 case StatDisplayPreset.LookingGlass:
-                    new1 =
-                        "<margin-left=0.6em>"
-                        + "<size=115%>Stats</size>\n"
-                        + "Damage: [damage]\n"
-                        + "Crit Chance: [critWithLuck]\n"
-                        + "Attack Speed: [attackSpeed]\n"
-                        + "Armor: [armor] | [armorDamageReduction]\n"
-                        + "Regen: [regen]\n"
-                        + "Speed: [speed]\n"
-                        + "Jumps: [availableJumps]/[maxJumps]\n"
-                        + "Kills: [killCount]\n"
-                        + "DPS: [dps]\n"
-                        + "Combo: [currentCombatDamage]\n"
-                        + "</margin>";
+                    new1 = (string)statsDisplayString.DefaultValue;
+                    new2 = (string)secondaryStatsDisplayString.DefaultValue;
+                    break;
+                case StatDisplayPreset.Extra:
+                    //+Luck
+                    //+Crit Damage Mult
+                    //+Curse HP Reduction
+                    new1 = (string)statsDisplayString.DefaultValue;
                     new2 =
                         "<margin-left=0.6em>"
                         + "<size=115%>Stats</size>\n"
                         + "Damage: [damage]\n"
-                        + "Crit Chance: [critWithLuck]\n"
-                        + "Bleed Chance: [bleedChanceWithLuck]\n"
                         + "Attack Speed: [attackSpeed]\n"
+                        + "Crit Chance: [critWithLuck]\n"
+                        + "Crit Multiplier: [critMultiplier]\n"
+                        + "Bleed Chance: [bleedChanceWithLuck]\n"
                         + "Armor: [armor] | [armorDamageReduction]\n"
                         + "Regen: [regen]\n"
                         + "Speed: [speed]\n"
-                        + "Jumps: [availableJumps]/[maxJumps]\n"
-                        + "Kills: [killCount]\n"
-                        + "Max Combo: [maxComboThisRun]\n"
+                        + "Jumps: [availableJumps] / [maxJumps]\n"
+                        + "Luck: [luck]\n"
+                        + "Curse Penalty: [curseHealthReduction]\n"
+                        + "Total Kills: [killCountRun]\n"
+                        + "Max Combo: [maxComboThisRun]\n"                     
                         + "Mountain Shrines: [mountainShrines]\n"
                         + "<size=115%>Portals:</size> \n"
-                        + "<size=50%>Shop: [shopPortal] Gold: [goldPortal] Celestial: [msPortal] Void: [voidPortal]</size>"
+                        + "<size=67%>"
+                        + "Bazaar: [shopPortal] Storm: [greenPortal] Gold: [goldPortal]\n"
+                        + "Celestial: [msPortal] Void: [voidPortal]</size>"
                         + "</margin>";
                     break;
                 case StatDisplayPreset.Simpler:
-                    useSecondaryStatsDisplay.Value = true;
+                    //No Combo or DPS stuff
+                    //
                     new1 =
                          "<margin-left=0.6em><line-height=110%>"
                          + "<align=center><size=115%>Stats:</align></size>\n"
                          + "Damage: [damage]\n"
-                         + "Crit Chance: [critWithLuck]\n"
                          + "Attack Speed: [attackSpeed]\n"
+                         + "Crit Chance: [critWithLuck]\n"
                          + "Armor: [armor] | [armorDamageReduction]\n"
                          + "Regen: [regen]\n"
                          + "Speed: [speed]\n"
-                         + "Jumps: [availableJumps]/[maxJumps]\n"
+                         + "Jumps: [availableJumps] / [maxJumps]\n"
                          + "Kills: [killCount]\n"
                          + "</line-height></margin>";
                     new2 =
                          "<margin-left=0.6em><line-height=110%>"
                          + "<align=center><size=115%>Stats:</align></size>\n"
                          + "Damage: [damage]\n"
-                         + "Crit Chance: [critWithLuck]\n"
-                         + "Bleed Chance: [bleedChanceWithLuck]\n"
                          + "Attack Speed: [attackSpeed]\n"
+                         + "Crit Chance: [critWithLuck]\n"
+                         + "Bleed Chance: [bleedChanceWithLuck]\n"      
                          + "Armor: [armor] | [armorDamageReduction]\n"
                          + "Regen: [regen]\n"
                          + "Speed: [speed]\n"
@@ -334,16 +366,12 @@ namespace LookingGlass.StatsDisplay
                          + "Bazaar Portal: [shopPortal]\n"
                          + "</line-height></margin>";
                     break;
-                case StatDisplayPreset.DPSMeter:
-                    useSecondaryStatsDisplay.Value = false;
-                    new1 = 
-                        "<size=110%>"
-                        + "DPS: [dps] | [percentDps]%"
-                        + "</size></margin>";
-                    //secondaryStatsDisplayString.Value = "DPS: [dps]";
-                    break;
                 case StatDisplayPreset.Minimal:
-                    new1 = string.Empty;
+                    new1 =
+                        "<margin-left=0.6em><line-height=110%>"
+                        + "Jumps: [availableJumps] / [maxJumps]\n" 
+                        + "DPS: [dps] | [percentDps]\n"
+                        + "</line-height></margin>";
                     new2 =
                           "<margin-left=0.6em><line-height=110%>"
                           + "Crit Chance: [critWithLuck]\n"

@@ -38,6 +38,7 @@ namespace LookingGlass
         internal ModifyCommandWindow resizeCommandWindowClass;
         internal StatsDisplayClass statsDisplayClass;
         internal DPSMeter dpsMeter;
+        internal PortalTracker portalTracking;
         internal ItemCounter itemCounter;
         internal BuffTimersClass buffTimers;
         internal CooldownFixer equipFixer;
@@ -86,6 +87,7 @@ namespace LookingGlass
             itemCounter = new ItemCounter();
             buffTimers = new BuffTimersClass();
             dpsMeter = new DPSMeter();
+            portalTracking = new PortalTracker();
             equipFixer = new CooldownFixer();
             unHiddenItems = new UnHiddenItems();
             buffDescriptions = new BuffDescriptionsClass();

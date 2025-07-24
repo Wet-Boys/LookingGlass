@@ -9,14 +9,13 @@ Updated/Added Proc Coeffs for Phase 3 Skills & Heretic\
 Hid item procs on 0 proc & movement skills.
 
 \
-Added Stat Display Presets to reset it more easily in game, and add simpler/alternative variants.\
+Added Stat Display Presets to reset it more easily in game and add alternative variants to suit different needs.\
 Config to move purchase text so it doesnt clip into Stat Display. (Default: True)
 
 Default Stat Display Config changes:\
 \- Shrunk down stat display a bit.\
 \- Enabled Secondary stat display by default.\
-\- Removed Luck & ComboTimer\
-\- Changed maxCombo to maxComboPerRun\
+\- Removed some stats or moved them to Tab only.
 \- Added marging to stat display
 
 
@@ -27,6 +26,10 @@ Added buff descriptions for DLC2 Buffs.
 Items are no longer sorted on Death Screen.\
 Items are no longer sorted in Fragments/Potentials.
 
+Added CurseHealthReduction stat.\
+Added killCountRun stat.\
+Added GreenPortal stat.\
+GoldPortal stat now accounts for Halcyonite Shrines
 
 \
 Multiplied percentDps value by 100 so it's actually percent\
@@ -38,6 +41,9 @@ Fixed listed CDR never going below 0.5 for AttackSpeedCDR Skills (Arti Primary),
 Fixed various wrong or bugged item stats. (Mostly minor issues)\
 Fixed Buff names & descriptions not functioning\
 Fixed an issue with disabling Huds and Buff Icons.\
+Fixed maxKillCombo not using proper stat.\
+Fixed killCount not working on Clients.\
+
 -Wolfo
 
 ### 1.12.0
