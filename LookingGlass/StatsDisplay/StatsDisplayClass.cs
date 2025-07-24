@@ -360,7 +360,7 @@ namespace LookingGlass.StatsDisplay
                          + "Armor: [armor] | [armorDamageReduction]\n"
                          + "Regen: [regen]\n"
                          + "Speed: [speed]\n"
-                         + "Jumps: [availableJumps]/[maxJumps]\n"
+                         + "Jumps: [availableJumps] / [maxJumps]\n"
                          + "Kills: [killCount]\n"
                          + "Mountain Shrines: [mountainShrines]\n"
                          + "Bazaar Portal: [shopPortal]\n"
