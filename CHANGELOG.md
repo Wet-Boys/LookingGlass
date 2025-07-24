@@ -1,40 +1,35 @@
 ### 1.13.0
 Default Config changes:\
--Shrunk down stat display a bit.\
--Removed Luck & ComboTimer\
--Changed maxCombo to maxComboPerRun\
--Added marging to stat display
--Enabled Secondary stat display by default.
+\- Shrunk down stat display a bit.\
+\- Removed Luck & ComboTimer\
+\- Changed maxCombo to maxComboPerRun\
+\- Added marging to stat display
+\- Enabled Secondary stat display by default.
 
-Added some Stat Display Presets to reset & experiment more easily & in game.\
+Added some Stat Display Presets to reset & experiment more easily in game.\
 Config to move purchase text so it doesnt clip into Stat Display. (Default: True)
 
 Items are no longer sorted on Death Screen and when choosing from Fragments/Potentials.
 
 Item Stat Updates:
 Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they got.\
-Added Stats for Longstanding Solitude & Unstable Transmitter
-Added some extra stats to some items.
-- Proc Coeffs of Items
-- Empathy Cores | Current Damage Bonus
-- Max Boost | Chronic/Lantern/Nectar
-- Nkuhanas Opion | Damage as %
-- Little Disciple | Firerate
+Added Stats for Longstanding Solitude & Unstable Transmitter.\
+Added some extra stats to some items. (Proc Coeffs, more unlisted stats, other fun & useful stuff)
 
 Electric Boomerang & Runic Lens now show for procs on skills.\
-Updated/Added Proc Coeffs of Phase 3 Skills & Heretic
+Updated/Added Proc Coeffs for Phase 3 Skills & Heretic
 Hid item procs on 0 proc & movement skills.
 
-Buff Descriptions tooltip buffs colored instead just gray.\
+Buff Descriptions tooltip now buff colored instead just gray.\
 Added buff descriptions for DLC2 Buffs.
 
 Multiplied percentDps value by 100 so it's actually percent\
 Fixed some vanilla and most modded skills not showing cooldown.\
-Fixed PermamentCooldown showing 0 if you had more than maxStock. (ie Lost a Fuel Cell, would permamently show 0, various modded skills had this issue)\
+Fixed PermamentCooldown showing 0 if you had more than maxStock. 
+\- (Lost a Fuel Cell, would permamently show 0 until used, various modded skills had this issue)\
 Fixed unstackable timed buffs showing stacks.\
 Fixed listed CDR never going below 0.5, if it's an AttackSpeedCDR skill (Arti Primary), despite it not being capped at 0.5\
-Fixed Stone & Flux Pauldron listing 0% downsides\
-Fixed War Bonds stats being on Long Standing Solitude.\
+Fixed various wrong item stats.\
 Fixed Buff names & descriptions not functioning\
 Fixed an issue with disabling Huds and Buff Icons.\
 -Wolfo

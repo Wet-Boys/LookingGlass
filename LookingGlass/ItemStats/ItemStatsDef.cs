@@ -26,7 +26,8 @@ namespace LookingGlass.ItemStatsNameSpace
             Shrine,
             Event,
             Gold,
-            Armor
+            Armor,
+            None,
         }
         public enum MeasurementUnits
         {
@@ -35,15 +36,18 @@ namespace LookingGlass.ItemStatsNameSpace
             FlatHealth,
             FlatHealing,
             Number,
+            Money,
             Seconds,
             PercentHealth,
-            PercentHealing
+            PercentHealing,
+            PlainString
         }
         public enum ChanceScaling
         {
             Linear,
             Hyperbolic,
-            DoesNotScale
+            DoesNotScale,
+            RunicLens //Linear, capped at 75%
         }
         public List<string> descriptions = new List<string>();
         public List<ValueType> valueTypes = new List<ValueType>();

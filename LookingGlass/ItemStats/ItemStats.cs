@@ -196,13 +196,24 @@ namespace LookingGlass.ItemStatsNameSpace
 
                                     desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.0")).Append("%</style>");
 
+                                    //Math Ceil leads to 201 lost seers, 26 runic
+                                    //No math leads to 9 on tri tip
+                                    //What is this bro
+                                    //Thank you UnityEngine.Mathf for actually working
                                     if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
                                     {
                                         desc.Append(" <style=cStack>(");
-                                        desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                        desc.Append(Mathf.CeilToInt(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
                                         desc.Append(" to cap)</style>");
                                     }
-
+                                    else if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.RunicLens)
+                                    {
+                                        //Most ideally would calculated the chance with the min damage of the skill and add it to the chance or whatever
+                                        //But that's not really possible
+                                        desc.Append(" <style=cStack>(");
+                                        desc.Append(Mathf.CeilToInt(0.75f / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                        desc.Append(" to cap)</style>");
+                                    }
                                     if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                                     {
                                         // TODO align this text to the one above
@@ -322,7 +333,6 @@ namespace LookingGlass.ItemStatsNameSpace
                                 case ItemStatsDef.ValueType.Utility:
                                     itemDescription += "<style=\"cIsUtility";
                                     break;
-
                                 case ItemStatsDef.ValueType.Health:
                                     itemDescription += "<style=\"cIsHealth";
                                     break;
@@ -389,6 +399,9 @@ namespace LookingGlass.ItemStatsNameSpace
                                     break;
                                 case ItemStatsDef.MeasurementUnits.Number:
                                     itemDescription += $"\">{values[i]:0.###}</style>";
+                                    break;
+                                case ItemStatsDef.MeasurementUnits.Money:
+                                    itemDescription += $"\">{values[i]:0.###}$</style>";
                                     break;
                                 case ItemStatsDef.MeasurementUnits.Seconds:
                                     itemDescription += $"\">{values[i]:0.###} seconds</style>";
