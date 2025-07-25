@@ -3,21 +3,24 @@ Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates
 Added Stats for Longstanding Solitude & Unstable Transmitter.\
 Added some extra stats to some items. (More unlisted stats, Max Boost, more item specific damage/cooldowns)
 
+
 Added Proc Coeff info to Items.\
 Added Proc Coeff info to Equipment.\
 Updated/Added Proc Coeffs for Phase 3 Skills & Heretic\
-Hid item procs on 0 proc & movement skills.
+Hid item procs on 0 proc & movement skills.\
+Added Electric Boomerang & Runic Lens to items skills proc.
 
 \
 Added Stat Display Presets to reset it more easily in game and add alternative variants to suit different needs.\
 Config to move purchase text so it doesnt clip into Stat Display. (Default: True)
 
 Default Stat Display Config changes:\
-\- Shrunk down stat display a bit.\
+\- Shrunk down stat display.\
 \- Enabled Secondary stat display by default.\
 \- Removed some stats or moved them to Tab only.
 \- Added marging to stat display
 
+Your Stat Display will Not be reset with this update.
 
 \
 Buff Descriptions tooltip now buff colored instead just gray.\
@@ -26,28 +29,27 @@ Added buff descriptions for DLC2 Buffs.
 Items are no longer sorted on Death Screen.\
 Items are no longer sorted in Fragments/Potentials.
 
-Added CurseHealthReduction stat.\
-Added killCountRun stat.\
-Added GreenPortal stat.\
+Added stats: killCountRun, greenPortal, curseHealthReduction, effectiveHealth & effectiveMaxHealth stats.\
 GoldPortal stat now accounts for Halcyonite Shrines
 
 \
-Multiplied percentDps value by 100 so it's actually percent\
+Fixed Buff names & descriptions not functioning\
 Fixed some vanilla and most modded skills not showing cooldown.\
-Fixed PermamentCooldown showing 0 if you had more than maxStock. 
+Fixed PermamentCooldown showing 0 if you had more than maxStock.\
 \- (Lost a Fuel Cell, would permamently show 0 until used, various modded skills had this issue)\
+Multiplied percentDps value by 100 so it's actually percent\
 Fixed unstackable timed buffs showing stacks.\
 Fixed listed CDR never going below 0.5 for AttackSpeedCDR Skills (Arti Primary), despite it not being capped at 0.5\
-Fixed various wrong or bugged item stats. (Mostly minor issues)\
-Fixed Buff names & descriptions not functioning\
+Fixed some item stats showing up wrong. (Mostly minor issues)\
 Fixed an issue with disabling Huds and Buff Icons.\
 Fixed maxKillCombo not using proper stat.\
-Fixed killCount not working on Clients.\
+Fixed killCount not working on Clients.
 
 -Wolfo
 
 ### 1.12.0
-Functional with seekers patch 3. Thanks to Bumperdo09 for restructuing PickupPickerPanel sorting to work better with multiplayer.
+Functional with seekers patch 3.\
+Thanks to Bumperdo09 for restructuing PickupPickerPanel sorting to work better with multiplayer.
 
 ### 1.11.0
 Update to work with new patch

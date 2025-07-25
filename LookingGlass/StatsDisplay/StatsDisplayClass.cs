@@ -71,44 +71,49 @@ namespace LookingGlass.StatsDisplay
             Setup();
             SetupRiskOfOptions();
         }
+
         const string syntaxList =
-            "\n\n damage " +
-            "\n crit , critWithLuck , critMultiplier" +
-            "\n bleedChance , bleedChanceWithLuck" +
-            "\n attackSpeed " +
+            "\n\n damage "
+            + "\n attackSpeed "
+            + "\n crit, critWithLuck, critMultiplier"
+            + "\n bleedChance, bleedChanceWithLuck"
 
-            "\n maxHealth, maxShield, maxBarrier " +
-            "\n barrierDecayRate" +
-            "\n healthPercentage" +
-            "\n regen " +
-            "\n armor, armorDamageReduction" +
-            "\n curseHealthReduction " +
-            "\n hasOneShotProtection " +
+            + "\n maxHealth, maxShield, maxBarrier "
+            + "\n effectiveHealth, effectiveMaxHealth"
+            + "\n barrierDecayRate"
+            + "\n healthPercentage"
+            + "\n regen "
+            + "\n armor, armorDamageReduction"
+            + "\n curseHealthReduction "
+            + "\n hasOneShotProtection "
 
-            "\n speed , velocity" +
-            "\n acceleration " +
-            "\n availableJumps, maxJumps" +
-            "\n jumpPower, maxJumpHeight " +
-            "\n level , experience " +
-            "\n luck " +
+            + "\n speed , velocity"
+            + "\n acceleration "
+            + "\n availableJumps, maxJumps"
+            + "\n jumpPower, maxJumpHeight "
+            + "\n level , experience "
+            + "\n luck "
 
-            "\n mountainShrines " +
-            "\n shopPortal, goldPortal, msPortal, voidPortal, greenPortal" +
-
-            "\n killCount " +
-            "\n dps, percentDps " +
-            "\n currentCombatDamage " +
-            "\n remainingComboDuration" +
-            "\n maxCombo , maxComboThisRun " +
-            "\n currentCombatKills, maxKillCombo , maxKillComboThisRun" +
-            "\n teddyBearBlockChance, saferSpacesCD " +
-            "\n instaKillChance " +
-            "\n difficultyCoefficient , stage";
+            + "\n mountainShrines "
+            + "\n shopPortal, goldPortal, msPortal, voidPortal, greenPortal"
+            + "\n killCount "
+            + "\n dps, percentDps "
+            + "\n combo, maxComboThisRun, maxCombo "
+            + "\n killCombo, maxKillComboThisRun, maxKillCombo"
+            + "\n remainingComboDuration"
+            + "\n teddyBearBlockChance, saferSpacesCD "
+            + "\n instaKillChance "
+            + "\n difficultyCoefficient, stage";
         public void Setup()
         {
             statsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "StatsDisplay", true, "Enables Stats Display");
             statsDisplay.SettingChanged += Display_SettingChanged;
             statsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Stats Display String",
+                //Removing Combo timer just cuz
+                //Removing Luck because not important enough to be primary
+                //Mountain Shrine Secondary only
+                //MaxCombo -> MaxCombo Per Run
+                //MaxCombo -> Seconary Only
                 "<margin-left=0.6em>"
                 + "<size=115%>Stats</size>\n"
                 + "Damage: [damage]\n"
@@ -118,13 +123,9 @@ namespace LookingGlass.StatsDisplay
                 + "Regen: [regen]\n"
                 + "Speed: [speed]\n"
                 + "Jumps: [availableJumps] / [maxJumps]\n"
-                //+ "Luck: [luck]\n" //Not a real stat just 2 items, -> Added to Expanded only
                 + "Kills: [killCount]\n"
-                //+ "Mountain Shrines: [mountainShrines]\n" //Changes infrequently, better off being on secondary only
                 + "DPS: [dps]\n"
-                + "Combo: [currentCombatDamage]\n"
-                //+ "Combo Timer: [remainingComboDuration]\n" //I don't think this is really needed.
-                //"Max Combo: [maxComboThisRun]\n"+ //Better off on secondary only
+                + "Combo: [combo]\n"
                 + "</margin>"
                 , $"String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is:{syntaxList}");
             statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display font size", -1, "General font size of the stats display menu. If set to -1, will copy the font size from the objective panel Header. Objective Header is font size 16, Objectives are font size 12 for reference.");
@@ -151,12 +152,11 @@ namespace LookingGlass.StatsDisplay
                 + "Speed: [speed]\n"
                 + "Jumps: [availableJumps] / [maxJumps]\n"
                 //+ "Luck: [luck]\n" //If any mods/DLCs add Luck items maybe worth having on default secondary
-                //+ "Kills: [killCount]\n"
-                + "Total Kills: [killCountRun]\n"
-                + "Max Combo: [maxComboThisRun]\n"
+                + "Total Kills: [killCountRun]\n" //Kils Primary -> Run Kills Secondary
+                + "Max Combo: [maxComboThisRun]\n" //Combo Primary -> Run Combo Secondary
                 + "Mountain Shrines: [mountainShrines]\n"
                 + "<size=115%>Portals:</size> \n"
-                + "<size=67%>Bazaar: [shopPortal] Storm: [greenPortal] Gold: [goldPortal]</size>"
+                + "<size=67%>Bazaar: [shopPortal] Storm: [greenPortal] Gold: [goldPortal]</size>" //Keeping Post-Loop portals with no influence out of it
                 + "</margin>"
                 , $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}");
             StatsDisplayDefinitions.SetupDefs();
@@ -183,7 +183,7 @@ namespace LookingGlass.StatsDisplay
             statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Stats Display Preset", StatDisplayPreset.Set, "Override current Stat Display settings with a premade preset,\nfurther changes can made from there.\n\n" +
                 "Extra: Include Crit Damage, Luck, CurseFrac on Tab\n\n" +
                 "Simpler: Dont include DPS, Combo\n\n" +
-                "Minimal: DPS + Jump, Few stats on Tab for mathing certain cap-able stats affected by multiple items.\n\n");
+                "Minimal: DPS + Jump, Few stats on Tab for mathing or remembering.\n\n");
 
             statStringPresets.SettingChanged += StatStringPresets_SettingChanged;
             movePurchaseText = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Move Purchase Text", true, "Move purchase text further to the left to avoid clipping with larger Stat Displays or generally fuller RightSideInfos.");
@@ -197,10 +197,10 @@ namespace LookingGlass.StatsDisplay
  
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new ChoiceOption(statStringPresets, false));
-            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.All, richText = false }));
             ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100 }));
             ModSettingsManager.AddOption(new CheckBoxOption(useSecondaryStatsDisplay, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.All, richText = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(movePurchaseText, new CheckBoxConfig() { restartRequired = false }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
@@ -283,7 +283,7 @@ namespace LookingGlass.StatsDisplay
                         + "Kills: [killCount]\n"
                         + "Mountain Shrines: [mountainShrines]\n"
                         + "DPS: [dps]\n"
-                        + "Combo: [currentCombatDamage]\n"
+                        + "Combo: [combo]\n"
                         + "Combo Timer: [remainingComboDuration]\n"
                         + "Max Combo: [maxComboThisRun]";
                     new2 =

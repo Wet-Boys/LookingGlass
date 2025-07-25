@@ -45,6 +45,11 @@ namespace LookingGlass
         }
         public void Setup()
         {
+            //Green Portal -> Also when Goldshores?
+            //Green Portal -> Also when Bazaar Mini Geodes?
+            //Gold, Void Portal -> Also when Lunar Seer??
+
+
             var targetMethod = typeof(Stage).GetMethod(nameof(Stage.PreStartClient), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(PortalTracker).GetMethod(nameof(StageStart), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var overrideHook2 = new Hook(targetMethod, destMethod, this);
