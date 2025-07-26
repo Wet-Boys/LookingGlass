@@ -440,7 +440,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(3 * stackCount * Run.instance.difficultyCoefficient);
+                values.Add(Mathf.Floor(3 * stackCount * Run.instance.difficultyCoefficient)); //Gets turned to UInt which cuts off decimals
                 return values;
             };
             allItemDefinitions.Add((int)DLC1Content.Items.GoldOnHurt.itemIndex, itemStat);
@@ -2404,11 +2404,14 @@ namespace LookingGlass.ItemStatsNameSpace
             };
             allItemDefinitions.Add((int)RoR2Content.Items.LunarPrimaryReplacement.itemIndex, itemStat);
 
-            //Long Standing Solitude
+            //Longstanding Solitude
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Free Unlocks Per Level: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Cost of next Level: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Gold);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Money);
             itemStat.descriptions.Add("Increased Gold Price: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
@@ -2416,6 +2419,9 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 List<float> values = new();
                 values.Add(stackCount);
+                uint stacks = Math.Min((uint)stackCount, CharacterMaster.maxStacks); //Random item capped at 8??
+                float factor = CharacterMaster.chestPerLevelFactor + (stacks - 1U) * CharacterMaster.stackingBonus;
+                values.Add(CharacterMaster.costOfSmallChest / factor);
                 values.Add(stackCount * 0.5f);
                 return values;
             };

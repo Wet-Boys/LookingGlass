@@ -184,7 +184,7 @@ namespace LookingGlass.BuffDescriptions
             #region DLC2
             //Survivors
             RegisterBuff(en, DLC2Content.Buffs.ChakraBuff, "Tranquility", $"Improves Seekers skills in various ways."); //Mentioning 7 different buffs sounds like, uhh no?
-            RegisterBuff(en, DLC2Content.Buffs.RevitalizeBuff, "Saving Grace", $"Increase your stats by 7%. You will be revived by upon death.");
+            RegisterBuff(en, DLC2Content.Buffs.RevitalizeBuff, "Saving Grace", $"Increase your stats by 7%. Seeker can revive you using Meditate.");
             RegisterBuff(en, DLC2Content.Buffs.SeekerRevivedOnce, "Consumed Grace", $"You were revived by Seeker and cannot be revived by her again until the next stage.");
 
             RegisterBuff(en, DLC2Content.Buffs.Boosted, "Yes, CHEF!", $"CHEFs next attack will be upgraded.");

@@ -17,7 +17,7 @@ using System.Security.Cryptography;
 using LookingGlass.ItemStatsNameSpace;
 using UnityEngine;
 using RoR2.Stats;
-
+  
 namespace LookingGlass.ItemStatsNameSpace
 {
     internal class ItemStats : BaseThing
@@ -87,7 +87,13 @@ namespace LookingGlass.ItemStatsNameSpace
             targetMethod = typeof(RoR2.UI.SkillIcon).GetMethod(nameof(RoR2.UI.SkillIcon.Update), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             destMethod = typeof(ItemStats).GetMethod(nameof(SkillUpdate), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook4 = new Hook(targetMethod, destMethod, this);
+
+            //Add Cooldown & ProcCoeff to Loadout on Character Select
+            //Would need an IL  do i do that 
+        
         }
+
+      
 
         internal void EquipText(EquipmentIcon self)
         {
