@@ -81,7 +81,6 @@ namespace LookingGlass.BuffDescriptions
                     }
                     TooltipContent content = new TooltipContent();
                     //Use colors if not white, else gray because can be hard to read on white.
-                    content.titleColor = self.buffDef.buffColor == Color.white ? Color.gray: self.buffDef.buffColor;
                     content.bodyColor = Color.blue;
                     content.disableTitleRichText = false;
                     content.disableBodyRichText = false;
@@ -92,6 +91,8 @@ namespace LookingGlass.BuffDescriptions
                 }
                 if (toolTip)
                 {
+                    //Always update color
+                    toolTip.titleColor = self.buffDef.buffColor == Color.white ? Color.gray : self.buffDef.buffColor;
                     if (Language.currentLanguage.stringsByToken.ContainsKey($"LG_TOKEN_NAME_{self.buffDef.name}"))
                     {
                         string name = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
@@ -102,6 +103,7 @@ namespace LookingGlass.BuffDescriptions
                     else
                     {
                         toolTip.overrideTitleText = self.buffDef.name;
+                        toolTip.overrideBodyText = string.Empty;
                     }
                 }
             }

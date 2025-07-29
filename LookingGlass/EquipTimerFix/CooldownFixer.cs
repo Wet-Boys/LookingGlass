@@ -44,6 +44,7 @@ namespace LookingGlass.EquipTimerFix
         void SetDisplayData(Action<EquipmentIcon, EquipmentIcon.DisplayData> orig, EquipmentIcon self, EquipmentIcon.DisplayData newDisplayData)
         {
             orig(self, newDisplayData);
+            //This runs every frame bro what the fuck
             if (ItemStats.itemStats.Value)
             {
                 BasePlugin.instance.itemStats.EquipText(self);

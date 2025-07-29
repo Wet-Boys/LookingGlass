@@ -22,11 +22,11 @@ namespace LookingGlass.DPSMeterStuff
 
         private static Hook overrideHook;
         private static Hook overrideHook2;
-        public int damageDealtSincePeriod = 0;
-        public ulong currentCombatDamage = 0;
-        public static ConfigEntry<ulong> maxComboConfigEntry;
-        public ulong maxCombo = 0;
-        public ulong maxRunCombo = 0;
+        public float damageDealtSincePeriod = 0;
+        public float currentCombatDamage = 0;
+        public static ConfigEntry<float> maxComboConfigEntry;
+        public float maxCombo = 0;
+        public float maxRunCombo = 0;
 
 
         public ulong currentComboKills = 0;
@@ -41,7 +41,7 @@ namespace LookingGlass.DPSMeterStuff
         }
         public void Setup()
         {
-            maxComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Combo", 0, "What are you gonna do, cheat the number?");
+            maxComboConfigEntry = BasePlugin.instance.Config.Bind<float>("Stats", "Max Combo", 0, "What are you gonna do, cheat the number?");
             maxCombo = maxComboConfigEntry.Value;
             maxKillComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Kill Combo", 0, "What are you gonna do, cheat the number?");
             maxKillCombo = maxKillComboConfigEntry.Value;
@@ -83,8 +83,8 @@ namespace LookingGlass.DPSMeterStuff
                 if (attacker == LocalUserManager.GetFirstLocalUser().cachedBody || (attacker.master.minionOwnership && attacker.master.minionOwnership.ownerMaster && attacker.master.minionOwnership.ownerMaster.GetBody() == LocalUserManager.GetFirstLocalUser().cachedBody))
                 {
                     ulong thing = (ulong)damageDealtMessage.damage;
-                    damageDealtSincePeriod += (int)thing;
-                    currentCombatDamage += thing;
+                    damageDealtSincePeriod += damageDealtMessage.damage;
+                    currentCombatDamage += damageDealtMessage.damage;
                     if (maxCombo < currentCombatDamage)
                     {
                         maxCombo = currentCombatDamage;
@@ -116,14 +116,15 @@ namespace LookingGlass.DPSMeterStuff
                             }
                         }
                     }
-                    Run.instance.StartCoroutine(RemoveFromDamageDealtAfterSeconds(DPS_MAX_TIME, (int)thing));
+                    Run.instance.StartCoroutine(RemoveFromDamageDealtAfterSeconds(DPS_MAX_TIME, damageDealtMessage.damage));
                 }
             }
             catch (Exception)
             {
             }
         }
-        IEnumerator RemoveFromDamageDealtAfterSeconds(float time, int damage)
+        //Who the fuck made ALL DAMAGE int
+        IEnumerator RemoveFromDamageDealtAfterSeconds(float time, float damage)
         {
             yield return new WaitForSeconds(time);
             damageDealtSincePeriod -= damage;

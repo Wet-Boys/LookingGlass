@@ -64,6 +64,9 @@ A fully open source UI mod, compatible with RiskUI
 
 - If you want to contribute to the mod, feel free to reach out to us and/or create a pull request. Please note that the CLA indicates all contributions to this project are licensed under LGPLv3.
 
+- Note that this mod does not correct the vanilla item descriptions, so the listed stats may differ from the ones the mod shows for the cases the vanilla one is wrong. A different mod is recommended if you want those corrected.
+
+
 # Credits:
 
 - https://github.com/ontrigger/ItemStatsMod

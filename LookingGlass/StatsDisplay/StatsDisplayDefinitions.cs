@@ -46,7 +46,11 @@ namespace LookingGlass.StatsDisplay
                 return $"{damageString}{bleedChanceWithLuck.ToString(floatPrecision)}%{styleString}";
             });
 
-            
+            StatsDisplayClass.statDictionary.Add("bleedChanceWithSpleen", cachedUserBody =>
+            {
+                float bleedChanceWithLuck = (Utils.CalculateChanceWithLuck(cachedUserBody.crit / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * Utils.CalculateChanceWithLuck(cachedUserBody.bleedChance / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) )  * 100f;
+                return $"{damageString}{bleedChanceWithLuck.ToString(floatPrecision)}%{styleString}";
+            });
 
             #endregion
             #region Health Related
@@ -179,10 +183,11 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("killCountRun", cachedUserBody => { return $"{healthString}{(BasePlugin.instance.dpsMeter.killsThisRun)}{styleString}"; });
 
 
-            StatsDisplayClass.statDictionary.Add("dps", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.damageDealtSincePeriod / DPSMeter.DPS_MAX_TIME}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("dps", cachedUserBody => { return $"{damageString}{(BasePlugin.instance.dpsMeter.damageDealtSincePeriod / DPSMeter.DPS_MAX_TIME).ToString("0.#")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("percentDps", cachedUserBody
-                => $"{damageString}{((int)((BasePlugin.instance.dpsMeter.damageDealtSincePeriod / cachedUserBody.damage / DPSMeter.DPS_MAX_TIME)*100f)).ToString()}%{styleString}");
-
+                => $"{damageString}{(Mathf.RoundToInt(BasePlugin.instance.dpsMeter.damageDealtSincePeriod * 100f / cachedUserBody.damage / DPSMeter.DPS_MAX_TIME)).ToString()}%{styleString}");
+            //RoundToInt because (int) often drops a % and Ceil sometimes Adds one.
+            //It's really just floating point errors
 
             StatsDisplayClass.statDictionary.Add("combo", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
             //Needs to be kept for older version support v

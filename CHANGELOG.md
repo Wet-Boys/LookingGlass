@@ -1,6 +1,6 @@
 ### 1.13.0
 Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they recieved.\
-Added Stats for Longstanding Solitude & Unstable Transmitter.\
+Added Stats for Longstanding Solitude, Unstable Transmitter, Tonic Affliction.\
 Added some extra stats to some items. (More unlisted stats, Max Boost, more item specific damage/cooldowns)
 
 
@@ -10,8 +10,13 @@ Updated/Added Proc Coeffs for Phase 3 Skills & Heretic\
 Hid item procs on 0 proc & movement skills.\
 Added Electric Boomerang & Runic Lens to items skills proc.
 
+Equipment now show base cooldown like skills.\
+Skills now show cooldown reduction like Equipment.\
+Hid baseCooldown & cooldown reduction if 0%.
+ 
 \
 Added Stat Display Presets to reset it more easily in game and add alternative variants to suit different needs.\
+Maybe more can be added in the future.\
 Config to move purchase text so it doesnt clip into Stat Display. (Default: True)
 
 Default Stat Display Config changes:\
@@ -20,14 +25,14 @@ Default Stat Display Config changes:\
 \- Removed some stats or moved them to Tab only.
 \- Added marging to stat display
 
-Your Stat Display will Not be reset with this update.
+Should automatically update for people using the default one.
 
 \
 Buff Descriptions tooltip now buff colored instead just gray.\
 Added buff descriptions for DLC2 Buffs.
 
 Items are no longer sorted on Death Screen.\
-Items are no longer sorted in Fragments/Potentials.
+Items are no longer sorted in Fragments & Potentials.
 
 Added stats: killCountRun, greenPortal, curseHealthReduction, effectiveHealth & effectiveMaxHealth stats.\
 GoldPortal stat now accounts for Halcyonite Shrines
@@ -41,9 +46,16 @@ Multiplied percentDps value by 100 so it's actually percent\
 Fixed unstackable timed buffs showing stacks.\
 Fixed listed CDR never going below 0.5 for AttackSpeedCDR Skills (Arti Primary), despite it not being capped at 0.5\
 Fixed some item stats showing up wrong. (Mostly minor issues)\
+\- Stone & Flux Pauldron listing 0% downsides
+\- Eulogy Zero stat showing it as LuckAffected when it isn't.
+\- War Bonds stats being on Long Standing Solitude.
+\- Meathook saying it caps despite being hyperbolic (on skills).
+\- Wording on Perferator/Slug not matching their effect.
+\- Lost Seers now properly says 200 to cap instead of 201.
 Fixed an issue with disabling Huds and Buff Icons.\
 Fixed maxKillCombo not using proper stat.\
 Fixed killCount not working on Clients.
+Fixed DPS & DPSPercent being inaccurate due to using int instead of float.
 
 -Wolfo
 

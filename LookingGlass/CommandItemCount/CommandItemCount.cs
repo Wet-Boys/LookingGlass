@@ -254,15 +254,15 @@ namespace LookingGlass.CommandItemCount
                     stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
                     ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(corruption.Items[0]);
                     stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
-                    stats += ItemStats.GetDescription(corruptedItemDefinition, corruptedItemDefinition.itemIndex, corruption.ItemCount, null, withOneMore);
+                    stats += ItemStats.GetItemDescription(corruptedItemDefinition, corruptedItemDefinition.itemIndex, corruption.ItemCount, null, withOneMore);
                 }
                 else if (corruption.Type == CorruptionType.Void)
                 {
-                    stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, corruption.ItemCount, null, withOneMore, true);
+                    stats = ItemStats.GetItemDescription(itemDefinition, itemDefinition.itemIndex, corruption.ItemCount, null, withOneMore, true);
                 }
                 else
                 {
-                    stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, count, null, withOneMore);
+                    stats = ItemStats.GetItemDescription(itemDefinition, itemDefinition.itemIndex, count, null, withOneMore);
                 }
 
                 if (stats != null)

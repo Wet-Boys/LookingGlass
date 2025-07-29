@@ -29,16 +29,17 @@ namespace LookingGlass.StatsDisplay
     {
         public enum StatDisplayPreset
         {
-            Set,
-            LookingGlass,
-            Simpler,
-            Extra,
-            Minimal,
-            Classic,
+            Set,            //
+            LookingGlass,   //
+            Simpler,        //No DPS/Combo 
+            Extra,          //CritDamage,Luck,Curse%
+            Minimal,        //
+            Classic,            //BetterUI-like
         }
         public static ConfigEntry<StatDisplayPreset> statStringPresets;
         public static ConfigEntry<bool> movePurchaseText; //-240x
-        
+        public static ConfigEntry<bool> checkIfOldDefaultSettings;
+
         public static ConfigEntry<bool> statsDisplay;
         public static ConfigEntry<bool> useSecondaryStatsDisplay;
         public static ConfigEntry<string> secondaryStatsDisplayString;
@@ -53,6 +54,7 @@ namespace LookingGlass.StatsDisplay
         public static ConfigEntry<Vector2> detachedPosition;
         public static Dictionary<string, Func<CharacterBody, string>> statDictionary = new Dictionary<string, Func<CharacterBody, string>>();
         internal static CharacterBody cachedUserBody = null;
+        //internal static CharacterBody cachedUserMaster = null;
         Transform statTracker = null;
         TextMeshProUGUI textComponent;
         GameObject textComponentGameObject;
@@ -118,7 +120,7 @@ namespace LookingGlass.StatsDisplay
                 + "<size=115%>Stats</size>\n"
                 + "Damage: [damage]\n"
                 + "Attack Speed: [attackSpeed]\n"
-                + "Crit Chance: [critWithLuck]\n"         
+                + "Crit Chance: [critWithLuck]\n"
                 + "Armor: [armor] | [armorDamageReduction]\n"
                 + "Regen: [regen]\n"
                 + "Speed: [speed]\n"
@@ -152,7 +154,7 @@ namespace LookingGlass.StatsDisplay
                 + "Speed: [speed]\n"
                 + "Jumps: [availableJumps] / [maxJumps]\n"
                 //+ "Luck: [luck]\n" //If any mods/DLCs add Luck items maybe worth having on default secondary
-                + "Total Kills: [killCountRun]\n" //Kils Primary -> Run Kills Secondary
+                + "Total Kills: [killCountRun]\n" //Kills Primary -> Run Kills Secondary
                 + "Max Combo: [maxComboThisRun]\n" //Combo Primary -> Run Combo Secondary
                 + "Mountain Shrines: [mountainShrines]\n"
                 + "<size=115%>Portals:</size> \n"
@@ -180,21 +182,34 @@ namespace LookingGlass.StatsDisplay
 
 
 
-            statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Stats Display Preset", StatDisplayPreset.Set, "Override current Stat Display settings with a premade preset,\nfurther changes can made from there.\n\n" +
+            statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Stats Display Preset", (StatDisplayPreset)100, "Override current Stat Display settings with a premade preset,\nfurther changes can made from there.\n\n" +
                 "Extra: Include Crit Damage, Luck, CurseFrac on Tab\n\n" +
                 "Simpler: Dont include DPS, Combo\n\n" +
                 "Minimal: DPS + Jump, Few stats on Tab for mathing or remembering.\n\n");
 
-            statStringPresets.SettingChanged += StatStringPresets_SettingChanged;
+            statStringPresets.SettingChanged += ApplyPresets;
+
+
             movePurchaseText = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Move Purchase Text", true, "Move purchase text further to the left to avoid clipping with larger Stat Displays or generally fuller RightSideInfos.");
             movePurchaseText.SettingChanged += MovePurchase;
-     
+
+
+
+
+            checkIfOldDefaultSettings = BasePlugin.instance.Config.Bind<bool>("Misc", "Check For Old Default Settings1", true, "Override the stat display with the updated one, if you were using the default one prior to updating.\nNot meant as a config just needs to be tracked.");
+            //Run in case some guy doesnt use RiskOfOptions and to check if Old?
+            ApplyPresets(null, null);
+            if (checkIfOldDefaultSettings.Value)
+            {
+                CheckOldDefaultStatDisplayStrings();
+            }
+            
         }
 
 
         public void SetupRiskOfOptions()
         {
- 
+
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new ChoiceOption(statStringPresets, false));
             ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false }));
@@ -219,53 +234,72 @@ namespace LookingGlass.StatsDisplay
                 "Open",
                 () => CreatePositionWindow(detachedPosition)
             ));
+
+
         }
 
 
-        void StatStringPresets_SettingChanged(object sender, EventArgs e)
+
+        void CheckOldDefaultStatDisplayStrings()
+        {
+            //Check once upon updating if they were using old default stat string.
+            //So it keeps any custom ones, but people who are using default dont have to manually reset
+
+            #region BetterUI-like 
+            if ((string)statsDisplayString.Value == 
+                    "<size=120%>Stats</size>\n"
+                     + "Luck: [luck]\n"
+                     + "Damage: [damage]\n"
+                     + "Crit Chance: [critWithLuck]\n"
+                     + "Attack Speed: [attackSpeed]\n"
+                     + "Armor: [armor] | [armorDamageReduction]\n"
+                     + "Regen: [regen]\n"
+                     + "Speed: [speed]\n"
+                     + "Jumps: [availableJumps]/[maxJumps]\n"
+                     + "Kills: [killCount]\n"
+                     + "Mountain Shrines: [mountainShrines]\n"
+                     + "DPS: [dps]\n"
+                     + "Combo: [combo]\n"
+                     + "Combo Timer: [remainingComboDuration]\n"
+                     + "Max Combo: [maxComboThisRun]")
+            {
+                Debug.Log("Old1 detected");
+                statsDisplayString.Value = (string)statsDisplayString.DefaultValue;
+            }
+
+            if ((string)secondaryStatsDisplayString.Value == 
+                   "<size=120%>Stats</size>\n"
+                  + "Luck: [luck]\n"
+                  + "Damage: [damage]\n"
+                  + "Crit Chance: [critWithLuck]\n"
+                  + "Bleed Chance: [bleedChanceWithLuck]\n"
+                  + "Attack Speed: [attackSpeed]\n"
+                  + "Armor: [armor] | [armorDamageReduction]\n"
+                  + "Regen: [regen]\n"
+                  + "Speed: [speed]\n"
+                  + "Jumps: [availableJumps]/[maxJumps]\n"
+                  + "Kills: [killCount]\n"
+                  + "Mountain Shrines: [mountainShrines]\n"
+                  + "Max Combo: [maxComboThisRun]\n"
+                  + "<size=120%>Portals:</size> \n"
+                  + "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>")
+            {
+                Debug.Log("Old2 detected");
+                secondaryStatsDisplayString.Value = (string)secondaryStatsDisplayString.DefaultValue;
+            }
+            #endregion
+            checkIfOldDefaultSettings.Value = false;
+        }
+
+        void ApplyPresets(object sender, EventArgs e)
         {
             if (statStringPresets.Value == StatDisplayPreset.Set)
             {
                 return;
             }
-            //This is dumb as hell but somehow
-            //If both the Preset config and the Config its changing are in the same tab
-            //It just doesnt work unless we input it directly
-            //And as far as I can tell
-            //There is no "SettingsPanel" instance
-            //or "RiskOfOptions.ModOptions" instance
-            //So fuck it just do this
-           // GameObject option1 = GameObject.Find("/MainMenu/MENU: Settings/MainSettings/SettingsPanelTitle(Clone)/SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Stats Display String");
-            GameObject option1 = GameObject.Find("SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Stats Display String");
-            GameObject option2 = GameObject.Find("SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Secondary Stats Display String");
-           /* if (!option1)
-            {
-                //option1 = GameObject.Find("/RoR2Application/PauseScreen(Clone)/PausePanelContainer/ValidScreenspacePanel/SettingsPanel(Clone)/SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Stats Display String/");
-                //option2 = GameObject.Find("/RoR2Application/PauseScreen(Clone)/PausePanelContainer/ValidScreenspacePanel/SettingsPanel(Clone)/SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Secondary Stats Display String/");
-            }
-            else
-            {
-                option2 = GameObject.Find("/MainMenu/MENU: Settings/MainSettings/SettingsPanelTitle(Clone)/SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Secondary Stats Display String");
-            }*/
-            if (!option1)
-            {
-                return;
-            }
-            InputFieldController inputField1 = option1.GetComponent<InputFieldController>();
-            InputFieldController inputField2 = option2.GetComponent<InputFieldController>();
-            string new1 = string.Empty;
-            string new2 = string.Empty;
-            //Just generally the default settings are gigantic
-            //And it's good to have Presets because it's easier for people to use.
-            //Add some extra ones if needed
 
-            //Classic : Before changes
-            //LookingGlass : After Changes
-            //Simpler : No DPS/Combo stuff
-            //Extra : Include stats that often would be on 0.
-            //Minimal : DPS + Jumps on Main, Secondary only stats you might need to math or Teleporter stuff
-            //Maybe add another one or two
-
+            string new1 = statsDisplayString.Value;
+            string new2 = secondaryStatsDisplayString.Value;
             switch (statStringPresets.Value)
             {
                 case StatDisplayPreset.Classic:
@@ -382,10 +416,33 @@ namespace LookingGlass.StatsDisplay
                     break;
             }
 
+          
+            statsDisplayString.Value = new1;
+            secondaryStatsDisplayString.Value = new2;
+            statStringPresets.Value = StatDisplayPreset.Set;
+             
+
+            //This is dumb as hell but somehow
+            //If both the Preset & DisplayString are in the same category
+            //It just doesnt work unless we input it directly
+            //And as far as I can tell
+            //There is no "SettingsPanel" instance
+            //or "RiskOfOptions.ModOptions" instance
+            //So fuck it just do this
+            // GameObject option1 = GameObject.Find("/MainMenu/MENU: Settings/MainSettings/SettingsPanelTitle(Clone)/SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Stats Display String");
+            GameObject option1 = GameObject.Find("SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Stats Display String");
+            GameObject option2 = GameObject.Find("SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Secondary Stats Display String");
+
+            if (!option1)
+            {
+                return;
+            }
+            InputFieldController inputField1 = option1.GetComponent<InputFieldController>();
+            InputFieldController inputField2 = option2.GetComponent<InputFieldController>();
+
             inputField1.SubmitValue(new1);
             inputField2.SubmitValue(new2);
 
-            statStringPresets.Value = StatDisplayPreset.Set;
         }
 
         void MovePurchase(object sender, EventArgs e)
