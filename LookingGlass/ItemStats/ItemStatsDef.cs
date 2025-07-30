@@ -47,7 +47,8 @@ namespace LookingGlass.ItemStatsNameSpace
             Linear,
             Hyperbolic,
             DoesNotScale,
-            RunicLens //Linear, capped at 75%
+            RunicLens, //Linear, capped at 75%
+            Health //BetterUI had LeechSeed/Scythe here so idk?
         }
         public List<string> descriptions = new List<string>();
         public List<ValueType> valueTypes = new List<ValueType>();

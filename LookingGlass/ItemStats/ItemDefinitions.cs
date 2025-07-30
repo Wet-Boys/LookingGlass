@@ -714,6 +714,23 @@ namespace LookingGlass.ItemStatsNameSpace
             allItemDefinitions.Add((int)RoR2Content.Items.BonusGoldPackOnKill.itemIndex, itemStat);
 
 
+
+            //Leeching Seed
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Healing On-Hit: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.FlatHealth);
+            itemStat.hasChance = true;
+            itemStat.chanceScaling = ItemStatsDef.ChanceScaling.Health;
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount * procChance);
+                return values;
+            };
+            allItemDefinitions.Add((int)RoR2Content.Items.Seed.itemIndex, itemStat);
+
+
             //Harvester's Scythe
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Healing: ");
@@ -722,10 +739,12 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Crit Chance: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.hasChance = true;
+            itemStat.chanceScaling = ItemStatsDef.ChanceScaling.Health;
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(4 + 4 * stackCount);
+                values.Add((4 + 4 * stackCount) * procChance);
                 values.Add(Utils.CalculateChanceWithLuck(.05f, luck));
                 return values;
             };
@@ -809,19 +828,6 @@ namespace LookingGlass.ItemStatsNameSpace
             };
             allItemDefinitions.Add((int)RoR2Content.Items.FireRing.itemIndex, itemStat);
 
-
-            //Leeching Seed
-            itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Healing On-Hit: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.FlatHealth);
-            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
-            {
-                List<float> values = new();
-                values.Add(stackCount);
-                return values;
-            };
-            allItemDefinitions.Add((int)RoR2Content.Items.Seed.itemIndex, itemStat);
 
 
             //Lepton Daisy

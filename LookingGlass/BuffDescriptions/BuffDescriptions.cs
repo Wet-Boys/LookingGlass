@@ -26,8 +26,8 @@ namespace LookingGlass.BuffDescriptions
         }
         public void Setup()
         {
-            buffDescriptions = BasePlugin.instance.Config.Bind<bool>("Buff Descriptions", "Buff Descriptions", true, "Gives descriptions to buffs (All vanilla by default, modded buffs need to be setup)");
-            buffDescriptionsFontSize = BasePlugin.instance.Config.Bind<float>("Buff Descriptions", "Buff Font Size", 100f, "Changes the font size of buff descriptions");
+            buffDescriptions = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Descriptions", true, "Gives descriptions to buffs (All vanilla by default, modded buffs need to be setup)");
+            buffDescriptionsFontSize = BasePlugin.instance.Config.Bind<float>("Buff Info", "Buff Font Size", 100f, "Changes the font size of buff descriptions");
 
             var targetMethod = typeof(BuffIcon).GetMethod(nameof(BuffIcon.UpdateIcon), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(BuffDescriptionsClass).GetMethod(nameof(BuffIconUpdateIcon), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

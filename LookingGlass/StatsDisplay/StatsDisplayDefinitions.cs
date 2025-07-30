@@ -111,6 +111,8 @@ namespace LookingGlass.StatsDisplay
             #region Movement Related
 
             StatsDisplayClass.statDictionary.Add("speed", cachedUserBody => { return $"{utilityString}{(cachedUserBody.moveSpeed).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("speedPercent", cachedUserBody => { return $"{utilityString}{((cachedUserBody.moveSpeed / cachedUserBody.baseMoveSpeed)*100).ToString(floatPrecision)}%{styleString}"; });
+
             StatsDisplayClass.statDictionary.Add("acceleration", cachedUserBody => { return $"{utilityString}{(cachedUserBody.acceleration).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("velocity", cachedUserBody =>
             {
@@ -189,11 +191,11 @@ namespace LookingGlass.StatsDisplay
             //RoundToInt because (int) often drops a % and Ceil sometimes Adds one.
             //It's really just floating point errors
 
-            StatsDisplayClass.statDictionary.Add("combo", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("combo", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
             //Needs to be kept for older version support v
-            StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("maxCombo", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.maxCombo}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("maxComboThisRun", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.maxRunCombo}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("maxCombo", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.maxCombo}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("maxComboThisRun", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.maxRunCombo}{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("killCombo", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentComboKills}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("currentCombatKills", cachedUserBody => { return $"{damageString}{BasePlugin.instance.dpsMeter.currentComboKills}{styleString}"; });

@@ -1,23 +1,18 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.StatsDisplay;
 using MonoMod.RuntimeDetour;
+using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
-using RiskOfOptions;
 using RoR2;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using static RoR2.Chat;
 using System.Linq;
-using LookingGlass.StatsDisplay;
-using RoR2.Skills;
-using System.Security.Cryptography;
-using LookingGlass.ItemStatsNameSpace;
+using System.Text;
 using UnityEngine;
-using RoR2.Stats;
-  
+
 namespace LookingGlass.ItemStatsNameSpace
 {
     internal class ItemStats : BaseThing
@@ -44,7 +39,7 @@ namespace LookingGlass.ItemStatsNameSpace
             ItemCatalog.availability.CallWhenAvailable(ItemDefinitions.RegisterAll);
             itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows full item descriptions on mouseover");
             itemStatsCalculations = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats Calculations", true, "Gives calculations for vanilla items and modded items which have added specific support. (Sadly, items are not designed in a way to allow this to be automatic)");
-            
+
             //Not a big fan, sometimes too much text to read at once.
             //Some items have pickup as flavor text and just check with tab if you need the full v
             fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", false, "Shows full item descriptions on pickup");
@@ -59,7 +54,7 @@ namespace LookingGlass.ItemStatsNameSpace
             //Config that people are likelier to turn off should be higher up in Risk Menu
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
-            
+
             ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
             ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
@@ -93,10 +88,10 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Add Cooldown & ProcCoeff to Loadout on Character Select
             //Would need an IL  do i do that 
-        
+
         }
 
-      
+
 
         internal void EquipText(EquipmentIcon self)
         {
@@ -127,7 +122,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
                 self.tooltipProvider.overrideBodyText = desc.ToString();
             }
- 
+
         }
         void PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
         {
@@ -172,7 +167,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 //Why was there a "In Proc Dict" check for this?
                 //Maybe could do if cooldown == 0 then dont show but it's fine
                 desc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style>");
-               
+
                 /*if (self.targetSkill.skillDef.baseRechargeInterval != 0)
                 {
 
@@ -200,7 +195,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     //So it doesn't say like "10% ATG" on Mando Slide
                     if (!blacklistedSkill)
                     {
-                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
+                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken).ToString("0.0") + "</color>");
                     }
                     //If -1, show nothing
                     //If 0, show that it has 0 Proc Coeff for clarity
@@ -209,58 +204,71 @@ namespace LookingGlass.ItemStatsNameSpace
                 }
                 else if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                 {
-                    desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
+                    desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.0")).Append("</style>");
                 }
-      
+
                 if (!blacklistedSkill)
                 {
                     CharacterBody body = self.targetSkill.characterBody;
 
                     int itemCount = 0;
                     ItemStatsDef itemStats;
-                    foreach (var item in ItemCatalog.allItemDefs)
+
+                    //Dont check AllItemDefs and if inDict
+                    //Just use the Dict, so it's also nicely sorted by tier.
+                    foreach (var keypairValue in ItemDefinitions.allItemDefinitions)
                     {
-                        if (ItemDefinitions.allItemDefinitions.ContainsKey((int)item.itemIndex))
+                        itemCount = body.inventory.GetItemCount((ItemIndex)keypairValue.Key);
+                        if (itemCount > 0)
                         {
-                            itemCount = body.inventory.GetItemCount(item.itemIndex);
-                            if (itemCount > 0)
+                            itemStats = keypairValue.Value;
+                            if (itemStats.hasChance) //hasProc
                             {
-                                itemStats = ItemDefinitions.allItemDefinitions[(int)item.itemIndex];
-                                if (itemStats.hasChance)
+                                bool healing = itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Health;
+                                desc.Append("\n ").Append(Language.GetString(ItemCatalog.GetItemDef((ItemIndex)keypairValue.Key).nameToken));
+                                desc.Append(healing ? ": <style=cIsHealing>" : ": <style=cIsDamage>");
+
+                                if (healing)
                                 {
-                                    desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
+                                    //IDK BetterUI showed this and like behemoth ig?
+                                    desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]).ToString("0.#")).Append(" HP</style>");
+                                }
+                                else
+                                {
+                                    desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.#")).Append("%</style>");
+                                }
 
-                                    desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.0")).Append("%</style>");
 
-                                    //Math Ceil leads to 201 lost seers, 26 runic
-                                    //No math leads to 9 on tri tip
-                                    //What is this bro
-                                    //Thank you UnityEngine.Mathf for actually working
+                                //Math Ceil leads to 201 lost seers, 26 runic
+                                //No math leads to 9 on tri tip
+                                //What is this bro
+                                //Thank you UnityEngine.Mathf for actually working
+                                if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
+                                {
+                                    desc.Append(" <style=cStack>(");
+                                    desc.Append(Mathf.CeilToInt(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                    desc.Append(" to cap)</style>");
+                                }
+                                else if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.RunicLens)
+                                {
+                                    //Most ideally would calculated the chance with the min damage of the skill and add it to the chance or whatever
+                                    //But that's not really possible
+                                    desc.Append(" <style=cStack>(");
+                                    desc.Append(Mathf.CeilToInt(0.75f / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                    desc.Append(" to cap)</style>");
+                                }
+
+
+                                if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                                {
+                                    // TODO align this text to the one above
+                                    desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
+
                                     if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
                                     {
                                         desc.Append(" <style=cStack>(");
-                                        desc.Append(Mathf.CeilToInt(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                        desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
                                         desc.Append(" to cap)</style>");
-                                    }
-                                    else if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.RunicLens)
-                                    {
-                                        //Most ideally would calculated the chance with the min damage of the skill and add it to the chance or whatever
-                                        //But that's not really possible
-                                        desc.Append(" <style=cStack>(");
-                                        desc.Append(Mathf.CeilToInt(0.75f / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
-                                        desc.Append(" to cap)</style>");
-                                    }
-                                    if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
-                                    {
-                                        // TODO align this text to the one above
-                                        desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
-
-                                        if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
-                                        {
-                                            desc.Append(" <style=cStack>(");
-                                            desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
-                                            desc.Append(" to cap)</style>");
-                                        }
                                     }
                                 }
                             }
@@ -273,7 +281,7 @@ namespace LookingGlass.ItemStatsNameSpace
         }
 
         float CalculateSkillCooldown(SkillIcon self)
-        {   
+        {
             if (self.targetSkill.skillDef.baseRechargeInterval < 0.5f)
                 return self.targetSkill.skillDef.baseRechargeInterval;
 
@@ -571,7 +579,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 {
                     return;
                 }
-                notificationQueueForMaster.PushNotification(new CharacterMasterNotificationQueue.NotificationInfo(ItemCatalog.GetItemDef(itemIndex), null),duration);
+                notificationQueueForMaster.PushNotification(new CharacterMasterNotificationQueue.NotificationInfo(ItemCatalog.GetItemDef(itemIndex), null), duration);
                 PutLastNotificationFirst(notificationQueueForMaster);
             }
         }

@@ -17,8 +17,7 @@ namespace LookingGlass.DPSMeterStuff
        
         public ulong killsThisStage = 0;
         public ulong killsThisRun = 0;
-
-
+ 
 
         private static Hook overrideHook;
         private static Hook overrideHook2;

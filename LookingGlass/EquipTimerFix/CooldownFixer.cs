@@ -60,6 +60,7 @@ namespace LookingGlass.EquipTimerFix
             if (permanentSkillCooldownText.Value &&
                 self.targetSkill &&
                 self.targetSkill.stock > 0 &&
+                self.targetSkill.finalRechargeInterval != 0 &&
                 self.targetSkill.stock < self.targetSkill.maxStock &&
                 self.cooldownText)
             {
