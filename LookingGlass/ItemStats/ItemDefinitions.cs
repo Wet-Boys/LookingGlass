@@ -148,7 +148,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -291,7 +291,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -490,7 +490,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.hasChance = true;
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
@@ -594,7 +594,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.hasChance = true;
             itemStat.chanceScaling = ItemStatsDef.ChanceScaling.DoesNotScale;
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -818,7 +818,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -857,7 +857,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
@@ -880,7 +880,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -968,7 +968,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1032,7 +1032,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1134,7 +1134,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1174,7 +1174,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.hasChance = true;
             itemStat.chanceScaling = ItemStatsDef.ChanceScaling.DoesNotScale;
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -1218,7 +1218,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
              itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
              {
                  List<float> values = new();
@@ -1268,7 +1268,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1373,7 +1373,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1391,7 +1391,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1442,7 +1442,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
-            itemStat.descriptions.Add("Proc Coefficients <style=cIsUtility>1</style> + <style=cIsUtility>0.2</style> <style=cSub>Rapid Contact</style>");
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsUtility>1.0</style> + <style=cIsUtility>0.2</style> <style=cSub>Rapid Contact</style>");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
             itemStat.hasChance = true;
@@ -1468,7 +1468,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1507,7 +1507,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1592,7 +1592,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
@@ -1642,7 +1642,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1664,7 +1664,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.hasChance = true;
             itemStat.chanceScaling = ItemStatsDef.ChanceScaling.RunicLens;
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -1695,7 +1695,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.hasChance = true;
             itemStat.chanceScaling = ItemStatsDef.ChanceScaling.Hyperbolic;
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -1796,7 +1796,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1834,7 +1834,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Money);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
@@ -1862,7 +1862,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.chanceScaling = ItemStatsDef.ChanceScaling.DoesNotScale;
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1913,7 +1913,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -1966,7 +1966,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
@@ -1985,7 +1985,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2006,7 +2006,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.hasChance = true;
             itemStat.chanceScaling = ItemStatsDef.ChanceScaling.DoesNotScale;
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -2078,7 +2078,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2184,7 +2184,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2206,7 +2206,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2272,7 +2272,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.descriptions.Add("Proc Coefficients <style=cIsUtility>0.2</style> + <style=cIsUtility>1</style> <style=cSub>Explosion</style>");
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsUtility>0.2</style> + <style=cIsUtility>1.0</style> <style=cSub>Explosion</style>");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -2412,7 +2412,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.descriptions.Add("Proc Coefficients <style=cIsUtility>1</style> + <style=cIsUtility>0.1</style> <style=cSub>On Stick</style>");
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsUtility>1.0</style> + <style=cIsUtility>0.1</style> <style=cSub>On Stick</style>");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -2552,7 +2552,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2587,7 +2587,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.hasChance = true;
             itemStat.chanceScaling = ItemStatsDef.ChanceScaling.DoesNotScale;
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -2623,7 +2623,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2664,7 +2664,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2744,7 +2744,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2765,7 +2765,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2778,7 +2778,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
@@ -2794,7 +2794,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //BFG Preon
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1</style> + <style=cIsUtility>0.1</style> <style=cSub>Tendrils</style>");
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1.0</style> + <style=cIsUtility>0.1</style> <style=cSub>Tendrils</style>");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -2807,7 +2807,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Saw
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1</style> + <style=cIsDamage>0.2</style> <style=cSub>Rapid Contact</style>");
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1.0</style> + <style=cIsDamage>0.2</style> <style=cSub>Rapid Contact</style>");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -2821,7 +2821,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Molotov
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1</style> + <style=cIsDamage>0.5</style> <style=cSub>Puddle</style>");
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1.0</style> + <style=cIsDamage>0.5</style> <style=cSub>Puddle</style>");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
@@ -2835,7 +2835,7 @@ namespace LookingGlass.ItemStatsNameSpace
             //Gold knocked out stat?
             //Elite Aur
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1</style> <style=cSub>Inner</style> + <style=cIsDamage>0.1</style> <style=cSub>Outer</style>");
+            itemStat.descriptions.Add("Proc Coefficients <style=cIsDamage>1.0</style> <style=cSub>Inner</style> + <style=cIsDamage>0.1</style> <style=cSub>Outer</style>");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>

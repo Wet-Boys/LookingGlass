@@ -40,6 +40,7 @@ namespace LookingGlass.ItemStatsNameSpace
             Seconds,
             PercentHealth,
             PercentHealing,
+            ProcCoeff, //0.0##
             PlainString
         }
         public enum ChanceScaling

@@ -53,6 +53,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("MAGE_PRIMARY_LIGHTNING_NAME", 1f);
             skills.Add("MAGE_SECONDARY_ICE_NAME", 1f);
             skills.Add("MAGE_SECONDARY_LIGHTNING_NAME", 1f);
+            skillsAdditional.Add("MAGE_SECONDARY_LIGHTNING_NAME", " + <style=cIsDamage>0.3</style> Tendrils</style>"); //No \n
             skills.Add("MAGE_UTILITY_ICE_NAME", 1f);
             skills.Add("MAGE_SPECIAL_FIRE_NAME", 1f);
             skillsAdditional.Add("MAGE_SPECIAL_FIRE_NAME", "\nTicks: <style=cIsDamage>22 * AttackSpeed</style>");

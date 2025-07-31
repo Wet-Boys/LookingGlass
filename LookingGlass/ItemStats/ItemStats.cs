@@ -191,7 +191,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     //So it doesn't say like "10% ATG" on Mando Slide
                     if (!blacklistedSkill)
                     {
-                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken).ToString("0.0") + "</color>");
+                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken).ToString("0.0##") + "</color>");
                     }
                     //If -1, show nothing
                     //If 0, show that it has 0 Proc Coeff for clarity
@@ -465,6 +465,9 @@ namespace LookingGlass.ItemStatsNameSpace
                         break;
                     case ItemStatsDef.MeasurementUnits.Number:
                         input += $"\">{values[i]:0.###}</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.ProcCoeff:
+                        input += $"\">{values[i]:0.0##}</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.Money:
                         input += $"\">{values[i]:0.#}$</style>";
