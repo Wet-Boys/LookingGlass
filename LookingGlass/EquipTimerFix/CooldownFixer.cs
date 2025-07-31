@@ -57,6 +57,12 @@ namespace LookingGlass.EquipTimerFix
         void Update(Action<SkillIcon> orig, SkillIcon self)
         {
             orig(self);
+
+
+            //If you had a Stock increase, but lost it
+            //It kinda deletes this so idk ig it'd be good
+            //Ie have 2 out of 1 stock, doesn't show that you have more
+
             if (permanentSkillCooldownText.Value &&
                 self.targetSkill &&
                 self.targetSkill.stock > 0 &&

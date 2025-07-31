@@ -109,7 +109,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 StringBuilder desc = new StringBuilder(Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken));
 
                 String currentCooldownFormatted = (self.currentDisplayData.equipmentDef.cooldown * cooldownScale).ToString(StatsDisplayDefinitions.floatPrecision);
-                desc.Append($"\n\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted} seconds</style>");
+                desc.Append($"\n\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted}s</style>");
                 if (cooldownScale != 1)
                 {
                     String cooldownReductionFormatted = ((1 - cooldownScale) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
@@ -166,12 +166,8 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 //Why was there a "In Proc Dict" check for this?
                 //Maybe could do if cooldown == 0 then dont show but it's fine
-                desc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style>");
+                desc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(self).ToString("0.00") + "s</style>");
 
-                /*if (self.targetSkill.skillDef.baseRechargeInterval != 0)
-                {
-
-                }*/
                 if (self.targetSkill.finalRechargeInterval != self.targetSkill.skillDef.baseRechargeInterval)
                 {
                     //If final recharge differs from base, show base spereately?
@@ -202,10 +198,15 @@ namespace LookingGlass.ItemStatsNameSpace
                     //But don't show like "0 % chance to trigger all the items"
                     blacklistedSkill = blacklistedSkill || ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) == 0;
                 }
-                else if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                if (ProcCoefficientData.hasExtra(self.targetSkill.skillNameToken))
+                {
+                    //Extra info like Corrupted/Boosted proc and Ticks
+                    desc.Append(ProcCoefficientData.GetExtraInfo(self.targetSkill.skillNameToken));
+                }
+                /*else if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                 {
                     desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.0")).Append("</style>");
-                }
+                }*/
 
                 if (!blacklistedSkill)
                 {
@@ -225,7 +226,7 @@ namespace LookingGlass.ItemStatsNameSpace
                             if (itemStats.hasChance) //hasProc
                             {
                                 bool healing = itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Health;
-                                desc.Append("\n ").Append(Language.GetString(ItemCatalog.GetItemDef((ItemIndex)keypairValue.Key).nameToken));
+                                desc.Append("\n  ").Append(Language.GetString(ItemCatalog.GetItemDef((ItemIndex)keypairValue.Key).nameToken));
                                 desc.Append(healing ? ": <style=cIsHealing>" : ": <style=cIsDamage>");
 
                                 if (healing)
@@ -258,8 +259,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                     desc.Append(" to cap)</style>");
                                 }
 
-
-                                if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                                /*if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                                 {
                                     // TODO align this text to the one above
                                     desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
@@ -270,7 +270,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                         desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
                                         desc.Append(" to cap)</style>");
                                     }
-                                }
+                                }*/
                             }
                         }
 

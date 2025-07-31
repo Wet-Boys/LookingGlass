@@ -8,8 +8,7 @@ Added Proc Coeff info to Items.\
 Added Proc Coeff info to Equipment.\
 Updated/Added Proc Coeffs for Phase 3 Skills & Heretic\
 Hid item procs on 0 proc & movement skills.\
-Added Electric Boomerang, Runic Lens, Leech Seed, Scythe to items skills proc.\
-Skill Item Proc Info now sorted by Tier.
+Added Electric Boomerang, Runic Lens, Leech Seed, Scythe to items skills proc.
 
 Equipment now show base cooldown like skills.\
 Skills now show cooldown reduction like Equipment.\
