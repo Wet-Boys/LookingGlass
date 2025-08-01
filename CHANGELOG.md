@@ -29,12 +29,12 @@ Should automatically update for people using the default one.
 \
 Buff Descriptions tooltip now buff colored instead just gray.\
 Added buff descriptions for DLC2 Buffs.\
-Added option to not have Decimal Buff Timers to match BetterUI.
+Added option to not have Decimal Buff Timers.
 
 Items are no longer sorted on Death Screen.\
 Items are no longer sorted in Fragments & Potentials.
 
-Added stats: killCountRun, greenPortal, curseHealthReduction, effectiveHealth, effectiveMaxHealth, speedPercent stats.\
+Added stats: killCountRun, greenPortal, curseHealthReduction, effectiveHealth, effectiveMaxHealth, speedPercent, attackSpeedPercent stats.\
 GoldPortal stat now accounts for Halcyonite Shrines
 
 \
@@ -56,6 +56,7 @@ Fixed an issue with disabling Huds and Buff Icons.\
 Fixed maxKillCombo not using proper stat.\
 Fixed killCount not working on Clients.
 Fixed DPS & DPSPercent being inaccurate due to using long instead of float.
+Fixed hasOneShotProtection stat saying True at 100% Hp even with Shaped Glass.
 
 -Wolfo
 

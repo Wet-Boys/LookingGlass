@@ -32,9 +32,10 @@ namespace LookingGlass.StatsDisplay
             Set,            //
             LookingGlass,   //
             Simpler,        //No DPS/Combo 
-            Extra,          //CritDamage,Luck,Curse%
+            Extra,          //CritDamage,Luck,Curse%, Osp
             Minimal,        //
             Classic,            //BetterUI-like
+            //AddLineHeight,
         }
         public static ConfigEntry<StatDisplayPreset> statStringPresets;
         public static ConfigEntry<bool> movePurchaseText; //-240x
@@ -76,18 +77,18 @@ namespace LookingGlass.StatsDisplay
 
         const string syntaxList =
             "\n\n damage "
-            + "\n attackSpeed "
+            + "\n attackSpeed, attackSpeedPercent "
             + "\n crit, critWithLuck, critMultiplier"
             + "\n bleedChance, bleedChanceWithLuck"
 
             + "\n maxHealth, maxShield, maxBarrier "
             + "\n effectiveHealth, effectiveMaxHealth"
-            + "\n barrierDecayRate"
+            + "\n barrierDecayRate" //Static in vanilla so eh?
             + "\n healthPercentage"
-            + "\n regen "
+            + "\n regen, regenHp"
             + "\n armor, armorDamageReduction"
             + "\n curseHealthReduction "
-            + "\n hasOneShotProtection "
+            + "\n hasOSP "
 
             + "\n speed, speedPercent, velocity"
             + "\n acceleration "
@@ -121,8 +122,8 @@ namespace LookingGlass.StatsDisplay
                 + "Damage: [damage]\n"
                 + "Attack Speed: [attackSpeed]\n"
                 + "Crit Chance: [critWithLuck]\n"
-                + "Armor: [armor] | [armorDamageReduction]\n"
                 + "Regen: [regen]\n"
+                + "Armor: [armor] | [armorDamageReduction]\n"
                 + "Speed: [speed]\n"
                 + "Jumps: [availableJumps] / [maxJumps]\n"
                 + "Kills: [killCount]\n"
@@ -149,8 +150,8 @@ namespace LookingGlass.StatsDisplay
                 + "Crit Chance: [critWithLuck]\n"
                 //+ "Crit Multiplier: [critMultiplier]\n" //DLC3 is adding a Crit Damage item so maybe
                 + "Bleed Chance: [bleedChanceWithLuck]\n"
-                + "Armor: [armor] | [armorDamageReduction]\n"
                 + "Regen: [regen]\n"
+                + "Armor: [armor] | [armorDamageReduction]\n"              
                 + "Speed: [speed]\n"
                 + "Jumps: [availableJumps] / [maxJumps]\n"
                 //+ "Luck: [luck]\n" //If any mods/DLCs add Luck items maybe worth having on default secondary
@@ -247,21 +248,22 @@ namespace LookingGlass.StatsDisplay
 
             #region BetterUI-like 
             if ((string)statsDisplayString.Value == 
-                    "<size=120%>Stats</size>\n"
-                     + "Luck: [luck]\n"
-                     + "Damage: [damage]\n"
-                     + "Crit Chance: [critWithLuck]\n"
-                     + "Attack Speed: [attackSpeed]\n"
-                     + "Armor: [armor] | [armorDamageReduction]\n"
-                     + "Regen: [regen]\n"
-                     + "Speed: [speed]\n"
-                     + "Jumps: [availableJumps]/[maxJumps]\n"
-                     + "Kills: [killCount]\n"
-                     + "Mountain Shrines: [mountainShrines]\n"
-                     + "DPS: [dps]\n"
-                     + "Combo: [combo]\n"
-                     + "Combo Timer: [remainingComboDuration]\n"
-                     + "Max Combo: [maxComboThisRun]")
+                        "<size=120%>Stats</size>\n"
+                        + "Luck: [luck]\n"
+                        + "Damage: [damage]\n"
+                        + "Crit Chance: [critWithLuck]\n"
+                        + "Attack Speed: [attackSpeed]\n"
+                        + "Armor: [armor] | [armorDamageReduction]\n"
+                        + "Regen: [regen]\n"
+                        + "Speed: [speed]\n"
+                        + "Jumps: [availableJumps]/[maxJumps]\n"
+                        + "Kills: [killCount]\n"
+                        + "Mountain Shrines: [mountainShrines]\n"
+                        + "DPS: [dps]\n"
+                        + "Combo: [combo]\n"
+                        + "Combo Timer: [remainingComboDuration]\n"
+                        + "Max Combo: [maxComboThisRun]"
+                     )
             {
                 Debug.Log("Old1 detected");
                 statsDisplayString.Value = (string)statsDisplayString.DefaultValue;
@@ -282,7 +284,8 @@ namespace LookingGlass.StatsDisplay
                   + "Mountain Shrines: [mountainShrines]\n"
                   + "Max Combo: [maxComboThisRun]\n"
                   + "<size=120%>Portals:</size> \n"
-                  + "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>")
+                  + "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>"
+                  )
             {
                 Debug.Log("Old2 detected");
                 secondaryStatsDisplayString.Value = (string)secondaryStatsDisplayString.DefaultValue;
@@ -345,18 +348,22 @@ namespace LookingGlass.StatsDisplay
                     //+Luck
                     //+Crit Damage Mult
                     //+Curse HP Reduction
+                    //+Has OSP rn ig
+                    //AS / MS % for idk nerds
                     new1 = (string)statsDisplayString.DefaultValue;
                     new2 =
                         "<margin-left=0.6em>"
                         + "<size=115%>Stats</size>\n"
                         + "Damage: [damage]\n"
-                        + "Attack Speed: [attackSpeed]\n"
-                        + "Crit Chance: [critWithLuck]\n"
-                        + "Crit Multiplier: [critMultiplier]\n"
+                        + "Attack Speed: [attackSpeedPercent]\n"
+                        + "Crit Stats: [critWithLuck] | [critMultiplier]\n"
+                        //+ "Crit Chance: [critWithLuck]\n"
+                        //+ "Crit Multiplier: [critMultiplier]\n"
                         + "Bleed Chance: [bleedChanceWithLuck]\n"
+                        + "Regen: [regenHp]\n"
                         + "Armor: [armor] | [armorDamageReduction]\n"
-                        + "Regen: [regen]\n"
-                        + "Speed: [speed]\n"
+                        + "Osp: [hasOneShotProtection]\n"
+                        + "Speed: [speedPercent]\n"
                         + "Jumps: [availableJumps] / [maxJumps]\n"
                         + "Luck: [luck]\n"
                         + "Curse Penalty: [curseHealthReduction]\n"
@@ -378,8 +385,8 @@ namespace LookingGlass.StatsDisplay
                          + "Damage: [damage]\n"
                          + "Attack Speed: [attackSpeed]\n"
                          + "Crit Chance: [critWithLuck]\n"
+                         + "Regen: [regen]\n" 
                          + "Armor: [armor] | [armorDamageReduction]\n"
-                         + "Regen: [regen]\n"
                          + "Speed: [speed]\n"
                          + "Jumps: [availableJumps] / [maxJumps]\n"
                          + "Kills: [killCount]\n"
@@ -390,9 +397,9 @@ namespace LookingGlass.StatsDisplay
                          + "Damage: [damage]\n"
                          + "Attack Speed: [attackSpeed]\n"
                          + "Crit Chance: [critWithLuck]\n"
-                         + "Bleed Chance: [bleedChanceWithLuck]\n"      
+                         + "Bleed Chance: [bleedChanceWithLuck]\n"
+                         + "Regen: [regen]\n" 
                          + "Armor: [armor] | [armorDamageReduction]\n"
-                         + "Regen: [regen]\n"
                          + "Speed: [speed]\n"
                          + "Jumps: [availableJumps] / [maxJumps]\n"
                          + "Kills: [killCount]\n"
@@ -414,6 +421,10 @@ namespace LookingGlass.StatsDisplay
                           + "Bazaar Portal: [shopPortal]"
                           + "</line-height></margin>";
                     break;
+            
+                //Preset to just add LineHeight?
+                //Preset to just center header?
+                //Preset for Margin?
             }
 
           

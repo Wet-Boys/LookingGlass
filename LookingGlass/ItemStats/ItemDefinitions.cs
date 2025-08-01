@@ -56,21 +56,21 @@ namespace LookingGlass.ItemStatsNameSpace
             //Elusive Antlers (Previously Antler Shield)
             //Changed to 3 per stack from 3 + 1
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Orb Interval: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
-            itemStat.descriptions.Add("Max Stacks: ");
+            itemStat.descriptions.Add("Max Buffs: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Max Movement Speed: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Orb Interval: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
-                values.Add(10f - ((1f - 3f / (3f + (float)stackCount - 1f)) * 8f));
                 values.Add(3 * stackCount);
                 values.Add(.12f * 3 * stackCount);
+                values.Add(10f - ((1f - 3f / (3f + (float)stackCount - 1f)) * 8f));
                 return values;
             };
             allItemDefinitions.Add((int)DLC2Content.Items.SpeedBoostPickup.itemIndex, itemStat);
@@ -2164,12 +2164,18 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Defiant Gouge
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Enemy Strength: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Monster Credits: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Gold);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Monster Credits Scaled: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Gold);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
-                return new List<float>([stackCount]);
+                List<float> values = new();
+                values.Add(stackCount * 40f);
+                values.Add(stackCount * 40f * Stage.instance.entryDifficultyCoefficient);
+                return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.MonstersOnShrineUse.itemIndex, itemStat);
 

@@ -58,6 +58,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public Func<float, int, float, List<float>> calculateValuesNew = null;
         public bool hasChance = false;
         public ChanceScaling chanceScaling = ChanceScaling.Linear;
+        //public ValueType chanceValueType = ValueType.Linear;
 
         public ItemStatsDef(List<string> descriptions, List<ValueType> valueTypes, List<MeasurementUnits> measurementUnits, Func<CharacterMaster, int, List<float>> calculateValues)
         {

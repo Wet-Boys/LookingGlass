@@ -6,6 +6,7 @@ using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RoR2;
+using RoR2.Stats;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
@@ -373,6 +374,64 @@ namespace LookingGlass.ItemStatsNameSpace
             return itemDescription;
         }
 
+
+        public static void GetStyled(string input, ItemStatsDef.ValueType color)
+        {
+            switch (color)
+            {
+                case ItemStatsDef.ValueType.Healing:
+                case ItemStatsDef.ValueType.Armor:
+                    input = "<style=\"cIsHealing" + input;
+                    break;
+                case ItemStatsDef.ValueType.Damage:
+                    input = "<style=\"cIsDamage" + input;
+                    break;
+                case ItemStatsDef.ValueType.Utility:
+                    input = "<style=\"cIsUtility" + input;
+                    break;
+                case ItemStatsDef.ValueType.Health:
+                    input += "<style=\"cIsHealth" + input;
+                    break;
+                case ItemStatsDef.ValueType.Void:
+                    input += "<style=\"cIsVoid" + input;
+                    break;
+                case ItemStatsDef.ValueType.Gold:
+                case ItemStatsDef.ValueType.HumanObjective:
+                    input = "<style=\"cHumanObjective" + input;
+                    break;
+                case ItemStatsDef.ValueType.LunarObjective:
+                    input = "<style=\"cLunarObjective" + input;
+                    break;
+                case ItemStatsDef.ValueType.Stack:
+                    input = "<style=\"cStack" + input;
+                    break;
+                case ItemStatsDef.ValueType.WorldEvent:
+                    input = "<style=\"cWorldEvent" + input;
+                    break;
+                case ItemStatsDef.ValueType.Artifact:
+                    input = "<style=\"cArtifact" + input;
+                    break;
+                case ItemStatsDef.ValueType.UserSetting:
+                    input = "<style=\"cUserSetting" + input;
+                    break;
+                case ItemStatsDef.ValueType.Death:
+                    input = "<style=\"cDeath" + input;
+                    break;
+                case ItemStatsDef.ValueType.Sub:
+                    input = "<style=\"cSub" + input;
+                    break;
+                case ItemStatsDef.ValueType.Mono:
+                    input = "<style=\"cMono" + input;
+                    break;
+                case ItemStatsDef.ValueType.Shrine:
+                    input = "<style=\"cShrine" + input;
+                    break;
+                case ItemStatsDef.ValueType.Event:
+                    input = "<style=\"cEvent" + input;
+                    break;
+            }
+            input += "</style>";
+        }
 
         //What does ref do pls help
         public static void GetItemStatsFormatted(ref ItemStatsDef statsDef, ref List<float> values, ref string input, bool white)

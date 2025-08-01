@@ -30,6 +30,7 @@ namespace LookingGlass.StatsDisplay
             //StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.baseDamage).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"{damageString}{(cachedUserBody.attackSpeed).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("attackSpeedPercent", cachedUserBody => { return $"{damageString}{((cachedUserBody.attackSpeed / cachedUserBody.baseAttackSpeed) * 100).ToString(floatPrecision)}%{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("crit", cachedUserBody => { return $"{damageString}{(cachedUserBody.crit).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("critWithLuck", cachedUserBody =>
@@ -37,7 +38,7 @@ namespace LookingGlass.StatsDisplay
                 float critWithLuck = Utils.CalculateChanceWithLuck(cachedUserBody.crit / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * 100f;
                 return $"{damageString}{critWithLuck.ToString(floatPrecision)}%{styleString}";
             });
-            StatsDisplayClass.statDictionary.Add("critMultiplier", cachedUserBody => { return $"{damageString}{(cachedUserBody.critMultiplier).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("critMultiplier", cachedUserBody => { return $"{damageString}×{(cachedUserBody.critMultiplier).ToString(floatPrecision)}{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("bleedChance", cachedUserBody => { return $"{damageString}{(cachedUserBody.bleedChance).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("bleedChanceWithLuck", cachedUserBody =>
@@ -58,6 +59,7 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"{healingString}{(cachedUserBody.armor).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"{healingString}{(100 - (100 * (100 / (100 + cachedUserBody.armor)))).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("regenHp", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)} hp/s{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxShield", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxShield)}{styleString}"; });
@@ -96,9 +98,11 @@ namespace LookingGlass.StatsDisplay
                 {
                     return $"{healingString}N/A{styleString}";
                 }
-                return $"{healingString}{(cachedUserBody.oneShotProtectionFraction * cachedUserBody.healthComponent.fullCombinedHealth - cachedUserBody.healthComponent.missingCombinedHealth) >= 0}{styleString}";
+                //Does not account for Barrier being able to put you back into OSP range.$
+                //But that is very minimal to be frank
+                return $"{healingString}{(cachedUserBody.oneShotProtectionFraction * cachedUserBody.healthComponent.fullCombinedHealth - cachedUserBody.healthComponent.missingCombinedHealth) > 0}{styleString}";
             });
-
+ 
             //Curse Penalty is a technical stat so not really usevul v
             StatsDisplayClass.statDictionary.Add("cursePenalty", cachedUserBody => { return $"{utilityString}{(cachedUserBody.cursePenalty).ToString(floatPrecision)}{styleString}"; });
             //Curse HP Reduction as %
@@ -111,7 +115,7 @@ namespace LookingGlass.StatsDisplay
             #region Movement Related
 
             StatsDisplayClass.statDictionary.Add("speed", cachedUserBody => { return $"{utilityString}{(cachedUserBody.moveSpeed).ToString(floatPrecision)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("speedPercent", cachedUserBody => { return $"{utilityString}{((cachedUserBody.moveSpeed / cachedUserBody.baseMoveSpeed)*100).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("speedPercent", cachedUserBody => { return $"{utilityString}{((cachedUserBody.moveSpeed / cachedUserBody.baseMoveSpeed) * 100).ToString(floatPrecision)}%{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("acceleration", cachedUserBody => { return $"{utilityString}{(cachedUserBody.acceleration).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("velocity", cachedUserBody =>
@@ -187,7 +191,8 @@ namespace LookingGlass.StatsDisplay
 
             StatsDisplayClass.statDictionary.Add("dps", cachedUserBody => { return $"{damageString}{(BasePlugin.instance.dpsMeter.damageDealtSincePeriod / DPSMeter.DPS_MAX_TIME).ToString("0.#")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("percentDps", cachedUserBody
-                => $"{damageString}{(Mathf.RoundToInt(BasePlugin.instance.dpsMeter.damageDealtSincePeriod * 100f / cachedUserBody.damage / DPSMeter.DPS_MAX_TIME)).ToString()}%{styleString}");
+             => $"{damageString}{(Mathf.RoundToInt(BasePlugin.instance.dpsMeter.damageDealtSincePeriod * 100f / cachedUserBody.damage / DPSMeter.DPS_MAX_TIME)).ToString()}%{styleString}");
+           
             //RoundToInt because (int) often drops a % and Ceil sometimes Adds one.
             //It's really just floating point errors
 
