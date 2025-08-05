@@ -2445,10 +2445,10 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                values.Add(stackCount);
+                values.Add(Math.Min(stackCount, 3)); //Capped at 3??
                 uint stacks = Math.Min((uint)stackCount, CharacterMaster.maxStacks); //Random item capped at 8??
                 float factor = CharacterMaster.chestPerLevelFactor + (stacks - 1U) * CharacterMaster.stackingBonus;
-                values.Add(CharacterMaster.costOfSmallChest / factor);
+                values.Add(Mathf.CeilToInt(CharacterMaster.costOfSmallChest / factor));
                 values.Add(stackCount * 0.5f);
                 return values;
             };
