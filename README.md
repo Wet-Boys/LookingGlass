@@ -85,3 +85,4 @@ A fully open source UI mod, compatible with RiskUI
 - timoreo22 (github tag): coding
 - isolno (github tag): coding
 - itsschwer (github tag): coding
+- WolfoIsBestWolf (aka Wolfo) (github tag): coding
