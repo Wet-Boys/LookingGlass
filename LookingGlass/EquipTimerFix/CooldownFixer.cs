@@ -44,11 +44,12 @@ namespace LookingGlass.EquipTimerFix
         void SetDisplayData(Action<EquipmentIcon, EquipmentIcon.DisplayData> orig, EquipmentIcon self, EquipmentIcon.DisplayData newDisplayData)
         {
             orig(self, newDisplayData);
+            //This runs every frame bro what the fuck
             if (ItemStats.itemStats.Value)
             {
                 BasePlugin.instance.itemStats.EquipText(self);
             }
-            if (permanentEquipCooldownText.Value && self.hasEquipment && newDisplayData.stock != newDisplayData.maxStock && self.cooldownText)
+            if (permanentEquipCooldownText.Value && self.hasEquipment && newDisplayData.stock < newDisplayData.maxStock && self.cooldownText)
             {
                 self.cooldownText.gameObject.SetActive(true);
             }
@@ -56,10 +57,17 @@ namespace LookingGlass.EquipTimerFix
         void Update(Action<SkillIcon> orig, SkillIcon self)
         {
             orig(self);
+
+
+            //If you had a Stock increase, but lost it
+            //It kinda deletes this so idk ig it'd be good
+            //Ie have 2 out of 1 stock, doesn't show that you have more
+
             if (permanentSkillCooldownText.Value &&
                 self.targetSkill &&
                 self.targetSkill.stock > 0 &&
-                self.targetSkill.stock != self.targetSkill.maxStock &&
+                self.targetSkill.finalRechargeInterval != 0 &&
+                self.targetSkill.stock < self.targetSkill.maxStock &&
                 self.cooldownText)
             {
                 SkillIcon.sharedStringBuilder.Clear();

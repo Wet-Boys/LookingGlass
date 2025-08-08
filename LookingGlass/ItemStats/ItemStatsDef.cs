@@ -26,7 +26,8 @@ namespace LookingGlass.ItemStatsNameSpace
             Shrine,
             Event,
             Gold,
-            Armor
+            Armor,
+            None,
         }
         public enum MeasurementUnits
         {
@@ -35,15 +36,20 @@ namespace LookingGlass.ItemStatsNameSpace
             FlatHealth,
             FlatHealing,
             Number,
+            Money,
             Seconds,
             PercentHealth,
-            PercentHealing
+            PercentHealing,
+            ProcCoeff, //0.0##
+            PlainString
         }
         public enum ChanceScaling
         {
             Linear,
             Hyperbolic,
-            DoesNotScale
+            DoesNotScale,
+            RunicLens, //Linear, capped at 75%
+            Health //BetterUI had LeechSeed/Scythe here so idk?
         }
         public List<string> descriptions = new List<string>();
         public List<ValueType> valueTypes = new List<ValueType>();
@@ -52,6 +58,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public Func<float, int, float, List<float>> calculateValuesNew = null;
         public bool hasChance = false;
         public ChanceScaling chanceScaling = ChanceScaling.Linear;
+        //public ValueType chanceValueType = ValueType.Linear;
 
         public ItemStatsDef(List<string> descriptions, List<ValueType> valueTypes, List<MeasurementUnits> measurementUnits, Func<CharacterMaster, int, List<float>> calculateValues)
         {

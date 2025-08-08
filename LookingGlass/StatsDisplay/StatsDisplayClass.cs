@@ -21,11 +21,26 @@ using System.Collections;
 using Unity.Jobs;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Profiling;
+using RiskOfOptions.Components.Options;
 
 namespace LookingGlass.StatsDisplay
 {
     internal class StatsDisplayClass : BaseThing
     {
+        public enum StatDisplayPreset
+        {
+            Set,            //
+            LookingGlass,   //
+            Simpler,        //No DPS/Combo 
+            Extra,          //CritDamage,Luck,Curse%, Osp
+            Minimal,        //
+            Classic,            //BetterUI-like
+            //AddLineHeight,
+        }
+        public static ConfigEntry<StatDisplayPreset> statStringPresets;
+        public static ConfigEntry<bool> movePurchaseText; //-240x
+        public static ConfigEntry<bool> checkIfOldDefaultSettings;
+
         public static ConfigEntry<bool> statsDisplay;
         public static ConfigEntry<bool> useSecondaryStatsDisplay;
         public static ConfigEntry<string> secondaryStatsDisplayString;
@@ -40,6 +55,7 @@ namespace LookingGlass.StatsDisplay
         public static ConfigEntry<Vector2> detachedPosition;
         public static Dictionary<string, Func<CharacterBody, string>> statDictionary = new Dictionary<string, Func<CharacterBody, string>>();
         internal static CharacterBody cachedUserBody = null;
+        //internal static CharacterBody cachedUserMaster = null;
         Transform statTracker = null;
         TextMeshProUGUI textComponent;
         GameObject textComponentGameObject;
@@ -58,30 +74,66 @@ namespace LookingGlass.StatsDisplay
             Setup();
             SetupRiskOfOptions();
         }
-        const string syntaxList = " \n luck \n baseDamage \n crit \n attackSpeed \n armor \n armorDamageReduction \n regen \n speed \n availableJumps \n maxJumps \n killCount \n mountainShrines \n experience \n level \n maxHealth \n maxBarrier \n barrierDecayRate \n maxShield \n acceleration \n jumpPower \n maxJumpHeight \n damage \n critMultiplier \n bleedChance \n visionDistance \n critHeal \n cursePenalty \n hasOneShotProtection \n isGlass \n canPerformBackstab \n canReceiveBackstab \n healthPercentage \n goldPortal \n msPortal \n shopPortal \n dps \n percentDps \n currentCombatDamage \n remainingComboDuration \n maxCombo \n maxComboThisRun \n currentCombatKills \n maxKillCombo \n maxKillComboThisRun \n critWithLuck \n bleedChanceWithLuck \n velocity \n teddyBearBlockChance \n saferSpacesCD \n instaKillChance \n voidPortal \n difficultyCoefficient \n stage";
+
+        const string syntaxList =
+            "\n\n damage "
+            + "\n attackSpeed, attackSpeedPercent "
+            + "\n crit, critWithLuck, critMultiplier"
+            + "\n bleedChance, bleedChanceWithLuck"
+
+            + "\n maxHealth, maxShield, maxBarrier "
+            + "\n effectiveHealth, effectiveMaxHealth"
+            + "\n barrierDecayRate" //Static in vanilla so eh?
+            + "\n healthPercentage"
+            + "\n regen, regenHp"
+            + "\n armor, armorDamageReduction"
+            + "\n curseHealthReduction "
+            + "\n hasOSP "
+
+            + "\n speed, speedPercent, velocity"
+            + "\n acceleration "
+            + "\n availableJumps, maxJumps"
+            + "\n jumpPower, maxJumpHeight"
+            + "\n level, experience "
+            + "\n luck "
+
+            + "\n mountainShrines "
+            + "\n shopPortal, goldPortal, msPortal, voidPortal, greenPortal"
+            + "\n killCount, killCountRun "
+            + "\n dps, percentDps "
+            + "\n combo, maxComboThisRun, maxCombo "
+            + "\n killCombo, maxKillComboThisRun, maxKillCombo"
+            + "\n remainingComboDuration"
+            + "\n teddyBearBlockChance, saferSpacesCD "
+            + "\n instaKillChance "
+            + "\n difficultyCoefficient, stage";
         public void Setup()
         {
             statsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "StatsDisplay", true, "Enables Stats Display");
             statsDisplay.SettingChanged += Display_SettingChanged;
             statsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Stats Display String",
-                "<size=120%>Stats</size>\n" +
-                "Luck: [luck]\n" +
-                "Damage: [damage]\n" +
-                "Crit Chance: [critWithLuck]\n" +
-                "Attack Speed: [attackSpeed]\n" +
-                "Armor: [armor] | [armorDamageReduction]\n" +
-                "Regen: [regen]\n" +
-                "Speed: [speed]\n" +
-                "Jumps: [availableJumps]/[maxJumps]\n" +
-                "Kills: [killCount]\n" +
-                "Mountain Shrines: [mountainShrines]\n" +
-                "DPS: [dps]\n" +
-                "Combo: [currentCombatDamage]\n" +
-                "Combo Timer: [remainingComboDuration]\n" +
-                "Max Combo: [maxCombo]"
+                //Removing Combo timer just cuz
+                //Removing Luck because not important enough to be primary
+                //Mountain Shrine Secondary only
+                //MaxCombo -> MaxCombo Per Run
+                //MaxCombo -> Seconary Only
+                "<margin-left=0.6em>"
+                + "<size=115%>Stats</size>\n"
+                + "Damage: [damage]\n"
+                + "Attack Speed: [attackSpeed]\n"
+                + "Crit Chance: [critWithLuck]\n"
+                + "Regen: [regen]\n"
+                + "Armor: [armor] | [armorDamageReduction]\n"
+                + "Speed: [speed]\n"
+                + "Jumps: [availableJumps] / [maxJumps]\n"
+                + "Kills: [killCount]\n"
+                + "DPS: [dps]\n"
+                + "Combo: [combo]\n"
+                + "</margin>"
                 , $"String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is:{syntaxList}");
-            statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay font size", -1, "General font size of the stats display menu. If set to -1, will copy the font size from the objective panel");
-            statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay update interval", 0.1f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance for large texts");
+            statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display font size", -1, "General font size of the stats display menu. If set to -1, will copy the font size from the objective panel Header. Objective Header is font size 16, Objectives are font size 12 for reference.");
+
+            statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "StatsDisplay update interval", 0.2f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance for large texts");
             statsDisplayUpdateInterval.SettingChanged += Display_SettingChanged;
             builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, "Uses the default styling for stats display syntax items.");
             builtInColors.SettingChanged += BuiltInColors_SettingChanged;
@@ -89,23 +141,26 @@ namespace LookingGlass.StatsDisplay
             statsDisplayOverrideHeightValue = BasePlugin.instance.Config.Bind<int>("Stats Display", "Stats Display Height Value", 7, "Height, in lines of full-size text, for the Stats Display panel");
             floatPrecision = BasePlugin.instance.Config.Bind<int>("Stats Display", "StatsDisplay Float Precision", 2, "How many decimal points will be used in floating point values");
             floatPrecision.SettingChanged += BuiltInColors_SettingChanged;
-            useSecondaryStatsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use Secondary StatsDisplay", false, "Will enable the use of the secondary stats display string. This will overwrite the stats display string whenever the scoreboard is held open.");
+            useSecondaryStatsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use Secondary Stats Display", true, "Will enable the use of the secondary stats display string. This will overwrite the stats display string whenever the scoreboard is held open.");
             secondaryStatsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Secondary Stats Display String",
-                "<size=120%>Stats</size>\n" +
-                "Luck: [luck]\n" +
-                "Damage: [damage]\n" +
-                "Crit Chance: [critWithLuck]\n" +
-                "Bleed Chance: [bleedChanceWithLuck]\n" +
-                "Attack Speed: [attackSpeed]\n" +
-                "Armor: [armor] | [armorDamageReduction]\n" +
-                "Regen: [regen]\n" +
-                "Speed: [speed]\n" +
-                "Jumps: [availableJumps]/[maxJumps]\n" +
-                "Kills: [killCount]\n" +
-                "Mountain Shrines: [mountainShrines]\n" +
-                "Max Combo: [maxCombo]\n" +
-                "<size=120%>Portals:</size> \n" +
-                "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>"
+                "<margin-left=0.6em>"
+                + "<size=115%>Stats</size>\n"
+                + "Damage: [damage]\n"
+                + "Attack Speed: [attackSpeed]\n" //AS first because Crit expands into Crit + Crit Damage + Bleed
+                + "Crit Chance: [critWithLuck]\n"
+                //+ "Crit Multiplier: [critMultiplier]\n" //DLC3 is adding a Crit Damage item so maybe
+                + "Bleed Chance: [bleedChanceWithLuck]\n"
+                + "Regen: [regen]\n"
+                + "Armor: [armor] | [armorDamageReduction]\n"              
+                + "Speed: [speed]\n"
+                + "Jumps: [availableJumps] / [maxJumps]\n"
+                //+ "Luck: [luck]\n" //If any mods/DLCs add Luck items maybe worth having on default secondary
+                + "Total Kills: [killCountRun]\n" //Kills Primary -> Run Kills Secondary
+                + "Max Combo: [maxComboThisRun]\n" //Combo Primary -> Run Combo Secondary
+                + "Mountain Shrines: [mountainShrines]\n"
+                + "<size=115%>Portals:</size> \n"
+                + "<size=67%>Bazaar: [shopPortal] Storm: [greenPortal] Gold: [goldPortal]</size>" //Keeping Post-Loop portals with no influence out of it
+                + "</margin>"
                 , $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}");
             StatsDisplayDefinitions.SetupDefs();
 
@@ -125,6 +180,295 @@ namespace LookingGlass.StatsDisplay
             targetMethod = typeof(ScoreboardController).GetMethod(nameof(ScoreboardController.OnDisable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             destMethod = typeof(StatsDisplayClass).GetMethod(nameof(OnDisable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);
+
+
+
+            statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Stats Display Preset", (StatDisplayPreset)100, "Override current Stat Display settings with a premade preset,\nfurther changes can made from there.\n\n" +
+                "Extra: Include Crit Damage, Luck, CurseFrac on Tab\n\n" +
+                "Simpler: Dont include DPS, Combo\n\n" +
+                "Minimal: DPS + Jump, Few stats on Tab for mathing or remembering.\n\n");
+
+            statStringPresets.SettingChanged += ApplyPresets;
+
+
+            movePurchaseText = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Move Purchase Text", true, "Move purchase text further to the left to avoid clipping with larger Stat Displays or generally fuller RightSideInfos.");
+            movePurchaseText.SettingChanged += MovePurchase;
+
+
+
+
+            checkIfOldDefaultSettings = BasePlugin.instance.Config.Bind<bool>("Misc", "Check For Old Default Settings1", true, "Override the stat display with the updated one, if you were using the default one prior to updating.\nNot meant as a config just needs to be tracked.");
+            //Run in case some guy doesnt use RiskOfOptions and to check if Old?
+            ApplyPresets(null, null);
+            if (checkIfOldDefaultSettings.Value)
+            {
+                CheckOldDefaultStatDisplayStrings();
+            }
+            
+        }
+
+
+        public void SetupRiskOfOptions()
+        {
+
+            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new ChoiceOption(statStringPresets, false));
+            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100 }));
+            ModSettingsManager.AddOption(new CheckBoxOption(useSecondaryStatsDisplay, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(movePurchaseText, new CheckBoxConfig() { restartRequired = false }));
+
+            ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { restartRequired = false, min = 0.01f, max = 1f, formatString = "{0:F2}s" }));
+            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayOverrideHeight, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { restartRequired = false, min = 0, max = 100 }));
+            ModSettingsManager.AddOption(new IntSliderOption(floatPrecision, new IntSliderConfig() { restartRequired = false, min = 0, max = 5 }));
+
+
+            // position override
+            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayAttached, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new GenericButtonOption(
+                detachedPosition.Definition.Key,
+                detachedPosition.Definition.Section,
+                detachedPosition.Description.Description,
+                "Open",
+                () => CreatePositionWindow(detachedPosition)
+            ));
+
+
+        }
+
+
+
+        void CheckOldDefaultStatDisplayStrings()
+        {
+            //Check once upon updating if they were using old default stat string.
+            //So it keeps any custom ones, but people who are using default dont have to manually reset
+
+            #region BetterUI-like 
+            if ((string)statsDisplayString.Value == 
+                        "<size=120%>Stats</size>\n"
+                        + "Luck: [luck]\n"
+                        + "Damage: [damage]\n"
+                        + "Crit Chance: [critWithLuck]\n"
+                        + "Attack Speed: [attackSpeed]\n"
+                        + "Armor: [armor] | [armorDamageReduction]\n"
+                        + "Regen: [regen]\n"
+                        + "Speed: [speed]\n"
+                        + "Jumps: [availableJumps]/[maxJumps]\n"
+                        + "Kills: [killCount]\n"
+                        + "Mountain Shrines: [mountainShrines]\n"
+                        + "DPS: [dps]\n"
+                        + "Combo: [combo]\n"
+                        + "Combo Timer: [remainingComboDuration]\n"
+                        + "Max Combo: [maxComboThisRun]"
+                     )
+            {
+                Debug.Log("Old1 detected");
+                statsDisplayString.Value = (string)statsDisplayString.DefaultValue;
+            }
+
+            if ((string)secondaryStatsDisplayString.Value == 
+                   "<size=120%>Stats</size>\n"
+                  + "Luck: [luck]\n"
+                  + "Damage: [damage]\n"
+                  + "Crit Chance: [critWithLuck]\n"
+                  + "Bleed Chance: [bleedChanceWithLuck]\n"
+                  + "Attack Speed: [attackSpeed]\n"
+                  + "Armor: [armor] | [armorDamageReduction]\n"
+                  + "Regen: [regen]\n"
+                  + "Speed: [speed]\n"
+                  + "Jumps: [availableJumps]/[maxJumps]\n"
+                  + "Kills: [killCount]\n"
+                  + "Mountain Shrines: [mountainShrines]\n"
+                  + "Max Combo: [maxComboThisRun]\n"
+                  + "<size=120%>Portals:</size> \n"
+                  + "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>"
+                  )
+            {
+                Debug.Log("Old2 detected");
+                secondaryStatsDisplayString.Value = (string)secondaryStatsDisplayString.DefaultValue;
+            }
+            #endregion
+            checkIfOldDefaultSettings.Value = false;
+        }
+
+        void ApplyPresets(object sender, EventArgs e)
+        {
+            if (statStringPresets.Value == StatDisplayPreset.Set)
+            {
+                return;
+            }
+
+            string new1 = statsDisplayString.Value;
+            string new2 = secondaryStatsDisplayString.Value;
+            switch (statStringPresets.Value)
+            {
+                case StatDisplayPreset.Classic:
+                    //Do not modify
+                    new1 =
+                        "<size=120%>Stats</size>\n"
+                        + "Luck: [luck]\n"
+                        + "Damage: [damage]\n"
+                        + "Crit Chance: [critWithLuck]\n"
+                        + "Attack Speed: [attackSpeed]\n"
+                        + "Armor: [armor] | [armorDamageReduction]\n"
+                        + "Regen: [regen]\n"
+                        + "Speed: [speed]\n"
+                        + "Jumps: [availableJumps]/[maxJumps]\n"
+                        + "Kills: [killCount]\n"
+                        + "Mountain Shrines: [mountainShrines]\n"
+                        + "DPS: [dps]\n"
+                        + "Combo: [combo]\n"
+                        + "Combo Timer: [remainingComboDuration]\n"
+                        + "Max Combo: [maxComboThisRun]";
+                    new2 =
+                          "<size=120%>Stats</size>\n"
+                          + "Luck: [luck]\n"
+                          + "Damage: [damage]\n"
+                          + "Crit Chance: [critWithLuck]\n"
+                          + "Bleed Chance: [bleedChanceWithLuck]\n"
+                          + "Attack Speed: [attackSpeed]\n"
+                          + "Armor: [armor] | [armorDamageReduction]\n"
+                          + "Regen: [regen]\n"
+                          + "Speed: [speed]\n"
+                          + "Jumps: [availableJumps]/[maxJumps]\n"
+                          + "Kills: [killCount]\n"
+                          + "Mountain Shrines: [mountainShrines]\n"
+                          + "Max Combo: [maxComboThisRun]\n"
+                          + "<size=120%>Portals:</size> \n"
+                          + "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>";
+                    break;
+                case StatDisplayPreset.LookingGlass:
+                    new1 = (string)statsDisplayString.DefaultValue;
+                    new2 = (string)secondaryStatsDisplayString.DefaultValue;
+                    break;
+                case StatDisplayPreset.Extra:
+                    //+Luck
+                    //+Crit Damage Mult
+                    //+Curse HP Reduction
+                    //+Has OSP rn ig
+                    //AS / MS % for idk nerds
+                    new1 = (string)statsDisplayString.DefaultValue;
+                    new2 =
+                        "<margin-left=0.6em>"
+                        + "<size=115%>Stats</size>\n"
+                        + "Damage: [damage]\n"
+                        + "Attack Speed: [attackSpeedPercent]\n"
+                        + "Crit Stats: [critWithLuck] | [critMultiplier]\n"
+                        //+ "Crit Chance: [critWithLuck]\n"
+                        //+ "Crit Multiplier: [critMultiplier]\n"
+                        + "Bleed Chance: [bleedChanceWithLuck]\n"
+                        + "Regen: [regenHp]\n"
+                        + "Armor: [armor] | [armorDamageReduction]\n"
+                        + "Osp: [hasOneShotProtection]\n"
+                        + "Speed: [speedPercent]\n"
+                        + "Jumps: [availableJumps] / [maxJumps]\n"
+                        + "Luck: [luck]\n"
+                        + "Curse Penalty: [curseHealthReduction]\n"
+                        + "Total Kills: [killCountRun]\n"
+                        + "Max Combo: [maxComboThisRun]\n"                     
+                        + "Mountain Shrines: [mountainShrines]\n"
+                        + "<size=115%>Portals:</size> \n"
+                        + "<size=67%>"
+                        + "Bazaar: [shopPortal] Storm: [greenPortal] Gold: [goldPortal]\n"
+                        + "Celestial: [msPortal] Void: [voidPortal]</size>"
+                        + "</margin>";
+                    break;
+                case StatDisplayPreset.Simpler:
+                    //No Combo or DPS stuff
+                    //
+                    new1 =
+                         "<margin-left=0.6em><line-height=110%>"
+                         + "<align=center><size=115%>Stats:</align></size>\n"
+                         + "Damage: [damage]\n"
+                         + "Attack Speed: [attackSpeed]\n"
+                         + "Crit Chance: [critWithLuck]\n"
+                         + "Regen: [regen]\n" 
+                         + "Armor: [armor] | [armorDamageReduction]\n"
+                         + "Speed: [speed]\n"
+                         + "Jumps: [availableJumps] / [maxJumps]\n"
+                         + "Kills: [killCount]\n"
+                         + "</line-height></margin>";
+                    new2 =
+                         "<margin-left=0.6em><line-height=110%>"
+                         + "<align=center><size=115%>Stats:</align></size>\n"
+                         + "Damage: [damage]\n"
+                         + "Attack Speed: [attackSpeed]\n"
+                         + "Crit Chance: [critWithLuck]\n"
+                         + "Bleed Chance: [bleedChanceWithLuck]\n"
+                         + "Regen: [regen]\n" 
+                         + "Armor: [armor] | [armorDamageReduction]\n"
+                         + "Speed: [speed]\n"
+                         + "Jumps: [availableJumps] / [maxJumps]\n"
+                         + "Kills: [killCount]\n"
+                         + "Mountain Shrines: [mountainShrines]\n"
+                         + "Bazaar Portal: [shopPortal]\n"
+                         + "</line-height></margin>";
+                    break;
+                case StatDisplayPreset.Minimal:
+                    new1 =
+                        "<margin-left=0.6em><line-height=110%>"
+                        + "Jumps: [availableJumps] / [maxJumps]\n" 
+                        + "DPS: [dps] | [percentDps]\n"
+                        + "</line-height></margin>";
+                    new2 =
+                          "<margin-left=0.6em><line-height=110%>"
+                          + "Crit Chance: [critWithLuck]\n"
+                          + "Bleed Chance: [bleedChanceWithLuck]\n"
+                          + "Mountain Shrines: [mountainShrines]\n"
+                          + "Bazaar Portal: [shopPortal]"
+                          + "</line-height></margin>";
+                    break;
+            
+                //Preset to just add LineHeight?
+                //Preset to just center header?
+                //Preset for Margin?
+            }
+
+          
+            statsDisplayString.Value = new1;
+            secondaryStatsDisplayString.Value = new2;
+            statStringPresets.Value = StatDisplayPreset.Set;
+             
+
+            //This is dumb as hell but somehow
+            //If both the Preset & DisplayString are in the same category
+            //It just doesnt work unless we input it directly
+            //And as far as I can tell
+            //There is no "SettingsPanel" instance
+            //or "RiskOfOptions.ModOptions" instance
+            //So fuck it just do this
+            // GameObject option1 = GameObject.Find("/MainMenu/MENU: Settings/MainSettings/SettingsPanelTitle(Clone)/SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Stats Display String");
+            GameObject option1 = GameObject.Find("SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Stats Display String");
+            GameObject option2 = GameObject.Find("SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Secondary Stats Display String");
+
+            if (!option1)
+            {
+                return;
+            }
+            InputFieldController inputField1 = option1.GetComponent<InputFieldController>();
+            InputFieldController inputField2 = option2.GetComponent<InputFieldController>();
+
+            inputField1.SubmitValue(new1);
+            inputField2.SubmitValue(new2);
+
+        }
+
+        void MovePurchase(object sender, EventArgs e)
+        {
+           
+            HUD gameHud = HUD.instancesList[0];
+            if (!gameHud)
+                return;
+            //Move purchase text left so it doesnt clip with the stat display because thats ugly
+            //X and Z never seem to be different from 0 but maybe check a custom hud?
+            Transform ContextNotification = gameHud.transform.Find("MainContainer/MainUIArea/SpringCanvas/RightCluster/ContextNotification/");
+            if (ContextNotification)
+            {
+                ContextNotification.localPosition = new Vector3(movePurchaseText.Value ? -240 : 0, ContextNotification.localPosition.y, 0);
+            }
         }
 
         void OnEnable(Action<ScoreboardController> orig, ScoreboardController self)
@@ -164,35 +508,11 @@ namespace LookingGlass.StatsDisplay
             }
         }
 
-        public void SetupRiskOfOptions()
-        {
-            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit, richText = false }));
-            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100 }));
-            ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { restartRequired = false, min = 0.01f, max = 1f, formatString = "{0:F2}s" }));
-            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayOverrideHeight, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { restartRequired = false, min = 0, max = 100 }));
-            ModSettingsManager.AddOption(new IntSliderOption(floatPrecision, new IntSliderConfig() { restartRequired = false, min = 0, max = 5 }));
-
-            ModSettingsManager.AddOption(new CheckBoxOption(useSecondaryStatsDisplay, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExit, richText = false }));
-
-            // position override
-            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayAttached, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new GenericButtonOption(
-                detachedPosition.Definition.Key,
-                detachedPosition.Definition.Section,
-                detachedPosition.Description.Description,
-                "Open",
-                () => CreatePositionWindow(detachedPosition)
-            ));
-        }
-
+  
         bool isRiskUI = false;
         float originalFontSize = -1;
         VerticalLayoutGroup layoutGroup;
-        
+
         public void CalculateStuff(string statsText)
         {
             if (!statsDisplay.Value)
@@ -207,8 +527,11 @@ namespace LookingGlass.StatsDisplay
                         return;
                     if (statsDisplayAttached.Value)
                     {
+                        MovePurchase(null, null);
+                        originalFontSize = -1; //Reset upon reset
                         foreach (var item in gameHud.GetComponentsInChildren<VerticalLayoutGroup>())
                         {
+
                             if (item.gameObject.name == "RightInfoBar")
                             {
                                 Transform objectivePanel = item.transform.Find("ObjectivePanel");
@@ -257,6 +580,28 @@ namespace LookingGlass.StatsDisplay
                                 textComponent.alignment = TMPro.TextAlignmentOptions.TopLeft;
                                 textComponent.color = Color.white;
                                 textComponentGameObject = textComponent.gameObject;
+
+
+                                //-1 is font size of 16, same as the Objective HEADER not the contents, the contents would be 12.
+                                //With the extra 120% its 19.2
+                                //This is the main reason why it takes up so much damn space.
+                                //However 12 would be rather small, 14, the average between the two looks good tho.
+                                //For other hud compat just div Header vs Objective size
+                                Transform defaultStrip = objectivePanel.Find("StripContainer/ObjectiveStrip/Label");
+                                if (defaultStrip)
+                                {
+                                    textComponent.fontSize = (labelObject.GetComponent<HGTextMeshProUGUI>().fontSize + defaultStrip.GetComponent<HGTextMeshProUGUI>().fontSize) / 2f;
+                                }
+                                else
+                                {
+                                    textComponent.fontSize = (textComponent.fontSize + 12) / 2f;
+                                }
+                                //Increased Padding to match Objectives spacing and general alignment
+                                /*if (matchingLeftPadding.Value)
+                                {
+                                    layoutGroup.padding.left = 12;
+                                }*/
+
 
                                 if (g.transform.Find("Seperator"))
                                 {
@@ -308,14 +653,16 @@ namespace LookingGlass.StatsDisplay
                 {
                     // canvas gets updated in postlateupdate if text is different
                     textComponent.text = statsText;
-                    
+
                     int nlines = statsDisplayOverrideHeight.Value
                         ? statsDisplayOverrideHeightValue.Value
                         : statsText.Split('\n').Length;
+
                     if (originalFontSize == -1)
                     {
                         originalFontSize = textComponent.fontSize;
                     }
+
                     textComponent.fontSize = statsDisplaySize.Value == -1 ? originalFontSize : statsDisplaySize.Value;
                     Run.instance.StartCoroutine(FixScaleAfterFrame(nlines));
                     if (statsDisplayAttached.Value)
@@ -439,7 +786,7 @@ namespace LookingGlass.StatsDisplay
 
             void Close() => UnityEngine.Object.Destroy(canvasObj);
         }
-        
+
         internal void Update()
         {
             if (statsDisplay.Value && cachedUserBody)
@@ -449,14 +796,14 @@ namespace LookingGlass.StatsDisplay
                 {
                     timer += statsDisplayUpdateInterval.Value;
                     Profiler.BeginSample("LookingGlass.StatsDisplay");
-                    
+
                     // complete regex job
                     regexHandle.Complete();
                     CalculateStuff(RegexJob.output);
-                    
+
                     Profiler.EndSample();
                 }
-                
+
                 timer -= Time.deltaTime;
                 // if interval has passed
                 if (timer <= 0)
@@ -470,10 +817,10 @@ namespace LookingGlass.StatsDisplay
         static string GenerateStatsText()
         {
             Profiler.BeginSample("LookingGlass.StatsDisplay.Regex");
-            
+
             string statsText = useSecondaryStatsDisplay.Value && scoreBoardOpen ? secondaryStatsDisplayString.Value : statsDisplayString.Value;
             statsText = statsRegex.Replace(statsText, MatchEvaluator);
-            
+
             Profiler.EndSample();
             return statsText;
         }
@@ -496,11 +843,11 @@ namespace LookingGlass.StatsDisplay
                 timer = 0;
             }
         }
-        
+
         struct RegexJob : IJob
         {
             internal static string output = "";
-    
+
             public void Execute()
             {
                 try

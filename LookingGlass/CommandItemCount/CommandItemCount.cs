@@ -16,6 +16,7 @@ using RoR2.Items;
 using System.Reflection;
 using System.Linq;
 using UnityEngine.Networking;
+using LookingGlass.AutoSortItems;
 
 namespace LookingGlass.CommandItemCount
 {
@@ -102,13 +103,23 @@ namespace LookingGlass.CommandItemCount
                 return;
             }
 
+            bool potentialOrFragment = false;
+            if (self.pickerController)
+            {
+                potentialOrFragment = self.pickerController.GetComponent<PickupIndexNetworker>(); //Good enough
+                //Both Fragments and Potentials would have a pickup
+            }
+
             string parentName = self.gameObject.name;
             bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
 
             // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
-            (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
+            if (!potentialOrFragment || AutoSortItemsClass.SortPotentials.Value)
+            {
+                (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
+            }
 
             orig(self, options);
 
@@ -243,15 +254,15 @@ namespace LookingGlass.CommandItemCount
                     stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
                     ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(corruption.Items[0]);
                     stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
-                    stats += ItemStats.GetDescription(corruptedItemDefinition, corruptedItemDefinition.itemIndex, corruption.ItemCount, null, withOneMore);
+                    stats += ItemStats.GetItemDescription(corruptedItemDefinition, corruptedItemDefinition.itemIndex, corruption.ItemCount, null, withOneMore);
                 }
                 else if (corruption.Type == CorruptionType.Void)
                 {
-                    stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, corruption.ItemCount, null, withOneMore, true);
+                    stats = ItemStats.GetItemDescription(itemDefinition, itemDefinition.itemIndex, corruption.ItemCount, null, withOneMore, true);
                 }
                 else
                 {
-                    stats = ItemStats.GetDescription(itemDefinition, itemDefinition.itemIndex, count, null, withOneMore);
+                    stats = ItemStats.GetItemDescription(itemDefinition, itemDefinition.itemIndex, count, null, withOneMore);
                 }
 
                 if (stats != null)

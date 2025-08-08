@@ -55,6 +55,10 @@ namespace LookingGlass.AutoSortItems
         public static ConfigEntry<bool> SortCommandAlphabeticalDescending;
         public static ConfigEntry<bool> SortScrapperAlphabeticalDescending;
 
+        public static ConfigEntry<bool> SortPotentials;
+        public static ConfigEntry<bool> SortDeathScreen;
+
+
         public static AutoSortItemsClass instance;
         RoR2.UI.ItemInventoryDisplay display;
         List<List<ItemIndex>> itemTierLists = new List<List<ItemIndex>>();
@@ -82,7 +86,6 @@ namespace LookingGlass.AutoSortItems
             SortScrapper = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper", true, "Sorts Scrapper by stack count");
             SortScrapperDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Scrapper Descending", true, "Sorts Scrapper by descending");
             SortScrapperTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Tier", false, "Sorts Scrapper by tier");
-
             SortCommandAlphabetical = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Command Menu Alphabetically", false, "Sorts command menu alphabetically");
             SortCommandAlphabeticalDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Command Menu Alphabetically Descending", true, "Sorts command alphabetically descending");
             SortScrapperAlphabetical = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Alphabetically", false, "Sorts Scrapper alphabetically");
@@ -94,6 +97,10 @@ namespace LookingGlass.AutoSortItems
             SortByStackSize.SettingChanged += SettingsChanged;
             DescendingStackSize.SettingChanged += SettingsChanged;
 
+            //
+            SortPotentials = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Potentials & Fragments", false, "Sorts Void Potentials & Aurelionite Fragments according to Scrapper rules.");
+            SortDeathScreen = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Death Screen & Monster Items", false, "Sort items on the game over screen, in run reports, or in Monster Inventories such as Evolution.");
+            //
             InitHooks();
             SetupRiskOfOptions();
         }
@@ -119,6 +126,10 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new CheckBoxOption(SortCommandAlphabeticalDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckCommandSortAlphabetical }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperAlphabetical, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperAlphabeticalDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckScrapperSortTierAlphabetical }));
+
+            ModSettingsManager.AddOption(new CheckBoxOption(SortPotentials, new CheckBoxConfig() { restartRequired = false}));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortDeathScreen, new CheckBoxConfig() { restartRequired = false }));
+
         }
         //I'm going cross-eyed looking at all these
         private static bool CheckTierSort()
@@ -288,7 +299,11 @@ namespace LookingGlass.AutoSortItems
         }
         private void UpdateDisplayOverride(Action<RoR2.UI.ItemInventoryDisplay> orig, RoR2.UI.ItemInventoryDisplay self)
         {
-            if (self != null)
+            //If inventory is null is a good check to see if it's a GameOver or RunReport Inventory.
+            //Because there the items are added manually
+            //However would also prevent sorting of enemy items. (Vields, Evo)
+            //I am unaware of a better check atm
+            if (self != null && (self.inventory != null || SortDeathScreen.Value))
             {
                 display = self;
                 var temp = self.itemOrder;

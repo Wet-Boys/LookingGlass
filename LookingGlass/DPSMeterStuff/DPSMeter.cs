@@ -14,13 +14,19 @@ namespace LookingGlass.DPSMeterStuff
 {
     internal class DPSMeter : BaseThing
     {
+       
+        public ulong killsThisStage = 0;
+        public ulong killsThisRun = 0;
+ 
+
         private static Hook overrideHook;
         private static Hook overrideHook2;
-        public int damageDealtSincePeriod = 0;
-        public ulong currentCombatDamage = 0;
-        public static ConfigEntry<ulong> maxComboConfigEntry;
-        public ulong maxCombo = 0;
-        public ulong maxRunCombo = 0;
+        public float damageDealtSincePeriod = 0;
+        public float currentCombatDamage = 0;
+        public static ConfigEntry<float> maxComboConfigEntry;
+        public float maxCombo = 0;
+        public float maxRunCombo = 0;
+
 
         public ulong currentComboKills = 0;
         public static ConfigEntry<ulong> maxKillComboConfigEntry;
@@ -34,7 +40,7 @@ namespace LookingGlass.DPSMeterStuff
         }
         public void Setup()
         {
-            maxComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Combo", 0, "What are you gonna do, cheat the number?");
+            maxComboConfigEntry = BasePlugin.instance.Config.Bind<float>("Stats", "Max Combo", 0, "What are you gonna do, cheat the number?");
             maxCombo = maxComboConfigEntry.Value;
             maxKillComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Kill Combo", 0, "What are you gonna do, cheat the number?");
             maxKillCombo = maxKillComboConfigEntry.Value;
@@ -44,16 +50,28 @@ namespace LookingGlass.DPSMeterStuff
             targetMethod = typeof(Run).GetMethod(nameof(Run.OnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             destMethod = typeof(DPSMeter).GetMethod(nameof(RunOnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);
+
+            targetMethod = typeof(Stage).GetMethod(nameof(Stage.PreStartClient), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            destMethod = typeof(DPSMeter).GetMethod(nameof(ResetOnStage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            overrideHook2 = new Hook(targetMethod, destMethod, this);
         }
 
         public void SetupRiskOfOptions()
         {
         }
+
+        void ResetOnStage(Action<Stage> orig, Stage self)
+        {
+            orig(self);
+            killsThisStage = 0;
+        }
+
         void RunOnEnable(Action<Run> orig, Run self)
         {
             orig(self);
             damageDealtSincePeriod = 0;
             maxRunCombo = 0;
+            killsThisRun = 0;
         }
         void TrackDamage(Action<DamageDealtMessage> orig, DamageDealtMessage damageDealtMessage)
         {
@@ -64,8 +82,8 @@ namespace LookingGlass.DPSMeterStuff
                 if (attacker == LocalUserManager.GetFirstLocalUser().cachedBody || (attacker.master.minionOwnership && attacker.master.minionOwnership.ownerMaster && attacker.master.minionOwnership.ownerMaster.GetBody() == LocalUserManager.GetFirstLocalUser().cachedBody))
                 {
                     ulong thing = (ulong)damageDealtMessage.damage;
-                    damageDealtSincePeriod += (int)thing;
-                    currentCombatDamage += thing;
+                    damageDealtSincePeriod += damageDealtMessage.damage;
+                    currentCombatDamage += damageDealtMessage.damage;
                     if (maxCombo < currentCombatDamage)
                     {
                         maxCombo = currentCombatDamage;
@@ -77,10 +95,16 @@ namespace LookingGlass.DPSMeterStuff
                     timer = DPS_MAX_TIME;
                     if (damageDealtMessage.victim)
                     {
-                        CharacterBody victim = damageDealtMessage.victim.GetComponent<CharacterBody>();
-                        if (victim && victim.healthComponent && (victim.healthComponent.combinedHealth + victim.healthComponent.barrier) - damageDealtMessage.damage <= 0)
+                        HealthComponent victim = damageDealtMessage.victim.GetComponent<HealthComponent>();
+
+                        //Like .alive can be a bit unreliable and count kills twice but like uhh
+                        //So is this weird other check
+                        //if (victim && (victim.combinedHealth + victim.barrier) - damageDealtMessage.damage <= 0)
+                        if (victim && !victim.alive)
                         {
                             currentComboKills++;
+                            killsThisRun++;
+                            killsThisStage++;
                             if (maxKillCombo < currentComboKills)
                             {
                                 maxKillCombo = currentComboKills;
@@ -91,14 +115,15 @@ namespace LookingGlass.DPSMeterStuff
                             }
                         }
                     }
-                    Run.instance.StartCoroutine(RemoveFromDamageDealtAfterSeconds(DPS_MAX_TIME, (int)thing));
+                    Run.instance.StartCoroutine(RemoveFromDamageDealtAfterSeconds(DPS_MAX_TIME, damageDealtMessage.damage));
                 }
             }
             catch (Exception)
             {
             }
         }
-        IEnumerator RemoveFromDamageDealtAfterSeconds(float time, int damage)
+        //Who the fuck made ALL DAMAGE int
+        IEnumerator RemoveFromDamageDealtAfterSeconds(float time, float damage)
         {
             yield return new WaitForSeconds(time);
             damageDealtSincePeriod -= damage;

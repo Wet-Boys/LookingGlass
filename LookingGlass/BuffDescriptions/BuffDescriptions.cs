@@ -26,16 +26,21 @@ namespace LookingGlass.BuffDescriptions
         }
         public void Setup()
         {
+            buffDescriptions = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Descriptions", true, "Gives descriptions to buffs (All vanilla by default, modded buffs need to be setup)");
+            buffDescriptionsFontSize = BasePlugin.instance.Config.Bind<float>("Buff Info", "Buff Font Size", 100f, "Changes the font size of buff descriptions");
+
             var targetMethod = typeof(BuffIcon).GetMethod(nameof(BuffIcon.UpdateIcon), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(BuffDescriptionsClass).GetMethod(nameof(BuffIconUpdateIcon), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-            targetMethod = typeof(Language).GetMethod(nameof(Language.LoadStrings), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+            //This runs too early to use RoR2Content.Buffs, they're not populated yet
+            /*targetMethod = typeof(Language).GetMethod(nameof(Language.LoadStrings), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             destMethod = typeof(BuffDescriptionsClass).GetMethod(nameof(LoadLanguages), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            overrideHook2 = new Hook(targetMethod, destMethod, this);
+            overrideHook2 = new Hook(targetMethod, destMethod, this);*/
 
-            buffDescriptions = BasePlugin.instance.Config.Bind<bool>("Buff Descriptions", "Buff Descriptions", true, "Gives descriptions to buffs (All vanilla by default, modded buffs need to be setup)");
-            buffDescriptionsFontSize = BasePlugin.instance.Config.Bind<float>("Buff Descriptions", "Buff Font Size", 100f, "Changes the font size of buff descriptions");
-
+            //BuffCatalog does not have availablity
+            //ItemCatalog is one of the soonest that runs after it
+            ItemCatalog.availability.CallWhenAvailable(BuffDefinitions.SetupEnglishDefs);
         }
 
         void LoadLanguages(Action<Language> orig, Language self)
@@ -65,33 +70,29 @@ namespace LookingGlass.BuffDescriptions
                 TooltipProvider toolTip = self.GetComponent<TooltipProvider>();
                 if (!toolTip)
                 {
+                    if (self.GetComponentInParent<Canvas>() == null)
+                    {
+                        //Issue with disabled Huds tht can go on forever
+                        return;
+                    }
                     if (!self.GetComponentInParent<Canvas>().gameObject.GetComponent<GraphicRaycaster>())
                     {
                         self.GetComponentInParent<Canvas>().gameObject.AddComponent<GraphicRaycaster>();
                     }
                     TooltipContent content = new TooltipContent();
-                    content.titleColor = Color.gray;
+                    //Use colors if not white, else gray because can be hard to read on white.
                     content.bodyColor = Color.blue;
                     content.disableTitleRichText = false;
                     content.disableBodyRichText = false;
                     toolTip = self.gameObject.AddComponent<TooltipProvider>();
 
-                    if (Language.currentLanguage.stringsByToken.ContainsKey($"LG_TOKEN_NAME_{self.buffDef.name}"))
-                    {
-                        string name = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
-                        string desc = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.name}");
-                        content.overrideTitleText = $"<size={buffDescriptionsFontSize.Value}%>{Language.GetString(name)}</size>";
-                        content.overrideBodyText = $"<size={buffDescriptionsFontSize.Value}%>{Language.GetString(desc)}";
-                    }
-                    else
-                    {
-                        content.overrideTitleText = self.buffDef.name;
-                    }
-
+                    //tooltip gets set here, so desc gets set both here and right afterwards which isnt needed
                     toolTip.SetContent(content);
                 }
                 if (toolTip)
                 {
+                    //Always update color
+                    toolTip.titleColor = self.buffDef.buffColor == Color.white ? Color.gray : self.buffDef.buffColor;
                     if (Language.currentLanguage.stringsByToken.ContainsKey($"LG_TOKEN_NAME_{self.buffDef.name}"))
                     {
                         string name = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
@@ -102,6 +103,7 @@ namespace LookingGlass.BuffDescriptions
                     else
                     {
                         toolTip.overrideTitleText = self.buffDef.name;
+                        toolTip.overrideBodyText = string.Empty;
                     }
                 }
             }

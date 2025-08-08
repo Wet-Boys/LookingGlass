@@ -1,20 +1,17 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.StatsDisplay;
 using MonoMod.RuntimeDetour;
+using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
-using RiskOfOptions;
 using RoR2;
+using RoR2.Stats;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using static RoR2.Chat;
 using System.Linq;
-using LookingGlass.StatsDisplay;
-using RoR2.Skills;
-using System.Security.Cryptography;
-using LookingGlass.ItemStatsNameSpace;
+using System.Text;
 using UnityEngine;
 
 namespace LookingGlass.ItemStatsNameSpace
@@ -40,10 +37,13 @@ namespace LookingGlass.ItemStatsNameSpace
         public void Setup()
         {
             InitHooks();
-            ItemDefinitions.RegisterAll();
+            ItemCatalog.availability.CallWhenAvailable(ItemDefinitions.RegisterAll);
             itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows full item descriptions on mouseover");
             itemStatsCalculations = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats Calculations", true, "Gives calculations for vanilla items and modded items which have added specific support. (Sadly, items are not designed in a way to allow this to be automatic)");
-            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", true, "Shows full item descriptions on pickup");
+
+            //Not a big fan, sometimes too much text to read at once.
+            //Some items have pickup as flavor text and just check with tab if you need the full v
+            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", false, "Shows full item descriptions on pickup");
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world");
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
             capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, "Caps displayed chances at 100%. May interact weirdly with luck if turned off");
@@ -52,10 +52,12 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
+            //Config that people are likelier to turn off should be higher up in Risk Menu
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
+
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
             ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
             ModSettingsManager.AddOption(new CheckBoxOption(capChancePercentage, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(abilityProcCoefficients, new CheckBoxConfig() { restartRequired = false }));
@@ -84,32 +86,44 @@ namespace LookingGlass.ItemStatsNameSpace
             targetMethod = typeof(RoR2.UI.SkillIcon).GetMethod(nameof(RoR2.UI.SkillIcon.Update), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             destMethod = typeof(ItemStats).GetMethod(nameof(SkillUpdate), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook4 = new Hook(targetMethod, destMethod, this);
+
+            //Add Cooldown & ProcCoeff to Loadout on Character Select
+            //Would need an IL  do i do that 
+
         }
+
+
 
         internal void EquipText(EquipmentIcon self)
         {
-            CharacterBody body = StatsDisplayClass.cachedUserBody;
             // Multiplayer compatibility
-            if (self.targetInventory)
+            if (self.targetInventory && self.tooltipProvider && self.currentDisplayData.equipmentDef)
             {
+                //Why did it do Master -> Body -> Inventory just do -> Inventory
                 CharacterMaster master = self.targetInventory.GetComponentInParent<CharacterMaster>();
-                if (master && master.GetBody())
+
+                //Show if perma up time?
+                //Show if perma up time WarHorn?
+                //Show up time as %?
+
+                float cooldownScale = master.inventory.CalculateEquipmentCooldownScale();
+                StringBuilder desc = new StringBuilder(Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken));
+
+                String currentCooldownFormatted = (self.currentDisplayData.equipmentDef.cooldown * cooldownScale).ToString(StatsDisplayDefinitions.floatPrecision);
+                desc.Append($"\n\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted}s</style>");
+                if (cooldownScale != 1)
                 {
-                    // Use master body if exists
-                    body = master.GetBody();
+                    String cooldownReductionFormatted = ((1 - cooldownScale) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
+                    desc.Append(
+                    $" <style=\"cStack\">(Base: " + self.currentDisplayData.equipmentDef.cooldown + ")</style>" +
+                    $"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>"
+                    );
                 }
+                desc.Append(GetEquipmentExtras(master, self.currentDisplayData.equipmentDef.equipmentIndex));
+
+                self.tooltipProvider.overrideBodyText = desc.ToString();
             }
-#pragma warning disable Publicizer001 // Accessing a member that was not originally public
-            if (self.tooltipProvider && self.currentDisplayData.equipmentDef && body && body.inventory)
-            {
-                String cooldownReductionFormatted = ((1 - body.inventory.CalculateEquipmentCooldownScale()) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
-                String currentCooldownFormatted = (self.currentDisplayData.equipmentDef.cooldown * body.inventory.CalculateEquipmentCooldownScale()).ToString(StatsDisplayDefinitions.floatPrecision);
-                
-                self.tooltipProvider.overrideBodyText = $"{Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken)}" +
-                    $"\n\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>" +
-                    $"\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted} seconds</style>";
-            }
-#pragma warning restore Publicizer001 // Accessing a member that was not originally public
+
         }
         void PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
         {
@@ -135,7 +149,7 @@ namespace LookingGlass.ItemStatsNameSpace
             orig(self, newItemIndex, newItemCount);
             if (itemStats.Value)
             {
-                SetDescription(self, newItemIndex, newItemCount);
+                SetItemDescription(self, newItemIndex, newItemCount);
             }
         }
         void SkillUpdate(Action<SkillIcon> orig, SkillIcon self)
@@ -151,44 +165,102 @@ namespace LookingGlass.ItemStatsNameSpace
 
             if (abilityProcCoefficients.Value)
             {
+                //Why was there a "In Proc Dict" check for this?
+                //Maybe could do if cooldown == 0 then dont show but it's fine
+                desc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(self).ToString("0.00") + "s</style>");
+
+                if (self.targetSkill.finalRechargeInterval != self.targetSkill.skillDef.baseRechargeInterval)
+                {
+                    //If final recharge differs from base, show base spereately?
+                    String cooldownReductionFormatted = ((1 - (self.targetSkill.finalRechargeInterval / self.targetSkill.skillDef.baseRechargeInterval)) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
+                    //String itemBasedCDRFormatted = ((1 - self.targetSkill.cooldownScale) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
+
+                    desc.Append(" <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
+                    desc.Append($"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>");
+                }
+                /*if (self.targetSkill.cooldownScale != 1)
+                {
+                    //CDR would be affected by Purity and some other junk so ig not like this
+                }*/
+
+
+                bool blacklistedSkill = false;
                 if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
                 {
-                    desc.Append("\nProc Coefficient: <color=#a6b3bd>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) + "</color>");
-                    desc.Append("\nSkill Cooldown: <style=\"cIsDamage\">" + CalculateSkillCooldown(self).ToString("0.00") + "</style> <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
-                }
-
-
-                if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
-                    desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.00")).Append("</style>");
-
-
-
-                CharacterBody body = self.targetSkill.characterBody;
-
-                int itemCount = 0;
-                ItemStatsDef itemStats;
-                foreach (var item in ItemCatalog.allItemDefs)
-                {
-                    if (ItemDefinitions.allItemDefinitions.ContainsKey((int)item.itemIndex))
+                    blacklistedSkill = ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) == -1;
+                    //This way we could blacklist procs on most movement skills.
+                    //So it doesn't say like "10% ATG" on Mando Slide
+                    if (!blacklistedSkill)
                     {
-                        itemCount = body.inventory.GetItemCount(item.itemIndex);
+                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken).ToString("0.0##") + "</color>");
+                    }
+                    //If -1, show nothing
+                    //If 0, show that it has 0 Proc Coeff for clarity
+                    //But don't show like "0 % chance to trigger all the items"
+                    blacklistedSkill = blacklistedSkill || ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) == 0;
+                }
+                if (ProcCoefficientData.hasExtra(self.targetSkill.skillNameToken))
+                {
+                    //Extra info like Corrupted/Boosted proc and Ticks
+                    desc.Append(ProcCoefficientData.GetExtraInfo(self.targetSkill.skillNameToken));
+                }
+                /*else if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                {
+                    desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.0")).Append("</style>");
+                }*/
+
+                if (!blacklistedSkill)
+                {
+                    CharacterBody body = self.targetSkill.characterBody;
+
+                    int itemCount = 0;
+                    ItemStatsDef itemStats;
+
+                    //Dont check AllItemDefs and if inDict
+                    //Just use the Dict, so it's also nicely sorted by tier.
+                    foreach (var keypairValue in ItemDefinitions.allItemDefinitions)
+                    {
+                        itemCount = body.inventory.GetItemCount((ItemIndex)keypairValue.Key);
                         if (itemCount > 0)
                         {
-                            itemStats = ItemDefinitions.allItemDefinitions[(int)item.itemIndex];
-                            if (itemStats.hasChance)
+                            itemStats = keypairValue.Value;
+                            if (itemStats.hasChance) //hasProc
                             {
-                                desc.Append("\n").Append(Language.GetString(item.nameToken)).Append(": <style=cIsDamage>");
+                                bool healing = itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Health;
+                                desc.Append("\n  ").Append(Language.GetString(ItemCatalog.GetItemDef((ItemIndex)keypairValue.Key).nameToken));
+                                desc.Append(healing ? ": <style=cIsHealing>" : ": <style=cIsDamage>");
 
-                                desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
+                                if (healing)
+                                {
+                                    //IDK BetterUI showed this and like behemoth ig?
+                                    desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]).ToString("0.#")).Append(" HP</style>");
+                                }
+                                else
+                                {
+                                    desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.#")).Append("%</style>");
+                                }
 
+
+                                //Math Ceil leads to 201 lost seers, 26 runic
+                                //No math leads to 9 on tri tip
+                                //What is this bro
+                                //Thank you UnityEngine.Mathf for actually working
                                 if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
                                 {
                                     desc.Append(" <style=cStack>(");
-                                    desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                    desc.Append(Mathf.CeilToInt(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                    desc.Append(" to cap)</style>");
+                                }
+                                else if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.RunicLens)
+                                {
+                                    //Most ideally would calculated the chance with the min damage of the skill and add it to the chance or whatever
+                                    //But that's not really possible
+                                    desc.Append(" <style=cStack>(");
+                                    desc.Append(Mathf.CeilToInt(0.75f / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
                                     desc.Append(" to cap)</style>");
                                 }
 
-                                if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                                /*if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
                                 {
                                     // TODO align this text to the one above
                                     desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
@@ -199,11 +271,11 @@ namespace LookingGlass.ItemStatsNameSpace
                                         desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
                                         desc.Append(" to cap)</style>");
                                     }
-                                }
+                                }*/
                             }
                         }
-                    }
 
+                    }
                 }
             }
             self.tooltipProvider.overrideBodyText = desc.ToString();
@@ -214,17 +286,22 @@ namespace LookingGlass.ItemStatsNameSpace
             if (self.targetSkill.skillDef.baseRechargeInterval < 0.5f)
                 return self.targetSkill.skillDef.baseRechargeInterval;
 
+            //Post-SotS AttackSpeedCDR skills bypass the 0.5f cooldown cap
+            //By modifying the .baseRechargeInterval
+            if (self.targetSkill.baseRechargeInterval < 0.5f)
+                return self.targetSkill.baseRechargeInterval;
+
             float calculated_skill_cooldown = self.targetSkill.baseRechargeInterval * self.targetSkill.cooldownScale - self.targetSkill.flatCooldownReduction;
 
             if (calculated_skill_cooldown < 0.5f)
                 calculated_skill_cooldown = 0.5f;
 
             return calculated_skill_cooldown;
-
         }
+
         List<ItemDef> cachedItems = new List<ItemDef>();
 
-        internal static void SetDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
+        internal static void SetItemDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
         {
             var itemDef = ItemCatalog.GetItemDef(newItemIndex);
             if (itemDef.nameToken == "ITEM_MYSTICSITEMS_MANUSCRIPT_NAME")
@@ -238,10 +315,10 @@ namespace LookingGlass.ItemStatsNameSpace
                 {
                     master = strip.master;
                 }
-                self.tooltipProvider.overrideBodyText = GetDescription(itemDef, newItemIndex, newItemCount, master, false);
+                self.tooltipProvider.overrideBodyText = GetItemDescription(itemDef, newItemIndex, newItemCount, master, false);
             }
         }
-        public static string GetDescription(
+        public static string GetItemDescription(
             ItemDef itemDef, ItemIndex newItemIndex, int newItemCount, CharacterMaster master, bool withOneMore, bool forceNew = false)
         {
             if (Language.GetString(itemDef.descriptionToken) == itemDef.descriptionToken)
@@ -253,8 +330,8 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 if (itemStatsCalculations.Value && ItemDefinitions.allItemDefinitions.ContainsKey((int)newItemIndex))
                 {
-                    ItemStatsDef itemStats = ItemDefinitions.allItemDefinitions[(int)newItemIndex];
-                    if (withOneMore && itemStats.descriptions.Count != 0)
+                    ItemStatsDef statsDef = ItemDefinitions.allItemDefinitions[(int)newItemIndex];
+                    if (withOneMore && statsDef.descriptions.Count != 0)
                     {
                         if (newItemCount == 0 || forceNew)
                         {
@@ -276,105 +353,17 @@ namespace LookingGlass.ItemStatsNameSpace
                         luck = master.luck;
                     }
                     List<float> values;
-                    if (itemStats.calculateValues == null)
+                    if (statsDef.calculateValues == null)
                     {
-                        values = itemStats.calculateValuesNew(luck, newItemCount, 1f);
+                        values = statsDef.calculateValuesNew(luck, newItemCount, 1f);
                     }
                     else
                     {
-                        values = itemStats.calculateValues(master, newItemCount);
+                        values = statsDef.calculateValues(master, newItemCount);
                     }
                     if (values is not null)
                     {
-                        for (int i = 0; i < itemStats.descriptions.Count; i++)
-                        {
-                            itemDescription += $"\n<color=\"white\">{itemStats.descriptions[i]}</color>";
-                            switch (itemStats.valueTypes[i])
-                            {
-                                case ItemStatsDef.ValueType.Healing:
-                                    itemDescription += "<style=\"cIsHealing";
-                                    break;
-                                case ItemStatsDef.ValueType.Damage:
-                                    itemDescription += "<style=\"cIsDamage";
-                                    break;
-                                case ItemStatsDef.ValueType.Utility:
-                                    itemDescription += "<style=\"cIsUtility";
-                                    break;
-                                case ItemStatsDef.ValueType.Health:
-                                    itemDescription += "<style=\"cIsHealth";
-                                    break;
-                                case ItemStatsDef.ValueType.Void:
-                                    itemDescription += "<style=\"cIsVoid";
-                                    break;
-                                case ItemStatsDef.ValueType.Gold:
-                                case ItemStatsDef.ValueType.HumanObjective:
-                                    itemDescription += "<style=\"cHumanObjective";
-                                    break;
-                                case ItemStatsDef.ValueType.LunarObjective:
-                                    itemDescription += "<style=\"cLunarObjective";
-                                    break;
-                                case ItemStatsDef.ValueType.Stack:
-                                    itemDescription += "<style=\"cStack";
-                                    break;
-                                case ItemStatsDef.ValueType.WorldEvent:
-                                    itemDescription += "<style=\"cWorldEvent";
-                                    break;
-                                case ItemStatsDef.ValueType.Artifact:
-                                    itemDescription += "<style=\"cArtifact";
-                                    break;
-                                case ItemStatsDef.ValueType.UserSetting:
-                                    itemDescription += "<style=\"cUserSetting";
-                                    break;
-                                case ItemStatsDef.ValueType.Death:
-                                    itemDescription += "<style=\"cDeath";
-                                    break;
-                                case ItemStatsDef.ValueType.Sub:
-                                    itemDescription += "<style=\"cSub";
-                                    break;
-                                case ItemStatsDef.ValueType.Mono:
-                                    itemDescription += "<style=\"cMono";
-                                    break;
-                                case ItemStatsDef.ValueType.Shrine:
-                                    itemDescription += "<style=\"cShrine";
-                                    break;
-                                case ItemStatsDef.ValueType.Armor:
-                                case ItemStatsDef.ValueType.Event:
-                                    itemDescription += "<style=\"cEvent";
-                                    break;
-                                    //case ItemStatsDef.ValueType.Other:
-                                    //    itemDescription += "<color=\"white";
-                                    //    break;
-                            }
-                            switch (itemStats.measurementUnits[i])
-                            {
-                                case ItemStatsDef.MeasurementUnits.Meters:
-                                    itemDescription += $"\">{values[i]:0.###}m</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.Percentage:
-                                    itemDescription += $"\">{values[i] * 100:0.###}%</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.FlatHealth:
-                                    itemDescription += $"\">{values[i]:0.###} HP</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.PercentHealth:
-                                    itemDescription += $"\">{values[i] * 100:0.###}% HP</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.FlatHealing:
-                                    itemDescription += $"\">{values[i]:0.###} HP/s</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.PercentHealing:
-                                    itemDescription += $"\">{values[i] * 100:0.###}% HP/s</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.Number:
-                                    itemDescription += $"\">{values[i]:0.###}</style>";
-                                    break;
-                                case ItemStatsDef.MeasurementUnits.Seconds:
-                                    itemDescription += $"\">{values[i]:0.###} seconds</style>";
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
+                        GetItemStatsFormatted(ref statsDef, ref values, ref itemDescription, true);
                     }
                 }
             }
@@ -383,6 +372,211 @@ namespace LookingGlass.ItemStatsNameSpace
             }
             itemDescription += "</size>";
             return itemDescription;
+        }
+
+
+        public static void GetStyled(string input, ItemStatsDef.ValueType color)
+        {
+            switch (color)
+            {
+                case ItemStatsDef.ValueType.Healing:
+                case ItemStatsDef.ValueType.Armor:
+                    input = "<style=\"cIsHealing" + input;
+                    break;
+                case ItemStatsDef.ValueType.Damage:
+                    input = "<style=\"cIsDamage" + input;
+                    break;
+                case ItemStatsDef.ValueType.Utility:
+                    input = "<style=\"cIsUtility" + input;
+                    break;
+                case ItemStatsDef.ValueType.Health:
+                    input += "<style=\"cIsHealth" + input;
+                    break;
+                case ItemStatsDef.ValueType.Void:
+                    input += "<style=\"cIsVoid" + input;
+                    break;
+                case ItemStatsDef.ValueType.Gold:
+                case ItemStatsDef.ValueType.HumanObjective:
+                    input = "<style=\"cHumanObjective" + input;
+                    break;
+                case ItemStatsDef.ValueType.LunarObjective:
+                    input = "<style=\"cLunarObjective" + input;
+                    break;
+                case ItemStatsDef.ValueType.Stack:
+                    input = "<style=\"cStack" + input;
+                    break;
+                case ItemStatsDef.ValueType.WorldEvent:
+                    input = "<style=\"cWorldEvent" + input;
+                    break;
+                case ItemStatsDef.ValueType.Artifact:
+                    input = "<style=\"cArtifact" + input;
+                    break;
+                case ItemStatsDef.ValueType.UserSetting:
+                    input = "<style=\"cUserSetting" + input;
+                    break;
+                case ItemStatsDef.ValueType.Death:
+                    input = "<style=\"cDeath" + input;
+                    break;
+                case ItemStatsDef.ValueType.Sub:
+                    input = "<style=\"cSub" + input;
+                    break;
+                case ItemStatsDef.ValueType.Mono:
+                    input = "<style=\"cMono" + input;
+                    break;
+                case ItemStatsDef.ValueType.Shrine:
+                    input = "<style=\"cShrine" + input;
+                    break;
+                case ItemStatsDef.ValueType.Event:
+                    input = "<style=\"cEvent" + input;
+                    break;
+            }
+            input += "</style>";
+        }
+
+        //What does ref do pls help
+        public static void GetItemStatsFormatted(ref ItemStatsDef statsDef, ref List<float> values, ref string input, bool white)
+        {
+            for (int i = 0; i < statsDef.descriptions.Count; i++)
+            {
+                if (white)
+                {
+                    input += $"\n<color=\"white\">{statsDef.descriptions[i]}</color>";
+                }
+                else
+                {
+                    input += $"\n{statsDef.descriptions[i]}";
+                }
+                switch (statsDef.valueTypes[i])
+                {
+                    case ItemStatsDef.ValueType.Healing:
+                    case ItemStatsDef.ValueType.Armor:
+                        input += "<style=\"cIsHealing";
+                        break;
+                    case ItemStatsDef.ValueType.Damage:
+                        input += "<style=\"cIsDamage";
+                        break;
+                    case ItemStatsDef.ValueType.Utility:
+                        input += "<style=\"cIsUtility";
+                        break;
+                    case ItemStatsDef.ValueType.Health:
+                        input += "<style=\"cIsHealth";
+                        break;
+                    case ItemStatsDef.ValueType.Void:
+                        input += "<style=\"cIsVoid";
+                        break;
+                    case ItemStatsDef.ValueType.Gold:
+                    case ItemStatsDef.ValueType.HumanObjective:
+                        input += "<style=\"cHumanObjective";
+                        break;
+                    case ItemStatsDef.ValueType.LunarObjective:
+                        input += "<style=\"cLunarObjective";
+                        break;
+                    case ItemStatsDef.ValueType.Stack:
+                        input += "<style=\"cStack";
+                        break;
+                    case ItemStatsDef.ValueType.WorldEvent:
+                        input += "<style=\"cWorldEvent";
+                        break;
+                    case ItemStatsDef.ValueType.Artifact:
+                        input += "<style=\"cArtifact";
+                        break;
+                    case ItemStatsDef.ValueType.UserSetting:
+                        input += "<style=\"cUserSetting";
+                        break;
+                    case ItemStatsDef.ValueType.Death:
+                        input += "<style=\"cDeath";
+                        break;
+                    case ItemStatsDef.ValueType.Sub:
+                        input += "<style=\"cSub";
+                        break;
+                    case ItemStatsDef.ValueType.Mono:
+                        input += "<style=\"cMono";
+                        break;
+                    case ItemStatsDef.ValueType.Shrine:
+                        input += "<style=\"cShrine";
+                        break;
+                    case ItemStatsDef.ValueType.Event:
+                        input += "<style=\"cEvent";
+                        break;
+                        //case ItemStatsDef.ValueType.Other:
+                        //    itemDescription += "<color=\"white";
+                        //    break;
+                }
+                switch (statsDef.measurementUnits[i])
+                {
+                    case ItemStatsDef.MeasurementUnits.Meters:
+                        input += $"\">{values[i]:0.###}m</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.Percentage:
+                        input += $"\">{values[i] * 100:0.###}%</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.FlatHealth:
+                        input += $"\">{values[i]:0.###} HP</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.PercentHealth:
+                        input += $"\">{values[i] * 100:0.###}% HP</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.FlatHealing:
+                        input += $"\">{values[i]:0.###} HP/s</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.PercentHealing:
+                        input += $"\">{values[i] * 100:0.###}% HP/s</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.Number:
+                        input += $"\">{values[i]:0.###}</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.ProcCoeff:
+                        input += $"\">{values[i]:0.0##}</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.Money:
+                        input += $"\">{values[i]:0.#}$</style>";
+                        break;
+                    case ItemStatsDef.MeasurementUnits.Seconds:
+                        input += $"\">{values[i]:0.###} seconds</style>";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public static string GetEquipmentExtras(CharacterMaster master, EquipmentIndex equipmentIndex)
+        {
+            //Put the formatting values in it's own method, hopefully it doesn't create issues.
+            string equipmentExtraInfo = string.Empty;
+            try
+            {
+                if (itemStatsCalculations.Value && ItemDefinitions.allEquipmentDefinitions.ContainsKey((int)equipmentIndex))
+                {
+                    ItemStatsDef statsDef = ItemDefinitions.allEquipmentDefinitions[(int)equipmentIndex];
+                    List<float> values;
+                    if (master == null)
+                    {
+                        master = LocalUserManager.GetFirstLocalUser().cachedMaster;
+                    }
+                    float luck = 0f;
+                    if (master != null)
+                    {
+                        luck = master.luck;
+                    }
+                    if (statsDef.calculateValues == null)
+                    {
+                        values = statsDef.calculateValuesNew(luck, 1, 1f);
+                    }
+                    else
+                    {
+                        values = statsDef.calculateValues(master, 1);
+                    }
+                    if (values is not null)
+                    {
+                        GetItemStatsFormatted(ref statsDef, ref values, ref equipmentExtraInfo, false);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+            return equipmentExtraInfo;
         }
 
 
@@ -415,7 +609,8 @@ namespace LookingGlass.ItemStatsNameSpace
                 {
                     if (characterMaster)
                     {
-                        PushItemNotificationDuration(characterMaster, itemDef.itemIndex);
+                        //Shorter duration for pinging?
+                        PushItemNotificationDuration(characterMaster, itemDef.itemIndex, 5f);
                     }
                 }
                 else
@@ -425,13 +620,13 @@ namespace LookingGlass.ItemStatsNameSpace
                     {
                         if (characterMaster)
                         {
-                            PushEquipmentNotificationDuration(characterMaster, equipmentDef.equipmentIndex);
+                            PushEquipmentNotificationDuration(characterMaster, equipmentDef.equipmentIndex, 5f);
                         }
                     }
                 }
             }
         }
-        internal void PushItemNotificationDuration(CharacterMaster characterMaster, ItemIndex itemIndex)
+        internal void PushItemNotificationDuration(CharacterMaster characterMaster, ItemIndex itemIndex, float duration)
         {
             if (!characterMaster.hasAuthority)
             {
@@ -446,12 +641,12 @@ namespace LookingGlass.ItemStatsNameSpace
                 {
                     return;
                 }
-                notificationQueueForMaster.PushNotification(new CharacterMasterNotificationQueue.NotificationInfo(ItemCatalog.GetItemDef(itemIndex), null), 6f);
+                notificationQueueForMaster.PushNotification(new CharacterMasterNotificationQueue.NotificationInfo(ItemCatalog.GetItemDef(itemIndex), null), duration);
                 PutLastNotificationFirst(notificationQueueForMaster);
             }
         }
 
-        internal void PushEquipmentNotificationDuration(CharacterMaster characterMaster, EquipmentIndex equipmentIndex)
+        internal void PushEquipmentNotificationDuration(CharacterMaster characterMaster, EquipmentIndex equipmentIndex, float duration)
         {
             if (!characterMaster.hasAuthority)
             {
@@ -461,7 +656,7 @@ namespace LookingGlass.ItemStatsNameSpace
             CharacterMasterNotificationQueue notificationQueueForMaster = CharacterMasterNotificationQueue.GetNotificationQueueForMaster(characterMaster);
             if (notificationQueueForMaster && equipmentIndex != EquipmentIndex.None)
             {
-                notificationQueueForMaster.PushNotification(new CharacterMasterNotificationQueue.NotificationInfo(EquipmentCatalog.GetEquipmentDef(equipmentIndex), null), 6f);
+                notificationQueueForMaster.PushNotification(new CharacterMasterNotificationQueue.NotificationInfo(EquipmentCatalog.GetEquipmentDef(equipmentIndex), null), duration);
                 PutLastNotificationFirst(notificationQueueForMaster);
             }
         }

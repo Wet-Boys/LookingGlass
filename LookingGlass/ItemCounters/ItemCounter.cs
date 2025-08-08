@@ -17,6 +17,7 @@ namespace LookingGlass.ItemCounters
     internal class ItemCounter : BaseThing //https://github.com/MCMrARM/ror2-mods pretty good reference material for this
     {
         public static ConfigEntry<bool> itemCounters;
+        public static ConfigEntry<float> itemCountersSize;
         private static Hook overrideHook;
         private static Hook overrideHook2;
 
@@ -68,15 +69,27 @@ namespace LookingGlass.ItemCounters
             int voidBossCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.VoidBoss);
             int totalItemCount = whiteCount + greenCount + redCount + lunarCount + bossCount + voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount;
 
+            //Made TotalItems larger
+            //Removed the [] because it just kinda misaligned it
+            //Made it resize so it doesn't get shrunk into ... with very large amounts of items.
+            //But also keeps it larger at low item counts for readability.
+
+            itemCountText.fontSizeMax = 28; //Kinda breaks if above, but keeps it in line
+            //Tho clips a bit
+            //Doubt other huds would change anything about the spacing but might be worth checking
+            itemCountText.enableAutoSizing = true;
             StringBuilder sb = new StringBuilder();
-            sb.Append($"<size={itemCountText.fontSize * .6f}><color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
+            sb.Append($"<size=60%>");
+            sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier2Item)}>{greenCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier3Item)}>{redCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.BossItem)}>{bossCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.LunarItem)}>{lunarCount}</color> ");
             sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.VoidItem)}>{voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount}</color> ");
-            sb.Append($"<color=#fff>[{totalItemCount}]</color></size>");
+            sb.Append($"</size><size=75%><color=#fff>{totalItemCount}</color>");
+            //Total item should be a little bigger?
             itemCountText.text = sb.ToString();
+            
         }
     }
 }

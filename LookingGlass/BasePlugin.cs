@@ -38,6 +38,7 @@ namespace LookingGlass
         internal ModifyCommandWindow resizeCommandWindowClass;
         internal StatsDisplayClass statsDisplayClass;
         internal DPSMeter dpsMeter;
+        internal PortalTracker portalTracking;
         internal ItemCounter itemCounter;
         internal BuffTimersClass buffTimers;
         internal CooldownFixer equipFixer;
@@ -73,24 +74,25 @@ namespace LookingGlass
             }
 
 
+            statsDisplayClass = new StatsDisplayClass(); //More important config to have in first slot?
             autoSortItems = new AutoSortItemsClass();
+
+            itemStats = new ItemStats();
+
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();
             hidePickupNotifications = new HidePickupNotifications();
             commandItemCountClass = new CommandItemCountClass();
             resizeCommandWindowClass = new ModifyCommandWindow();
-            statsDisplayClass = new StatsDisplayClass();
+            itemCounter = new ItemCounter();
             buffTimers = new BuffTimersClass();
             dpsMeter = new DPSMeter();
-            itemCounter = new ItemCounter();
+            portalTracking = new PortalTracker();
             equipFixer = new CooldownFixer();
             unHiddenItems = new UnHiddenItems();
             buffDescriptions = new BuffDescriptionsClass();
             pickupNotifDurationClass = new PickupNotifDurationClass();
-            ItemCatalog.availability.CallWhenAvailable(() =>
-            {
-                itemStats = new ItemStats();
-            });
+
         }
 
         private void Update()
