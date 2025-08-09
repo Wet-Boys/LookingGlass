@@ -11,7 +11,7 @@ namespace LookingGlass.StatsDisplay
     internal class StatsDisplayDefinitions
     {
         internal static string floatPrecision;
-        
+
         // these delegates are called on a seperate thread, so using most of unity api is illegal here
         internal static void SetupDefs()
         {
@@ -27,7 +27,8 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Clear();
 
             #region Damage Related
-            //StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.baseDamage).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("lvl1_damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.baseDamage).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"{damageString}{(cachedUserBody.attackSpeed).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("attackSpeedPercent", cachedUserBody => { return $"{damageString}{((cachedUserBody.attackSpeed / cachedUserBody.baseAttackSpeed) * 100).ToString(floatPrecision)}%{styleString}"; });
@@ -49,7 +50,7 @@ namespace LookingGlass.StatsDisplay
 
             StatsDisplayClass.statDictionary.Add("bleedChanceWithSpleen", cachedUserBody =>
             {
-                float bleedChanceWithLuck = (Utils.CalculateChanceWithLuck(cachedUserBody.crit / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * Utils.CalculateChanceWithLuck(cachedUserBody.bleedChance / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) )  * 100f;
+                float bleedChanceWithLuck = (Utils.CalculateChanceWithLuck(cachedUserBody.crit / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody)) * Utils.CalculateChanceWithLuck(cachedUserBody.bleedChance / 100f, Utils.GetLuckFromCachedUserBody(cachedUserBody))) * 100f;
                 return $"{damageString}{bleedChanceWithLuck.ToString(floatPrecision)}%{styleString}";
             });
 
@@ -58,9 +59,11 @@ namespace LookingGlass.StatsDisplay
 
             StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"{healingString}{(cachedUserBody.armor).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"{healingString}{(100 - (100 * (100 / (100 + cachedUserBody.armor)))).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("lvl1_regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseRegen).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("regenHp", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)} hp/s{styleString}"; });
 
+            StatsDisplayClass.statDictionary.Add("lvl1_maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseMaxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxShield", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxShield)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxBarrier", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxBarrier)}{styleString}"; });
@@ -72,7 +75,7 @@ namespace LookingGlass.StatsDisplay
                 {
                     return $"{healingString}N/A{styleString}";
                 }
-                return $"{healingString}{( (cachedUserBody.healthComponent.combinedHealth)/(100f / (100f + cachedUserBody.armor))).ToString(floatPrecision)}{styleString}";
+                return $"{healingString}{((cachedUserBody.healthComponent.combinedHealth) / (100f / (100f + cachedUserBody.armor))).ToString(floatPrecision)}{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("effectiveMaxHealth", cachedUserBody => {
                 if (!cachedUserBody.healthComponent)
@@ -102,8 +105,8 @@ namespace LookingGlass.StatsDisplay
                 //But that is very minimal to be frank
                 return $"{healingString}{(cachedUserBody.oneShotProtectionFraction * cachedUserBody.healthComponent.fullCombinedHealth - cachedUserBody.healthComponent.missingCombinedHealth) > 0}{styleString}";
             });
- 
-            //Curse Penalty is a technical stat so not really usevul v
+
+            //Curse Penalty is a technical stat so not really usefull v
             StatsDisplayClass.statDictionary.Add("cursePenalty", cachedUserBody => { return $"{utilityString}{(cachedUserBody.cursePenalty).ToString(floatPrecision)}{styleString}"; });
             //Curse HP Reduction as %
             StatsDisplayClass.statDictionary.Add("curseHealthReduction", cachedUserBody =>
@@ -141,7 +144,7 @@ namespace LookingGlass.StatsDisplay
             });
 
             #endregion
-           
+
             #region Utility Related
             StatsDisplayClass.statDictionary.Add("luck", cachedUserBody => {
                 return $"{utilityString}{Utils.GetLuckFromCachedUserBody(cachedUserBody).ToString(floatPrecision)}{styleString}";
@@ -170,7 +173,7 @@ namespace LookingGlass.StatsDisplay
 
 
 
-            
+
             #region Portal / Teleporter Stuff
             StatsDisplayClass.statDictionary.Add("mountainShrines", cachedUserBody => { return $"{utilityString}{((TeleporterInteraction.instance is not null ? TeleporterInteraction.instance.shrineBonusStacks : "N/A"))}{styleString}"; });
 
@@ -180,6 +183,8 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("voidPortal", cachedUserBody => { return $"{voidString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking._voidPortal.ToString() : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("greenPortal", cachedUserBody => { return $"{healingString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking._greenPortal.ToString() : "N/A")}{styleString}"; });
 
+            StatsDisplayClass.statDictionary.Add("portals", cachedUserBody => BasePlugin.instance.portalTracking.ReturnAllAvailablePortals());
+ 
             #endregion
 
             #region DPS, Combo, Kills

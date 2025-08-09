@@ -63,6 +63,49 @@ namespace LookingGlass
         {
         }
 
+        public string ReturnAllAvailablePortals()
+        {
+            if (!TeleporterInteraction.instance)
+            {
+                return "<style=cStack>None</style>";
+            }
+            else
+            {
+                string ActivePortals = string.Empty;
+                int portals = 0;
+                if (shopPortal)
+                {
+                    portals++;
+                    ActivePortals += "<style=cIsUtility>Bazaar </style>";
+                }
+                if (goldPortal)
+                {
+                    portals++;
+                    ActivePortals += "<style=cIsDamage>Gold </style>";
+                }
+                if (_greenPortal)
+                {
+                    portals++;
+                    ActivePortals += "<style=cIsHealing>Storm </style>";
+                }
+                if (_voidPortal)
+                {
+                    portals++;
+                    ActivePortals += "<style=cIsVoid>Void </style>";
+                }
+                if (msPortal)
+                {
+                    portals++;
+                    ActivePortals += "<style=cLunarObjective>Celestial </style>";
+                }
+                if (portals == 0)
+                {
+                    return "<style=cStack>None</style>";
+                }
+                return $"<size={(int)(7f/(7f+portals)*100f)}%>{ActivePortals}</size>";
+            }
+        }
+
         void TrackPortalSpawner(Action<PortalSpawner, bool> orig, PortalSpawner self, bool newValue)
         {
             //Track DLC Teleporter Portals
