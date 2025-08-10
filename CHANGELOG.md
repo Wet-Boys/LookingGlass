@@ -1,10 +1,14 @@
 ### 1.13.1
+Fixed Command sorting being locked behind "Potential & Fragment" sorting.\
+Fixed Command sorting not using the command settings.\
 Fixed [baseDamage] stat being gone.\
 -The >1 year old configs should update to the new one automatically now.\
--Now just shows [damage] instead of showing level 1 damage.
+-Now just shows [damage] instead of showing level 1 damage, as that is generally not helpful.
 
-Added [portals] stat to show all portals.
-Added [lvl1_damage] & [lvl1_maxHealth] stats just in case, for those that need it.\
+
+Added [portals] stat to show all portals.\
+Added [lvl1_damage] & [lvl1_maxHealth] stats just in case, for those that need it.
+
 
 ### 1.13.0
 Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they recieved.\

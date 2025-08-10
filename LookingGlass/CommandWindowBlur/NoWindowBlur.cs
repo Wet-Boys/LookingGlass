@@ -25,7 +25,8 @@ namespace LookingGlass.CommandWindowBlur
         }
         public void Setup()
         {
-            disable = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Disable Command Window Blur", true, "Disable the background blur effect from the command window");
+            //Removing blur makes it look kinda funky
+            disable = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Disable Command Window Blur", false, "Disable the background blur effect from the command window");
             InitHooks();
             SetupRiskOfOptions();
         }

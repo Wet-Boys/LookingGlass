@@ -32,7 +32,7 @@ A fully open source UI mod, compatible with RiskUI
 
 ## Command Window Tweaks
 
-- Various tweaks to the command window, such as resizing, removing the blur, and adding item counters to your existing items.
+- Various tweaks to the command window, such as resizing, option to remove the blur, and adding item counters to your existing items.
 
 ![Command Window Tweaks](https://i.imgur.com/5buYHlv.png)
 

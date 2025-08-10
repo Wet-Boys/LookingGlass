@@ -104,10 +104,13 @@ namespace LookingGlass.CommandItemCount
             }
 
             bool potentialOrFragment = false;
+            bool command = false;
             if (self.pickerController)
             {
+                command = self.pickerController.name.StartsWith("CommandCube");
                 potentialOrFragment = self.pickerController.GetComponent<PickupIndexNetworker>(); //Good enough
                 //Both Fragments and Potentials would have a pickup
+                //But also Command so check that seperately
             }
 
             string parentName = self.gameObject.name;
@@ -115,10 +118,10 @@ namespace LookingGlass.CommandItemCount
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
 
-            // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
-            if (!potentialOrFragment || AutoSortItemsClass.SortPotentials.Value)
-            {
-                (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, self.name.StartsWith("CommandCube"));
+            if (command || !potentialOrFragment || AutoSortItemsClass.SortPotentials.Value)
+            { 
+                // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
+                (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, command);
             }
 
             orig(self, options);
