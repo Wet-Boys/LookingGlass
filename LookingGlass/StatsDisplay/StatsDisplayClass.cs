@@ -96,17 +96,20 @@ namespace LookingGlass.StatsDisplay
             + "\n jumpPower, maxJumpHeight"
             + "\n level, experience "
             + "\n luck "
-
+      
             + "\n mountainShrines "
-            + "\n shopPortal, goldPortal, msPortal, voidPortal, greenPortal"
+            + "\n portals, shopPortal, goldPortal, msPortal, voidPortal, greenPortal"
+            + "\n difficultyCoefficient, stage"
+            + "\n ping"
+            + "\n"
             + "\n killCount, killCountRun "
             + "\n dps, percentDps "
             + "\n combo, maxComboThisRun, maxCombo "
             + "\n killCombo, maxKillComboThisRun, maxKillCombo"
             + "\n remainingComboDuration"
+            + "\n"
             + "\n teddyBearBlockChance, saferSpacesCD "
             + "\n instaKillChance "
-            + "\n difficultyCoefficient, stage"
             + "\n"
             + "lvl1_damage, lvl1_maxHealth";
         public void Setup()
