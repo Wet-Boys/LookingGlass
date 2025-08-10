@@ -110,7 +110,7 @@ namespace LookingGlass
         {
             //Track DLC Teleporter Portals
             //Track Halcyon Shrines
-            Debug.Log(self.previewChildName);
+            //Debug.Log(self.previewChildName);
             if (newValue)
             {
                 if (self.previewChildName == "VoidPortalIndicator")
