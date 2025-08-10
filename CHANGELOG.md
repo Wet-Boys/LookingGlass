@@ -5,8 +5,9 @@ Fixed [baseDamage] stat being gone.\
 -The >1 year old configs should update to the new one automatically now.\
 -Now just shows [damage] instead of level 1 damage. (Since that's why it was changed)
 
+Added option to only have Stats Display when scoreboard is open.\
 Added portals, ping, lvl1_damage, lvl1_maxHealth stats.
- 
+
 
 ### 1.13.0
 Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they recieved.\

@@ -95,7 +95,7 @@ namespace LookingGlass
 
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             buttonsToCloseMenu.Update();
             dpsMeter.Update();

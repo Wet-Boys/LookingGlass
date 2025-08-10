@@ -27,6 +27,14 @@ namespace LookingGlass.StatsDisplay
 {
     internal class StatsDisplayClass : BaseThing
     {
+        public enum StatsDisplayEnum
+        {
+            Primary,
+            SecondaryOnTab,
+            OnlyTab,
+            Disabled
+        }
+
         public enum StatDisplayPreset
         {
             Set,            //
@@ -42,6 +50,7 @@ namespace LookingGlass.StatsDisplay
         public static ConfigEntry<bool> checkIfOldDefaultSettings;
 
         public static ConfigEntry<bool> statsDisplay;
+        public static ConfigEntry<bool> disablePrimaryStatDisplay;
         public static ConfigEntry<bool> useSecondaryStatsDisplay;
         public static ConfigEntry<string> secondaryStatsDisplayString;
         public static ConfigEntry<string> statsDisplayString;
@@ -114,7 +123,14 @@ namespace LookingGlass.StatsDisplay
             + "lvl1_damage, lvl1_maxHealth";
         public void Setup()
         {
+            //statsDisplay = BasePlugin.instance.Config.Bind<StatsDisplayEnum>("Stats Display", "StatsDisplay", StatsDisplayEnum.AltSecondary, "Enables Stats Display.\n\nSecondary: Will display different text while the Scoreboard is open\n\nOnlyTab: Will display text only while the scoreboard is open. ");
+
+            //Could maybe combine into 1 config?
             statsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "StatsDisplay", true, "Enables Stats Display");
+            useSecondaryStatsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use Secondary Stats Display", true, "The stats display will display the Secondary Stats Display String while Scoreboard is held open.");
+            disablePrimaryStatDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Only open with Scoreboard", false, "Disable the stats display if Scoreboard is not open.");
+
+            disablePrimaryStatDisplay.SettingChanged += Display_SettingChanged;
             statsDisplay.SettingChanged += Display_SettingChanged;
             statsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Stats Display String",
                 //Removing Combo timer just cuz
@@ -146,7 +162,6 @@ namespace LookingGlass.StatsDisplay
             statsDisplayOverrideHeightValue = BasePlugin.instance.Config.Bind<int>("Stats Display", "Stats Display Height Value", 7, "Height, in lines of full-size text, for the Stats Display panel");
             floatPrecision = BasePlugin.instance.Config.Bind<int>("Stats Display", "StatsDisplay Float Precision", 2, "How many decimal points will be used in floating point values");
             floatPrecision.SettingChanged += BuiltInColors_SettingChanged;
-            useSecondaryStatsDisplay = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use Secondary Stats Display", true, "Will enable the use of the secondary stats display string. This will overwrite the stats display string whenever the scoreboard is held open.");
             secondaryStatsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Secondary Stats Display String",
                 "<margin-left=0.6em>"
                 + "<size=115%>Stats</size>\n"
@@ -211,16 +226,24 @@ namespace LookingGlass.StatsDisplay
             
         }
 
-
+        bool SecondaryDisabled()
+        {
+            return !useSecondaryStatsDisplay.Value;
+        }
+        bool PrimaryDisabled()
+        {
+            return useSecondaryStatsDisplay.Value && disablePrimaryStatDisplay.Value;
+        }
         public void SetupRiskOfOptions()
         {
 
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new ChoiceOption(statStringPresets, false));
-            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false, checkIfDisabled = PrimaryDisabled }));
             ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100 }));
             ModSettingsManager.AddOption(new CheckBoxOption(useSecondaryStatsDisplay, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig() { restartRequired = false, lineType = TMP_InputField.LineType.MultiLineNewline, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit, richText = false, checkIfDisabled = SecondaryDisabled}));
+            ModSettingsManager.AddOption(new CheckBoxOption(disablePrimaryStatDisplay, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(movePurchaseText, new CheckBoxConfig() { restartRequired = false }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
@@ -542,7 +565,7 @@ namespace LookingGlass.StatsDisplay
             {
                 UnityEngine.Object.DestroyImmediate(statTracker.gameObject);
                 ForceUpdate();
-            }
+            }       
         }
 
         void DetachedPosition_SettingChanged(object sender, EventArgs e)
@@ -689,8 +712,21 @@ namespace LookingGlass.StatsDisplay
                             statTracker = rectContainer;
                         }
                     }
-                }
 
+                    if (statTracker)
+                    {
+                        GameObject.Destroy(statTracker.GetComponentInChildren<LanguageTextMeshController>()); //Prevents "Objective:" from showing up briefly
+                        if (disablePrimaryStatDisplay.Value && !scoreBoardOpen)
+                        {
+                            statTracker.gameObject.SetActive(false);
+                        }
+                        else
+                        {
+                            statTracker.gameObject.SetActive(true);
+                        }
+                    }
+                }
+               
                 if (textComponentGameObject)
                 {
                     //Log.Debug($"Somebody disabled my object :(");
@@ -863,6 +899,10 @@ namespace LookingGlass.StatsDisplay
 
         static string GenerateStatsText()
         {
+            if (disablePrimaryStatDisplay.Value && !scoreBoardOpen)
+            {
+                return string.Empty;
+            }
             Profiler.BeginSample("LookingGlass.StatsDisplay.Regex");
 
             string statsText = useSecondaryStatsDisplay.Value && scoreBoardOpen ? secondaryStatsDisplayString.Value : statsDisplayString.Value;
@@ -889,6 +929,19 @@ namespace LookingGlass.StatsDisplay
                 regexHandle = new RegexJob().Schedule(regexHandle);
                 timer = 0;
             }
+
+            if (statTracker)
+            {
+                if (disablePrimaryStatDisplay.Value && !scoreBoardOpen)
+                {
+                    statTracker.gameObject.SetActive(false);
+                }
+                else
+                {
+                    statTracker.gameObject.SetActive(true);
+                }
+            }
+           
         }
 
         struct RegexJob : IJob
