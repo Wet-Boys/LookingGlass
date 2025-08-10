@@ -1,5 +1,6 @@
 ﻿using LookingGlass.DPSMeterStuff;
 using RoR2;
+using RoR2.Networking;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -220,6 +221,9 @@ namespace LookingGlass.StatsDisplay
   
             StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{(Run.instance ? Run.instance.difficultyCoefficient.ToString(floatPrecision) : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("stage", cachedUserBody => { return $"{utilityString}{Language.GetString(Stage.instance ? Stage.instance.sceneDef.nameToken : "N/A")}{styleString}"; });
+            
+            //Idk if this needs like saftey checks
+            StatsDisplayClass.statDictionary.Add("ping", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}{styleString}"; });
 
 
             //Are these really needed, they dont do anything v 
