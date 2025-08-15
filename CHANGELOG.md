@@ -1,17 +1,16 @@
 ### 1.13.1
 Fixed Command sorting being locked behind "Potential & Fragment" sorting.\
-Fixed Command sorting not using the command settings.\
+Fixed Command sorting not using the Command settings.\
 Fixed [baseDamage] stat being gone.\
--The >1 year old configs should update to the new one automatically now.\
--Now just shows [damage] instead of level 1 damage. (Since that's why it was changed)
+Fixed old default settings not actually updating automatically.
 
 Added option to only have Stats Display when scoreboard is open.\
-Added portals, ping, lvl1_damage, lvl1_maxHealth stats.
+Added stats: portals, ping, lvl1_damage, lvl1_maxHealth.
 
 
 ### 1.13.0
 Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they recieved.\
-Added Stats for Longstanding Solitude, Unstable Transmitter and some Untiered Items\
+Added Stats for Longstanding Solitude, Unstable Transmitter, some Untiered Items, Spinel Tonic.\
 Added some extra stats to some items. (More unlisted stats, Max Boost, more item specific damage/cooldowns)
 
 

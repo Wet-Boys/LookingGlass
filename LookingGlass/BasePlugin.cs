@@ -25,7 +25,8 @@ using static RoR2.HealthComponent;
 
 namespace LookingGlass
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    //[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, "1.13.1")]
     public class BasePlugin : BaseUnityPlugin
     {
         internal static BasePlugin instance;
@@ -93,6 +94,7 @@ namespace LookingGlass
             buffDescriptions = new BuffDescriptionsClass();
             pickupNotifDurationClass = new PickupNotifDurationClass();
 
+            statsDisplayClass.CheckForOldDefaultSettingsThatNeedToBeUpdated();
         }
 
         private void FixedUpdate()

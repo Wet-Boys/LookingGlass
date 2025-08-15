@@ -29,7 +29,7 @@ namespace LookingGlass.StatsDisplay
 
             #region Damage Related
             StatsDisplayClass.statDictionary.Add("lvl1_damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.baseDamage).ToString(floatPrecision)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
+             StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; }); //Needs to be kept for old version support
             StatsDisplayClass.statDictionary.Add("damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"{damageString}{(cachedUserBody.attackSpeed).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("attackSpeedPercent", cachedUserBody => { return $"{damageString}{((cachedUserBody.attackSpeed / cachedUserBody.baseAttackSpeed) * 100).ToString(floatPrecision)}%{styleString}"; });
@@ -190,7 +190,7 @@ namespace LookingGlass.StatsDisplay
 
             #region DPS, Combo, Kills
 
-            //SERVER ONLY//StatsDisplayClass.statDictionary.Add("killCountOld", cachedUserBody => { return $"{healthString}{(cachedUserBody.killCountServer)}{styleString}"; });
+            //SERVER ONLY//StatsDisplayClass.statDictionary.Add("killCountOld", cachedUserBody => { return $"{healthString}{(cachedUserBody.killCountServer)}{styleString}"; }); //killCountServer, is server only
             StatsDisplayClass.statDictionary.Add("killCount", cachedUserBody => { return $"{healthString}{(BasePlugin.instance.dpsMeter.killsThisStage)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("killCountRun", cachedUserBody => { return $"{healthString}{(BasePlugin.instance.dpsMeter.killsThisRun)}{styleString}"; });
 
@@ -203,8 +203,7 @@ namespace LookingGlass.StatsDisplay
             //It's really just floating point errors
 
             StatsDisplayClass.statDictionary.Add("combo", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
-            //Needs to be kept for older version support v
-            StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("currentCombatDamage", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.currentCombatDamage}{styleString}"; }); //Needs to be kept for old version support
             StatsDisplayClass.statDictionary.Add("maxCombo", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.maxCombo}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxComboThisRun", cachedUserBody => { return $"{damageString}{(int)BasePlugin.instance.dpsMeter.maxRunCombo}{styleString}"; });
 
@@ -222,8 +221,8 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{(Run.instance ? Run.instance.difficultyCoefficient.ToString(floatPrecision) : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("stage", cachedUserBody => { return $"{utilityString}{Language.GetString(Stage.instance ? Stage.instance.sceneDef.nameToken : "N/A")}{styleString}"; });
             
-            //Idk if this needs like saftey checks
-            StatsDisplayClass.statDictionary.Add("ping", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}{styleString}"; });
+            //Does this need saftey checks at all?
+            StatsDisplayClass.statDictionary.Add("ping", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}ms{styleString}"; });
 
 
             //Are these really needed, they dont do anything v 
