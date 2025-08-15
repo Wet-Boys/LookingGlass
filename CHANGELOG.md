@@ -1,6 +1,16 @@
+### 1.13.1
+Fixed Command sorting being locked behind "Potential & Fragment" sorting.\
+Fixed Command sorting not using the Command settings.\
+Fixed [baseDamage] stat being gone.\
+Fixed old default settings not actually updating automatically.
+
+Added option to only have Stats Display when scoreboard is open.\
+Added stats: portals, ping, lvl1_damage, lvl1_maxHealth.
+
+
 ### 1.13.0
 Updated Elusive Antler, Growth Nectar, Bolstering Lantern stats to match updates they recieved.\
-Added Stats for Longstanding Solitude, Unstable Transmitter, Tonic Affliction, Spinel Tonic.\
+Added Stats for Longstanding Solitude, Unstable Transmitter, some Untiered Items, Spinel Tonic.\
 Added some extra stats to some items. (More unlisted stats, Max Boost, more item specific damage/cooldowns)
 
 
@@ -42,6 +52,7 @@ Fixed Buff names & descriptions not functioning\
 Fixed some vanilla and most modded skills not showing cooldown.\
 Fixed PermamentCooldown showing 0 if you had more than maxStock.\
 \- (Lost a Fuel Cell, would permamently show 0 until used, various modded skills had this issue)\
+Fixed 0 cooldown skills showing the 0 on the icon.\
 Multiplied percentDps value by 100 so it's actually percent\
 Fixed unstackable timed buffs showing stacks.\
 Fixed listed CDR never going below 0.5 for AttackSpeedCDR Skills (Arti Primary), despite it not being capped at 0.5\
@@ -54,8 +65,8 @@ Fixed some item stats showing up wrong. (Mostly minor issues)\
 \- Lost Seers now properly says 200 to cap instead of 201.\
 Fixed an issue with disabling Huds and Buff Icons.\
 Fixed maxKillCombo not using proper stat.\
-Fixed killCount not working on Clients.
-Fixed DPS & DPSPercent being inaccurate due to using long instead of float.
+Fixed killCount not working on Clients.\
+Fixed DPS & DPSPercent being inaccurate due to using long instead of float.\
 Fixed hasOneShotProtection stat saying True at 100% Hp even with Shaped Glass.
 
 -Wolfo

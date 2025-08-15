@@ -65,7 +65,9 @@ namespace LookingGlass.BuffDescriptions
         void BuffIconUpdateIcon(Action<BuffIcon> orig, BuffIcon self)
         {
             orig(self);
-            if (self.buffDef && buffDescriptions.Value)
+            //Checking self hopefully prevents log spam for mod packs that are, Dying for unrelated reasons
+            //Less misreports
+            if (self && self.buffDef && buffDescriptions.Value)
             {
                 TooltipProvider toolTip = self.GetComponent<TooltipProvider>();
                 if (!toolTip)
