@@ -13,51 +13,39 @@ etc...
 
 The current list of items you can display are 
 
-luck
-baseDamage
-crit
-attackSpeed
-armor
-armorDamageReduction
-regen
-speed
-availableJumps
-maxJumps
-killCount
-mountainShrines
-experience
-level
-maxHealth
-maxBarrier
-barrierDecayRate
-maxShield
-acceleration
-jumpPower
-maxJumpHeight
 damage
-critMultiplier
-bleedChance
-visionDistance
-critHeal
-cursePenalty
-hasOneShotProtection
-isGlass
-canPerformBackstab
-canReceiveBackstab
+attackSpeed, attackSpeedPercent
+crit, critWithLuck, critMultiplier
+bleedChance, bleedChanceWithLuck
+
+maxHealth, maxShield, maxBarrier
+effectiveHealth, effectiveMaxHealth
+barrierDecayRate
 healthPercentage
-goldPortal
-msPortal
-shopPortal
-voidPortal
-dps
-currentCombatDamage
+regen, regenHp
+armor, armorDamageReduction
+curseHealthReduction
+hasOSP
+
+speed, speedPercent, velocity
+acceleration
+availableJumps, maxJumps
+jumpPower, maxJumpHeight
+level, experience
+luck
+
+mountainShrines
+portals, shopPortal, goldPortal, msPortal, voidPortal, greenPortal
+difficultyCoefficient, stage
+ping
+
+killCount, killCountRun
+dps, percentDps
+combo, maxComboThisRun, maxCombo
+killCombo, maxKillComboThisRun, maxKillCombo
 remainingComboDuration
-maxCombo
-critWithLuck
-bleedChanceWithLuck
-velocity
-teddyBearBlockChance
-saferSpacesCD
+
+teddyBearBlockChance, saferSpacesCD
 instaKillChance
-voidPortal
-difficultyCoefficient
+
+lvl1_damage, lvl1_maxHealth

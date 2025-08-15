@@ -54,9 +54,12 @@ A fully open source UI mod, compatible with RiskUI
 
 - Fully compatible with RiskUI
 
-# Planned features
+## Additional Info
 
-- More customization for the Stats Display menu
+- String for the stats display can be customized using Unity Rich Text rules, see  https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info.
+
+- Note that this mod does not correct the vanilla item descriptions, so the listed stats may differ from the ones the mod shows. A different mod is recommended if you want those corrected.
+
 
 # Have an issue/suggestion or want to contribute?
 
@@ -64,7 +67,6 @@ A fully open source UI mod, compatible with RiskUI
 
 - If you want to contribute to the mod, feel free to reach out to us and/or create a pull request. Please note that the CLA indicates all contributions to this project are licensed under LGPLv3.
 
-- Note that this mod does not correct the vanilla item descriptions, so the listed stats may differ from the ones the mod shows for the cases the vanilla one is wrong. A different mod is recommended if you want those corrected.
 
 
 # Credits:
