@@ -1,3 +1,20 @@
+### 1.14.0
+Added support for DLC3. (Fixes, Items, Skills, Portal, Buffs)
+Pinging Drones now displays info, like items.
+Hovering over allies now shows info, like items.
+
+Tier Item counts now hidden until you have 1 of that tier. (Other than main 3 tiers)
+-To avoid showing counts for tiers that may not be accessible. (ie Void)
+
+Sorts chef by available and unavailable.
+Hid Item Counts on scrappers, as vanilla has that feature.
+Hid Item Counts for unavilable options. (ie locked items in command)
+Hid Item Counts on equipment options.
+Command Resize is more compact like vanilla.
+Command Resize increased minimum size (to fit text).
+Command Resize no longer multiplies ui color.
+ 
+
 ### 1.13.1
 Fixed Command sorting being locked behind "Potential & Fragment" sorting.\
 Fixed Command sorting not using the Command settings.\

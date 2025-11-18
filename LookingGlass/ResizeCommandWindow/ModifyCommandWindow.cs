@@ -37,6 +37,8 @@ namespace LookingGlass.ResizeCommandWindow
         }
         internal void ResizeWindow(PickupPickerController controller)
         {
+            if (!resize.Value || !controller.name.StartsWith("CommandCube"))
+                return;
             Transform t = controller.panelInstance.transform.Find("MainPanel");
             if (t is not null)
             {
@@ -47,8 +49,7 @@ namespace LookingGlass.ResizeCommandWindow
                     background.GetComponent<Image>().color = new Color(originalColor.r, originalColor.g, originalColor.b, opacity.Value / 100f);
                 }
             }
-            if (!resize.Value || !controller.name.StartsWith("CommandCube"))
-                return;
+          
 
             GridLayoutGroup gridLayoutGroup = controller.panelInstance.transform.GetComponentInChildren<GridLayoutGroup>();
             int itemCount = gridLayoutGroup.transform.childCount - 1;
@@ -63,13 +64,19 @@ namespace LookingGlass.ResizeCommandWindow
                 int columnReduction = value <= maxHeight ? 0 : 1;
                 value = value <= maxHeight ? value : value + 1 + value - maxHeight;
                 float width = (value) * (r.sizeDelta.x / 8f);
+                width = Mathf.Max(width, 340f);//Min size so the "What is your command Quote" fits
+                height = Mathf.Max(height, 340f);//Min size so the "What is your command Quote" fits
                 r.sizeDelta = new Vector2(width, height); //Ugh, this is all kinda jank but it works 95%, just come back to this at some point
 
-                Run.instance.StartCoroutine(FixColumnCountAndStuff(gridLayoutGroup, controller));
+                //Fucks up coloring v
+                //Makes window way too large v
+                //What purpose did this have ???
+                //Run.instance.StartCoroutine(FixColumnCountAndStuff(gridLayoutGroup, controller));
             }
         }
         public static IEnumerator FixColumnCountAndStuff(GridLayoutGroup gridLayoutGroup, PickupPickerController panel)
         {
+         
             yield return new WaitForEndOfFrame();
             int columnCount = 1;
             float firstY = gridLayoutGroup.transform.GetChild(1).GetComponent<RectTransform>().anchoredPosition.y;
@@ -81,7 +88,24 @@ namespace LookingGlass.ResizeCommandWindow
                 }
             }
             panel.panelInstanceController.maxColumnCount = columnCount;
+
+            //v Doing this fucks up the coloring of the background
             panel.panelInstanceController.SetPickupOptions(panel.options);
+
+            //if this needs to be kept for some reason, idk maybe this reverses the coloring mistake
+            PickupDef pickupDef = PickupCatalog.GetPickupDef(panel.options[0].pickup.pickupIndex);
+            Color baseColor = pickupDef.baseColor;
+            Color darkColor = pickupDef.darkColor;
+            Image[] array = panel.panelInstanceController.coloredImages;
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i].color = new Color((array[i].color.r / baseColor.r), (array[i].color.g / baseColor.g), (array[i].color.b / baseColor.b));
+            }
+            array = panel.panelInstanceController.darkColoredImages;
+            for (int i = 0; i < array.Length; i++)
+            {
+                array[i].color = new Color((array[i].color.r / baseColor.r), (array[i].color.g / baseColor.g), (array[i].color.b / baseColor.b));
+            }
         }
     }
 }

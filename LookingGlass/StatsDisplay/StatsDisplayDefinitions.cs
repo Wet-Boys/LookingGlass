@@ -119,8 +119,9 @@ namespace LookingGlass.StatsDisplay
             #region Movement Related
 
             StatsDisplayClass.statDictionary.Add("speed", cachedUserBody => { return $"{utilityString}{(cachedUserBody.moveSpeed).ToString(floatPrecision)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("speedPercent", cachedUserBody => { return $"{utilityString}{((cachedUserBody.moveSpeed / cachedUserBody.baseMoveSpeed) * 100).ToString(floatPrecision)}%{styleString}"; });
-
+            StatsDisplayClass.statDictionary.Add("speedPercent", cachedUserBody => { return $"{utilityString}{((cachedUserBody.moveSpeed / cachedUserBody.baseMoveSpeed / (cachedUserBody.isSprinting ? cachedUserBody.sprintingSpeedMultiplier : 1)) * 100).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("speedPercentSprintAffected", cachedUserBody => { return $"{utilityString}{((cachedUserBody.moveSpeed / cachedUserBody.baseMoveSpeed) * 100).ToString(floatPrecision)}%{styleString}"; });
+            
             StatsDisplayClass.statDictionary.Add("acceleration", cachedUserBody => { return $"{utilityString}{(cachedUserBody.acceleration).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("velocity", cachedUserBody =>
             {

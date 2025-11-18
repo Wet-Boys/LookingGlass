@@ -38,7 +38,8 @@ namespace LookingGlass
         }
         public bool _greenPortal = false;
         public bool _voidPortal = false;
-    
+        public bool _acPortal = false;
+
         public PortalTracker()
         {
             Setup();
@@ -83,6 +84,11 @@ namespace LookingGlass
                     portals++;
                     ActivePortals += "<style=cIsDamage>Gold </style>";
                 }
+                if (_acPortal)
+                {
+                    portals++;
+                    ActivePortals += "<style=cIsUtility>Encrypted </style>";
+                }
                 if (_greenPortal)
                 {
                     portals++;
@@ -120,6 +126,14 @@ namespace LookingGlass
                 else if (self.previewChildName == "StormPortalIndicator")
                 {
                     _greenPortal = true;
+                }
+                else if (self.previewChildName == "AccessCodesSymbol")
+                {
+                    _acPortal = true;
+                }
+                else if (self.previewChildName == "CEPortalIndicator")
+                {
+                    _acPortal = true;
                 }
                 else if (self.previewChildName == "GoldshoresPortalIndicator")
                 {

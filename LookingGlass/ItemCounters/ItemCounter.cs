@@ -52,22 +52,39 @@ namespace LookingGlass.ItemCounters
             }
         }
 
+        int GetItemsOfTierFast(Inventory inv, ItemTier tier)
+        {
+            int num = 0;
+            foreach (ItemIndex item in inv.itemAcquisitionOrder)
+            {
+                if (ItemCatalog.GetItemDef(item).tier == tier)
+                {
+                    num += inv.GetItemCountEffective(item);
+                }
+            }
+            return num;
+        }
+
         void UpdateMoneyText(Action<ScoreboardStrip> orig, ScoreboardStrip self)
         {
             orig(self);
-            if (!self.master || !self.master.inventory || !itemCounters.Value)
+            if (!self.inventory || !itemCounters.Value)
                 return;
             TextMeshProUGUI itemCountText = self.itemCountText != null ? self.itemCountText : self.moneyText;
-            int whiteCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
-            int greenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
-            int redCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
-            int lunarCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Lunar);
-            int bossCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Boss);
-            int voidWhiteCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.VoidTier1);
-            int voidGreenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.VoidTier2);
-            int voidRedCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.VoidTier3);
-            int voidBossCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.VoidBoss);
-            int totalItemCount = whiteCount + greenCount + redCount + lunarCount + bossCount + voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount;
+            //int whiteCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
+            //int greenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
+            //int redCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
+
+ 
+            int whiteCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier1);
+            int greenCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier2);
+            int redCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier3);
+            int lunarCount = GetItemsOfTierFast(self.inventory, ItemTier.Lunar);
+            int bossCount = GetItemsOfTierFast(self.inventory, ItemTier.Boss);
+            int voidCount = GetItemsOfTierFast(self.inventory, ItemTier.VoidTier1)+ GetItemsOfTierFast(self.inventory, ItemTier.VoidTier2)+ GetItemsOfTierFast(self.inventory, ItemTier.VoidTier3)+ GetItemsOfTierFast(self.inventory, ItemTier.VoidBoss);
+            int foodTierCount = GetItemsOfTierFast(self.inventory, ItemTier.FoodTier);
+            int totalItemCount = whiteCount + greenCount + redCount + lunarCount + bossCount + voidCount + foodTierCount;
+
 
             //Made TotalItems larger
             //Removed the [] because it just kinda misaligned it
@@ -80,12 +97,27 @@ namespace LookingGlass.ItemCounters
             itemCountText.enableAutoSizing = true;
             StringBuilder sb = new StringBuilder();
             sb.Append($"<size=60%>");
-            sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
-            sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier2Item)}>{greenCount}</color> ");
-            sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier3Item)}>{redCount}</color> ");
-            sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.BossItem)}>{bossCount}</color> ");
-            sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.LunarItem)}>{lunarCount}</color> ");
-            sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.VoidItem)}>{voidWhiteCount + voidGreenCount + voidRedCount + voidBossCount}</color> ");
+            //sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
+            sb.Append($"<color=#FFFFFF>{whiteCount}</color> ");
+            sb.Append($"<color=#77FF17>{greenCount}</color> ");
+            sb.Append($"<color=#E7543A>{redCount}</color> ");
+
+            if (bossCount > 0 )
+            {
+                sb.Append($"<color=#FFEB04>{bossCount}</color> ");
+            }
+            if (lunarCount > 0)
+            {
+                sb.Append($"<color=#307FFF>{lunarCount}</color> ");
+            }
+            if (voidCount > 0)
+            {
+                sb.Append($"<color=#ED7FCD>{voidCount}</color> ");
+            }
+            if (foodTierCount > 0)
+            {
+                sb.Append($"<color=#FF8000>{foodTierCount}</color> ");
+            }    
             sb.Append($"</size><size=75%><color=#fff>{totalItemCount}</color>");
             //Total item should be a little bigger?
             itemCountText.text = sb.ToString();

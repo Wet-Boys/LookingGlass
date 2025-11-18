@@ -195,7 +195,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("SEEKER_SECONDARY_ALT1_NAME", 1f);
             skills.Add("SEEKER_UTILITY_NAME", 1f);
             skills.Add("SEEKER_UTILITY_ALT1_NAME", 1f);
-            skills.Add("SEEKER_SPECIAL_NAME", 1f);
+            skills.Add("SEEKER_SPECIAL_NAME", 0.8f);
             skills.Add("SEEKER_SPECIAL_ALT1_NAME", 1f);
 
             // False son
@@ -219,7 +219,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("CHEF_SPECIAL_NAME", 1f);        //Oil Puddle 0.1
             skills.Add("CHEF_SPECIAL_ALT1_NAME", 1f);
 
-            skillsAdditional.Add("CHEF_PRIMARY_NAME", "\nBoosted / Held Proc: <style=cHumanObjective>2.25</style>");
+            skillsAdditional.Add("CHEF_PRIMARY_NAME", " + Recall: <style=cIsDamage>1.5</style>\nBoosted Proc: <style=cHumanObjective>2.25</style>");
             skillsAdditional.Add("CHEF_SECONDARY_NAME", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
             skillsAdditional.Add("CHEF_SECONDARY_ALT_NAME", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
             skillsAdditional.Add("CHEF_UTILITY_NAME", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
@@ -229,6 +229,43 @@ namespace LookingGlass.ItemStatsNameSpace
             #endregion
 
             #region DLC3
+            //Operator
+            skills.Add("DRONETECH_PRIMARY_NAME", 1f);
+            skills.Add("DRONETECH_SECONDARY_NAME", 1f); //Varies per Drone
+            skills.Add("DRONETECH_SECONDARY_ALT_NAME", 1f);
+            skills.Add("DRONETECH_UTILITY_NAME", -1f);
+            skills.Add("DRONETECH_UTILITY_ALT_NAME", 1f);
+            skills.Add("DRONETECH_SPECIAL_NAME", 1f);
+            skillsAdditional.Add("DRONETECH_SPECIAL_NAME", "\nNanobug Proc: <style=cIsDamage>0.5</style>");
+            skills.Add("DRONETECH_SPECIAL_ALT_NAME", 1f);
+            
+            //Drifter
+            skills.Add("DRIFTER_PRIMARY_NAME", 1f);
+            skills.Add("DRIFTER_SECONDARY_NAME", 1f);
+            skills.Add("DRIFTER_SECONDARY_ALT_NAME", 1f);
+            skills.Add("DRIFTER_UTILITY_NAME", -1f); //Grab
+            skills.Add("DRIFTER_UTILITY_B_NAME", 1f); //Throw
+            skills.Add("DRIFTER_UTILITY_C_NAME", 0f); //Slam 
+            skills.Add("DRIFTER_UTILITY_ALT_A_NAME", 1f);
+            skills.Add("DRIFTER_UTILITY_ALT_NAME", 1f);
+            skills.Add("DRIFTER_SPECIAL_NAME", -1f);
+            skills.Add("DRIFTER_SPECIAL_ALT_NAME", 1f);
+
+            //Remote Operation Drones
+            skills.Add("DRONE_GUNNER_PRIMARY_SKILL_NAME", 1f);
+            skills.Add("DRONE_HEALING_PRIMARY_SKILL_NAME", -1f);
+            skills.Add("DRONE_JUNK_PRIMARY_SKILL_NAME", -1f);
+            skills.Add("DRONE_EMERGENCY_PRIMARY_SKILL_NAME", -1f);
+            skills.Add("DRONE_MISSILE_PRIMARY_SKILL_NAME", 1f);
+            skills.Add("DRONE_FLAME_PRIMARY_SKILL_NAME", 1f);
+
+            skills.Add("DRONE_CLEANUP_PRIMARY_SKILL_NAME", -1f);
+            skills.Add("DRONE_JAILER_PRIMARY_SKILL_NAME", -1f);
+            skills.Add("DRONE_RECHARGE_PRIMARY_SKILL_NAME", -1f);
+            skills.Add("DRONE_COPYCAT_PRIMARY_SKILL_NAME", 1f);
+            skills.Add("DRONE_BOMBARDMENT_PRIMARY_SKILL_NAME", 1f);
+            skills.Add("DRONE_MEGA_PRIMARY_SKILL_NAME", 1f);
+            skills.Add("DRONE_MEGA_SECONDARY_SKILL_NAME", 1f);
 
             #endregion
         }
