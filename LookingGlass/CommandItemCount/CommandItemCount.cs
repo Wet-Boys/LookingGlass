@@ -1,22 +1,22 @@
-﻿using LookingGlass.Base;
-using MonoMod.RuntimeDetour;
-using RoR2.UI;
-using RoR2;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Collections.ObjectModel;
-using UnityEngine;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
+using LookingGlass.AutoSortItems;
+using LookingGlass.Base;
 using LookingGlass.ItemStatsNameSpace;
+using MonoMod.RuntimeDetour;
+using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
-using RiskOfOptions;
+using RoR2;
 using RoR2.Items;
-using System.Reflection;
+using RoR2.UI;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
+using TMPro;
+using UnityEngine;
 using UnityEngine.Networking;
-using LookingGlass.AutoSortItems;
 
 namespace LookingGlass.CommandItemCount
 {
@@ -42,6 +42,8 @@ namespace LookingGlass.CommandItemCount
         }
         public void Setup()
         {
+
+
             var targetMethod = typeof(RoR2.UI.PickupPickerPanel).GetMethod(nameof(RoR2.UI.PickupPickerPanel.SetPickupOptions), BindingFlags.Public | BindingFlags.Instance);
             var destMethod = typeof(CommandItemCountClass).GetMethod(nameof(PickupPickerPanel), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
@@ -56,7 +58,28 @@ namespace LookingGlass.CommandItemCount
             commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
             showCorruptedItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Show Corrupted Items", true, "Shows when items have been corrupted");
             SetupRiskOfOptions();
+
+            var targetMethod4 = typeof(CraftingController).GetMethod(nameof(CraftingController.FilterAvailableOptions), BindingFlags.NonPublic | BindingFlags.Instance);
+            var destMethod4 = typeof(CommandItemCountClass).GetMethod(nameof(SortByCraftableItem), BindingFlags.NonPublic | BindingFlags.Instance);
+             new Hook(targetMethod4, destMethod4, this);
+
         }
+
+
+
+        void SortByCraftableItem(Action<CraftingController> orig, CraftingController self)
+        {
+            orig(self);
+
+            //Sort items that cannot be used in *any* crafting recipe to the bottom
+            //The slots empty check to prevent re-sorting when putting in the first ingredient
+            //Maybe still better to sort every time? un sure.
+            if (self.AllSlotsEmpty())
+            {
+                self.options = self.options.OrderBy(entry => !entry.available).ToArray();
+            }
+        }
+
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { restartRequired = false }));
@@ -77,7 +100,7 @@ namespace LookingGlass.CommandItemCount
         {
             orig();
             transformedToOriginal = new();
-            foreach(var info in ContagiousItemManager.transformationInfos)
+            foreach (var info in ContagiousItemManager.transformationInfos)
             {
                 if (!transformedToOriginal.TryGetValue(info.transformedItem, out List<ItemIndex> originalItemList))
                 {
@@ -115,22 +138,28 @@ namespace LookingGlass.CommandItemCount
 
             string parentName = self.gameObject.name;
             bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
+            bool isMealprep = parentName.StartsWith("MealPrep");
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
 
             if (command || !potentialOrFragment || AutoSortItemsClass.SortPotentials.Value)
-            { 
+            {
                 // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
                 (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, command);
             }
+            
 
             orig(self, options);
-
-            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("ScrapperPickerPanel") || parentName.StartsWith("CommandPickerPanel")))
+            bool showsQuantityInVanilla = self.GetComponent<ScrapperInfoPanelHelper>();
+      
+            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("Scrapper") || parentName.StartsWith("Command")))
             {
                 // as a client interacting with a scrapper or command menu, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
                 // This prevetnts the numbers being created the first time the funciton is called as the options list is effectively garbage data on the first call because of wierd networking stuff
                 // thus preventing the item counts being incorrect and/or doubled
+
+                //// Bro ^ just dont add it multiple times wdym??
+                //// Mealprep station calls it like 4 times every time i hate this.
                 isFromOnDisplayBegin = false;
                 return;
             }
@@ -140,49 +169,66 @@ namespace LookingGlass.CommandItemCount
             for (int i = 0; i < options.Length; i++)
             {
                 ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
-                int count = inventory.GetItemCount(itemIndex);
+                
+                //Equipments can show up too yknow
+                //No need to show a counter for those
 
-                // check for corrupted items
+                int count = inventory.GetItemCountPermanent(itemIndex);
                 ItemCorruptionInfo corruption = null;
-                if (showCorruptedItems.Value && count == 0)
+                if (itemIndex != ItemIndex.None)
                 {
-                    ItemIndex corruptedIndex = ContagiousItemManager.GetTransformedItemIndex(itemIndex);
-                    if (corruptedIndex != ItemIndex.None && inventory.GetItemCount(corruptedIndex) > 0)
+                    // check for corrupted items
+                    if (showCorruptedItems.Value && count == 0)
                     {
-                        corruption = new()
-                        {
-                            Type = CorruptionType.Corrupted,
-                            Items = [corruptedIndex],
-                            ItemCount = inventory.GetItemCount(corruptedIndex)
-                        };
-                    }
-                    else if (transformedToOriginal.TryGetValue(itemIndex, out var origList))
-                    {
-                        int origCount = 0;
-                        foreach (ItemIndex origIndex in origList)
-                        {
-                            origCount += inventory.GetItemCount(origIndex);
-                        }
-                        if (origCount > 0)
+                        ItemIndex corruptedIndex = ContagiousItemManager.GetTransformedItemIndex(itemIndex);
+                        if (corruptedIndex != ItemIndex.None && inventory.GetItemCountPermanent(corruptedIndex) > 0)
                         {
                             corruption = new()
                             {
-                                Type = CorruptionType.Void,
-                                Items = origList,
-                                ItemCount = origCount
+                                Type = CorruptionType.Corrupted,
+                                Items = [corruptedIndex],
+                                ItemCount = inventory.GetItemCountPermanent(corruptedIndex)
                             };
                         }
+                        else if (transformedToOriginal.TryGetValue(itemIndex, out var origList))
+                        {
+                            int origCount = 0;
+                            foreach (ItemIndex origIndex in origList)
+                            {
+                                origCount += inventory.GetItemCountPermanent(origIndex);
+                            }
+                            if (origCount > 0)
+                            {
+                                corruption = new()
+                                {
+                                    Type = CorruptionType.Void,
+                                    Items = origList,
+                                    ItemCount = origCount
+                                };
+                            }
+                        }
                     }
-                }
-                corruption ??= new()
-                {
-                    Type = CorruptionType.None
-                };
+                    corruption ??= new()
+                    {
+                        Type = CorruptionType.None
+                    };
 
-                if (commandItemCount.Value)
-                    CreateNumber(elements[i].transform, count, corruption);
+                    if (!showsQuantityInVanilla)
+                    {
+                        if (commandItemCount.Value)
+                            CreateNumber(elements[i].transform, count, corruption, options[i].available);
+                    }
+
+                }
+
+
+                //Dont show "one more", if, you can't pick the item
+                withOneMore = withOneMore && options[i].available;
+
                 if (commandToolTips.Value)
                     CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count, withOneMore, corruption);
+
+
             }
         }
 
@@ -198,16 +244,34 @@ namespace LookingGlass.CommandItemCount
         }
 
 
-        void CreateNumber(Transform parent, int count, ItemCorruptionInfo corruption)
+        void CreateNumber(Transform parent, int count, ItemCorruptionInfo corruption, bool optionAvailable)
         {
-            GameObject textContainer = new GameObject();
-            textContainer.transform.parent = parent;
+            RectTransform rectTransform = (RectTransform)parent.Find("LG_Quantity");
+            HGTextMeshProUGUI hgtextMeshProUGUI = null;
+            if (!rectTransform)
+            {
+                GameObject textContainer = new GameObject("LG_Quantity");
+                textContainer.transform.parent = parent;
 
-            textContainer.AddComponent<CanvasRenderer>();
+                textContainer.AddComponent<CanvasRenderer>();
 
-            RectTransform rectTransform = textContainer.AddComponent<RectTransform>();
-            HGTextMeshProUGUI hgtextMeshProUGUI = textContainer.AddComponent<HGTextMeshProUGUI>();
+                rectTransform = textContainer.AddComponent<RectTransform>();
+                hgtextMeshProUGUI = textContainer.AddComponent<HGTextMeshProUGUI>();
 
+            }
+            else
+            {
+                hgtextMeshProUGUI = rectTransform.GetComponent<HGTextMeshProUGUI>();
+                //
+            }
+            rectTransform.gameObject.SetActive(optionAvailable);
+            if (!optionAvailable)
+            {
+                //If option is unavailable, then hide the counter.
+                //You don't need to know you have x0 of a command item, of a dlc, you don't own.
+                return;
+            }
+ 
             hgtextMeshProUGUI.text = $"x{count}";
             if (count == 0)
             {
@@ -236,8 +300,17 @@ namespace LookingGlass.CommandItemCount
             rectTransform.sizeDelta = Vector2.zero;
             rectTransform.anchoredPosition = new Vector2(-5f, -1.5f);
         }
+
         void CreateToolTip(Transform parent, PickupDef pickupDefinition, int count, bool withOneMore, ItemCorruptionInfo corruption)
         {
+            TooltipProvider tooltipProvider;
+            if (!parent.TryGetComponent<TooltipProvider>(out tooltipProvider))
+            {
+                //Only add once
+                tooltipProvider = parent.gameObject.AddComponent<TooltipProvider>();
+            }
+
+
             ItemDef itemDefinition = ItemCatalog.GetItemDef(pickupDefinition.itemIndex);
             EquipmentDef equipmentDef = EquipmentCatalog.GetEquipmentDef(pickupDefinition.equipmentIndex);
             bool isItem = itemDefinition != null;
@@ -281,8 +354,6 @@ namespace LookingGlass.CommandItemCount
                 stats += Language.GetString(corruptedItemDefinition.descriptionToken);
                 content.overrideBodyText = stats;
             }
-
-            TooltipProvider tooltipProvider = parent.gameObject.AddComponent<TooltipProvider>();
 
             tooltipProvider.SetContent(content);
         }

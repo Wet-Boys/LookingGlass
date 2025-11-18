@@ -33,7 +33,7 @@ namespace LookingGlass.BuffDescriptions
             #region Base Game
             ////Elites
             RegisterBuff(en, RoR2Content.Buffs.AffixRed, "Blazing", $"Leave a fire trail that hurts enemies, and apply a 50% total damage {damageString}burn{styleString} on hit.");
-            RegisterBuff(en, RoR2Content.Buffs.AffixRed, "Overloading", $"Attacks leave overloading orbs that explode for 50% TOTAL damage in a 3m radius after a short delay. 50% of {healingString}health{styleString} is replaced by {utilityString}shield{styleString}.");
+            RegisterBuff(en, RoR2Content.Buffs.AffixBlue, "Overloading", $"Attacks leave overloading orbs that explode for 50% TOTAL damage in a 3m radius after a short delay. 50% of {healingString}health{styleString} is replaced by {utilityString}shield{styleString}.");
             RegisterBuff(en, RoR2Content.Buffs.AffixWhite, "Glacial", $"Leave an ice explosion on death, and apply an 80% {utilityString}slow{styleString} on hit.");
             RegisterBuff(en, RoR2Content.Buffs.AffixPoison, "Malachite", $"Shoot occassional urchins and apply {healthString}disable healing for 8s{styleString} on hit.");
             RegisterBuff(en, RoR2Content.Buffs.AffixHaunted, "Celestine", $"{utilityString}Cloak{styleString} nearby allies, and apply an 80% {utilityString}slow{styleString} on hit.");
@@ -266,6 +266,33 @@ namespace LookingGlass.BuffDescriptions
 
             #endregion
             #region DLC3
+            RegisterBuff(en, DLC3Content.Buffs.StimShot, "Stim-Shot", $"Increase <style=cIsDamage>attack speed</style> and <style=cIsDamage>movement speed</style> by <style=cIsDamage>25%</style>."); //Not usually on player
+            RegisterBuff(en, DLC3Content.Buffs.NanoBug, "Nano Bugged", $"Nano Bugged"); //Not usually on player
+            RegisterBuff(en, DLC3Content.Buffs.EliteCollective, "Collective", $"Gain a 30m dome that protects you from outside attacks. All allies within gain 25% cooldown reduction.");
+            RegisterBuff(en, DLC3Content.Buffs.CollectiveShareBuff, "Part Collective", $"Gain 25% cooldown reduction.");
+            RegisterBuff(en, DLC3Content.Buffs.InventoryDisable, "Items Disabled", $"All your items are temporarily disabled.");
+            RegisterBuff(en, DLC3Content.Buffs.Accelerant, "Greased", $"Being ignited or hit by fire-like attacks causes you to explode.");
+            RegisterBuff(en, DLC3Content.Buffs.PowerCubeBuff, "Prison Matrix", $"Increase base armor by 50%");
+            RegisterBuff(en, DLC3Content.Buffs.PowerPyramidBuff, "Sentry Key", $"Increase movement speed by 15%");
+            RegisterBuff(en, DLC3Content.Buffs.TrashToTreasureWhite, "Common Trash to Treasure", $"Increase movement speed by 6%");
+            RegisterBuff(en, DLC3Content.Buffs.TrashToTreasureGreen, "Uncommon Trash to Treasure", $"Increase base health regen speed by 3 hp/s.");
+            RegisterBuff(en, DLC3Content.Buffs.TrashToTreasureRed, "Legendary Trash to Treasure", $"Increase attack speed by 30%");
+            RegisterBuff(en, DLC3Content.Buffs.TrashToTreasureYellow, "Boss Trash to Treasure", $"Reduce skill cooldowns by 15%");
+            RegisterBuff(en, DLC3Content.Buffs.JumpDamageStrikeCharge, "Faraday Charge", $"Increase movement speed by 1.6% and jump height by 2%");
+            RegisterBuff(en, DLC3Content.Buffs.SpeedOnPickup, "Collectors Compulsion", $"Increases all stats by 3%");
+            RegisterBuff(en, DLC3Content.Buffs.SharedSuffering, "Networked Suffering", $""); //Not usually on player
+            RegisterBuff(en, DLC3Content.Buffs.SharedSufferingStock, "Network Capacity", $"Your network of suffering is at max capacity"); 
+            RegisterBuff(en, DLC3Content.Buffs.SharedSufferingStockEmpty, "Network Full", $"Your network of suffering is at max capacity"); 
+            RegisterBuff(en, DLC3Content.Buffs.ShockDamageEnergized, "Conductor Energized", $"Increase attack and movement speed by 30%. All Electrical attacks deal crtical damage."); 
+            RegisterBuff(en, DLC3Content.Buffs.Brittle, "Cooled", $"Instantly remove all overheat and burn effects"); 
+            RegisterBuff(en, DLC3Content.Buffs.UltimateMealBoost, "Ultimate Meal", $"+2 Luck per Ultimate Meal"); 
+            RegisterBuff(en, DLC3Content.Buffs.CritChanceAndDamage, "Hiking", $"+1% Crit chance and damage"); 
+            RegisterBuff(en, DLC3Content.Buffs.Parrying, "Parrying", $"Blocks incoming damage once and turns it into a blessing."); 
+            RegisterBuff(en, DLC3Content.Buffs.SureProc, "God's Blessing", $"Your next attack triggers all chance based on-hit and on-kill effects.");
+            RegisterBuff(en, DLC3Content.Buffs.Slow10Stacking, "10% Slow", $"Decrease movement speed by 10%");
+            RegisterBuff(en, DLC3Content.Buffs.HealNovaRegen, "Emergency Nova Regeneration", $"Gain {healingString}health regeneration{styleString} equal to 2.5% of your {healingString}maximum health{styleString}. ");
+            RegisterBuff(en, DLC3Content.Buffs.TransferDebuffOnHit, "Weighted", $"Netronium Weight is decreasing all your stats.");
+            RegisterBuff(en, DLC3Content.Buffs.Jailed, "Jailed", $"Jailed"); //Not usually on player
 
             #endregion
         }

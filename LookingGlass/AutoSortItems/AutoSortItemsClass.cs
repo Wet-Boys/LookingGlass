@@ -81,11 +81,11 @@ namespace LookingGlass.AutoSortItems
             CombineVoidTiers = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
             SortByStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Stack Size Sort", true, "Sorts by Stack Size");
             DescendingStackSize = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Descending Stack Size Sort", true, "Sorts by Stack Size Descending");
-            SortCommand = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Command Menu", true, "Sorts command menu by stack count");
-            SortCommandDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Command Menu Descending", true, "Sorts command menu descending");
-            SortScrapper = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper", true, "Sorts Scrapper by stack count");
-            SortScrapperDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Scrapper Descending", true, "Sorts Scrapper by descending");
-            SortScrapperTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Tier", false, "Sorts Scrapper by tier");
+            SortCommand = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Command Menu", false, "Sorts command menu by stack count"); //Most people would be accustomed to the vanilla sort order so probably shouldnt be on by default
+            SortCommandDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Command Menu Descending", true, "Reverse sort order for the command menu");
+            SortScrapper = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper by stack", false, "Sorts Scrapper by stack count");
+            SortScrapperTier = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper by Tier", true, "Sorts Scrapper by tier"); //While this should be on by default, because your hud is sorted by tier and you'd expect those two to correlate
+            SortScrapperDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Scrapper Descending", true, "Reverse sort order for the Scrapper");
             SortCommandAlphabetical = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Command Menu Alphabetically", false, "Sorts command menu alphabetically");
             SortCommandAlphabeticalDescending = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Command Menu Alphabetically Descending", true, "Sorts command alphabetically descending");
             SortScrapperAlphabetical = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Scrapper Alphabetically", false, "Sorts Scrapper alphabetically");
@@ -119,8 +119,8 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new CheckBoxOption(SortCommand, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotCommandSortAlphabetical }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortCommandDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckCommandSort }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapper, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckScrapperSort }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckScrapperSort }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(SortCommandAlphabetical, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortCommandAlphabeticalDescending, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckCommandSortAlphabetical }));
@@ -229,7 +229,7 @@ namespace LookingGlass.AutoSortItems
 
             // apply mapping to options
             PickupPickerController.Option[] sortedOptions = Enumerable.ToArray(Enumerable.Select(mapping, (int index) => options[index]));
-
+            //sortedOptions = sortedOptions.OrderBy(entry => !entry.available).ToArray();
             return (sortedOptions,mapping);
             
 
@@ -296,7 +296,9 @@ namespace LookingGlass.AutoSortItems
             var targetMethod = typeof(RoR2.UI.ItemInventoryDisplay).GetMethod(nameof(RoR2.UI.ItemInventoryDisplay.UpdateDisplay), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(AutoSortItemsClass).GetMethod(nameof(UpdateDisplayOverride), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
+  
         }
+  
         private void UpdateDisplayOverride(Action<RoR2.UI.ItemInventoryDisplay> orig, RoR2.UI.ItemInventoryDisplay self)
         {
             //If inventory is null is a good check to see if it's a GameOver or RunReport Inventory.

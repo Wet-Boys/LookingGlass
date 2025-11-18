@@ -8,11 +8,10 @@
     <Product>LookingGlass</Product>
     <BepInExPluginGuid>droppod.lookingglass</BepInExPluginGuid>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
-  
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.0.*">
       <PrivateAssets>all</PrivateAssets>
@@ -24,11 +23,18 @@
     </PackageReference>
     <PackageReference Include="BepInEx.Core" Version="5.4.21" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-	<PackageReference Include="RiskOfRain2.GameLibs" Version="1.3.9-r.0" publicize="true" />
-    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" />
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.0-r.0">
+      <ExcludeAssets></ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33">
+      <ExcludeAssets></ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="Rune580.Mods.RiskOfRain2.RiskOfOptions" Version="2.7.2" />
   </ItemGroup>
   
+ 
+  
+ 
   <Target Name="SetPluginVersion" BeforeTargets="AddGeneratedFile" DependsOnTargets="MinVer">
     <PropertyGroup>
       <PlainVersion>$(MinVerMajor).$(MinVerMinor).$(MinVerPatch)</PlainVersion>

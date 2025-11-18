@@ -68,6 +68,7 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         void InitHooks()
         {
+           
             var targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetItem), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(ItemStats).GetMethod(nameof(PickupText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
@@ -75,13 +76,12 @@ namespace LookingGlass.ItemStatsNameSpace
             destMethod = typeof(ItemStats).GetMethod(nameof(EquipmentText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
 
-            try
-            {
-                targetMethod = typeof(RoR2.UI.ItemIcon).GetMethod(nameof(RoR2.UI.ItemIcon.SetItemIndex), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                destMethod = typeof(ItemStats).GetMethod(nameof(ItemIndexText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                overrideHook2 = new Hook(targetMethod, destMethod, this);
-            }
-            catch(Exception _) { }
+
+
+            targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), new[] {typeof(ItemIndex), typeof(int), typeof(float) });
+            //targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(ItemIndexText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            overrideHook2 = new Hook(targetMethod, destMethod, this);
 
             targetMethod = typeof(PingerController).GetMethod(nameof(PingerController.SetCurrentPing), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             destMethod = typeof(ItemStats).GetMethod(nameof(ItemPinged), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -148,9 +148,9 @@ namespace LookingGlass.ItemStatsNameSpace
             if (fullDescOnPickup.Value)
                 self.descriptionText.token = equipmentDef.descriptionToken;
         }
-        void ItemIndexText(Action<ItemIcon, ItemIndex, int> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount)
+        void ItemIndexText(Action<ItemIcon, ItemIndex, int, float> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount, float newDurationPercent)
         {
-            orig(self, newItemIndex, newItemCount);
+            orig(self, newItemIndex, newItemCount, newDurationPercent);
             if (itemStats.Value)
             {
                 SetItemDescription(self, newItemIndex, newItemCount);
@@ -224,7 +224,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     //Just use the Dict, so it's also nicely sorted by tier.
                     foreach (var keypairValue in ItemDefinitions.allItemDefinitions)
                     {
-                        itemCount = body.inventory.GetItemCount((ItemIndex)keypairValue.Key);
+                        itemCount = body.inventory.GetItemCountEffective((ItemIndex)keypairValue.Key);
                         if (itemCount > 0)
                         {
                             itemStats = keypairValue.Value;
@@ -590,89 +590,77 @@ namespace LookingGlass.ItemStatsNameSpace
             orig(self, newPingInfo);
             if (!itemStatsOnPing.Value || !(self.hasAuthority && newPingInfo.targetGameObject))
                 return;
-
-            PickupDef pickupDef = null;
-            GenericPickupController genericPickupController = newPingInfo.targetGameObject.GetComponent<GenericPickupController>();
-            if (genericPickupController)
+            CharacterMaster characterMaster = self.gameObject.GetComponent<CharacterMaster>();
+            if (!characterMaster)
             {
-                pickupDef = PickupCatalog.GetPickupDef(genericPickupController.pickupIndex);
-            }
-            else
-            {
-                ShopTerminalBehavior shopTerminalBehavior = newPingInfo.targetGameObject.GetComponent<ShopTerminalBehavior>();
-                if (shopTerminalBehavior && !shopTerminalBehavior.pickupIndexIsHidden && !shopTerminalBehavior.Networkhidden && shopTerminalBehavior.pickupDisplay)
-                {
-                    pickupDef = PickupCatalog.GetPickupDef(shopTerminalBehavior.pickupIndex);
-                }
-            }
-            if (pickupDef != null)
-            {
-                ItemDef itemDef = ItemCatalog.GetItemDef(pickupDef.itemIndex);
-                CharacterMaster characterMaster = self.gameObject.GetComponent<CharacterMaster>();
-                if (itemDef)
-                {
-                    if (characterMaster)
-                    {
-                        //Shorter duration for pinging?
-                        PushItemNotificationDuration(characterMaster, itemDef.itemIndex, 5f);
-                    }
-                }
-                else
-                {
-                    EquipmentDef equipmentDef = EquipmentCatalog.GetEquipmentDef(pickupDef.equipmentIndex);
-                    if (equipmentDef)
-                    {
-                        if (characterMaster)
-                        {
-                            PushEquipmentNotificationDuration(characterMaster, equipmentDef.equipmentIndex, 5f);
-                        }
-                    }
-                }
-            }
-        }
-        internal void PushItemNotificationDuration(CharacterMaster characterMaster, ItemIndex itemIndex, float duration)
-        {
-            if (!characterMaster.hasAuthority)
-            {
-                Log.Error("Can't PushItemNotification for " + Util.GetBestMasterName(characterMaster) + " because they aren't local.");
                 return;
             }
-            CharacterMasterNotificationQueue notificationQueueForMaster = CharacterMasterNotificationQueue.GetNotificationQueueForMaster(characterMaster);
-            if (notificationQueueForMaster && itemIndex != ItemIndex.None)
+              
+
+            //Item
+            //Drone
+            //Shop (Includes Printers)
+            //DroneShop
+            //TempShop
+
+
+            PickupIndex pickupIndex = PickupIndex.none;
+            int droneTier = 0;
+            bool isTemp = false;
+            if (newPingInfo.targetGameObject.TryGetComponent<GenericPickupController>(out var Item))
             {
-                ItemDef itemDef = ItemCatalog.GetItemDef(itemIndex);
-                if (itemDef == null || itemDef.hidden)
+                pickupIndex = Item._pickupState.pickupIndex;
+                isTemp = Item._pickupState.isTempItem;
+            }
+            else if (newPingInfo.targetGameObject.TryGetComponent<DroneAvailability>(out var Drone))
+            {
+                pickupIndex = PickupCatalog.FindPickupIndex(Drone.droneDef.droneIndex);
+                droneTier = newPingInfo.targetGameObject.GetComponent<SummonMasterBehavior>().droneUpgradeCount;
+            }
+            else if (newPingInfo.targetGameObject.TryGetComponent<ShopTerminalBehavior>(out var Shop))
+            {
+                //Check for pickupDisplay because Cleansing Pools are not set to Hidden for some reason
+                //But they show up as ? because they dont have a display
+                if (!Shop.hidden && Shop.pickupDisplay)
                 {
-                    return;
+                    pickupIndex = Shop.pickup.pickupIndex;
                 }
-                notificationQueueForMaster.PushNotification(new CharacterMasterNotificationQueue.NotificationInfo(ItemCatalog.GetItemDef(itemIndex), null), duration);
-                PutLastNotificationFirst(notificationQueueForMaster);
+            }
+            else if (newPingInfo.targetGameObject.TryGetComponent<DroneVendorTerminalBehavior>(out var DroneShop))
+            {
+                if (!DroneShop.hidden)
+                {
+                    pickupIndex = DroneShop.CurrentPickupIndex;
+                } 
+            }
+            else if (newPingInfo.targetGameObject.TryGetComponent<PickupDistributorBehavior>(out var TempShop))
+            {
+                if (!TempShop.hidden)
+                {
+                    pickupIndex = TempShop.pickup.pickupIndex;
+                    isTemp = TempShop.tempPickups;
+                } 
+            }
+            if (pickupIndex != PickupIndex.none)
+            {
+                CharacterMasterNotificationQueue.PushPickupNotification(characterMaster, pickupIndex, isTemp, droneTier);
+                PutLastNotificationFirst(characterMaster);
             }
         }
 
-        internal void PushEquipmentNotificationDuration(CharacterMaster characterMaster, EquipmentIndex equipmentIndex, float duration)
+        internal void PutLastNotificationFirst(CharacterMaster characterMaster, float durationOverride = 5f)
         {
-            if (!characterMaster.hasAuthority)
-            {
-                Log.Error("Can't PushEquipmentNotification for " + Util.GetBestMasterName(characterMaster) + " because they aren't local.");
-                return;
-            }
+ 
+ 
+            //If duration needs to be modified, do here
             CharacterMasterNotificationQueue notificationQueueForMaster = CharacterMasterNotificationQueue.GetNotificationQueueForMaster(characterMaster);
-            if (notificationQueueForMaster && equipmentIndex != EquipmentIndex.None)
-            {
-                notificationQueueForMaster.PushNotification(new CharacterMasterNotificationQueue.NotificationInfo(EquipmentCatalog.GetEquipmentDef(equipmentIndex), null), duration);
-                PutLastNotificationFirst(notificationQueueForMaster);
-            }
-        }
-
-        internal void PutLastNotificationFirst(CharacterMasterNotificationQueue notificationQueueForMaster)
-        {
+            var newNotification = notificationQueueForMaster.notifications.Last();
+            newNotification.duration = durationOverride;
             if (notificationQueueForMaster.notifications.Count > 1)
             {
                 notificationQueueForMaster.notifications[0].duration = .01f;
                 if (notificationQueueForMaster.notifications.Count > 2)
                 {
-                    var newNotification = notificationQueueForMaster.notifications.Last();
                     notificationQueueForMaster.notifications.Remove(newNotification);
                     notificationQueueForMaster.notifications.Insert(1, newNotification);
                 }

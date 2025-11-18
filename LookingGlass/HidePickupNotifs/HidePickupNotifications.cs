@@ -1,10 +1,11 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
 using MonoMod.RuntimeDetour;
+using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
-using RiskOfOptions;
 using RoR2;
+using RoR2.UI;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -32,17 +33,18 @@ namespace LookingGlass.HidePickupNotifs
         }
         void InitHooks()
         {
-            var targetMethod = typeof(RoR2.CharacterMasterNotificationQueue).GetMethod(nameof(RoR2.CharacterMasterNotificationQueue.PushPickupNotification), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            var targetMethod = typeof(CharacterMasterNotificationQueue).GetMethod(nameof(CharacterMasterNotificationQueue.PushPickupNotification), new[] { typeof(CharacterMaster), typeof(PickupIndex), typeof(bool), typeof(int) });
+            //var targetMethod = typeof(CharacterMasterNotificationQueue).GetMethod(nameof(CharacterMasterNotificationQueue.PushPickupNotification), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
             var destMethod = typeof(HidePickupNotifications).GetMethod(nameof(PushPickupNotification), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
         }
-        void PushPickupNotification(Action<CharacterMaster, PickupIndex> orig, CharacterMaster characterMaster, PickupIndex pickupIndex)
+        void PushPickupNotification(Action<CharacterMaster, PickupIndex, bool, int> orig, CharacterMaster characterMaster, PickupIndex pickupIndex, bool isTemporary, int upgradeCount)
         {
             if (disablePickupNotifications.Value)
             {
                 return;
             }
-            orig(characterMaster, pickupIndex);
+            orig(characterMaster, pickupIndex, isTemporary, upgradeCount);
         }
     }
 }

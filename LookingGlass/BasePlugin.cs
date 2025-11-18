@@ -26,10 +26,11 @@ using static RoR2.HealthComponent;
 namespace LookingGlass
 {
     //[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, "1.13.1")]
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, "1.14.0")] //Idk how to version number
     public class BasePlugin : BaseUnityPlugin
     {
         internal static BasePlugin instance;
+        internal AllyCardInfo allyCardStuff;
         internal AutoSortItemsClass autoSortItems;
         internal NoWindowBlur noWindowBlur;
         internal ButtonsToCloseMenu buttonsToCloseMenu;
@@ -93,6 +94,7 @@ namespace LookingGlass
             unHiddenItems = new UnHiddenItems();
             buffDescriptions = new BuffDescriptionsClass();
             pickupNotifDurationClass = new PickupNotifDurationClass();
+            allyCardStuff = new AllyCardInfo();
 
             statsDisplayClass.CheckForOldDefaultSettingsThatNeedToBeUpdated();
         }
