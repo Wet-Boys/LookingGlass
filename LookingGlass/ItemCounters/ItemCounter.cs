@@ -19,6 +19,7 @@ namespace LookingGlass.ItemCounters
         public static ConfigEntry<bool> itemCounters;
         public static ConfigEntry<float> itemCountersSize;
         public static ConfigEntry<bool> tempItemCounters;
+        public static ConfigEntry<bool> tempItemCountersTotalCounter;
         public static ConfigEntry<bool> tempItemCountersTotal;
         private static Hook overrideHook;
         private static Hook overrideHook2;
@@ -32,6 +33,7 @@ namespace LookingGlass.ItemCounters
         {
             itemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Counters", true, "Counts your items in the scoreboard");
             tempItemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Temp Item Counters", true, "Counts your temp items in the scoreboard separately");
+            tempItemCountersTotalCounter = BasePlugin.instance.Config.Bind<bool>("Misc", "Temp Item Total Counter", true, "Counts your temp item total separately");
             tempItemCountersTotal = BasePlugin.instance.Config.Bind<bool>("Misc", "Include Temp Items In Item Totals", true, "Include temp items in the item counters");
             var targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(ItemCounter).GetMethod(nameof(UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -130,50 +132,50 @@ namespace LookingGlass.ItemCounters
 
             sb.Append($"<color=#FFFFFF>{whiteCount}</color>");
             if (tempItemCounters.Value && tempWhiteCount > 0)
-                sb.Append($"</size><size=40%><color=#90D5FF>({tempWhiteCount})</color></size><size=60%> ");
+                sb.Append($"</size><size=35%><color=#72FEEC>({tempWhiteCount})</color></size><size=60%> ");
             else sb.Append(" ");
 
                 sb.Append($"<color=#77FF17>{greenCount}</color>");
             if (tempItemCounters.Value && tempGreenCount > 0)
-                sb.Append($"</size><size=40%><color=#90D5FF>({tempGreenCount})</color></size><size=60%> ");
+                sb.Append($"</size><size=35%><color=#72FEEC>({tempGreenCount})</color></size><size=60%> ");
             else sb.Append(" ");
 
             sb.Append($"<color=#E7543A>{redCount}</color>");
             if (tempItemCounters.Value && tempRedCount > 0)
-                sb.Append($"</size><size=40%><color=#90D5FF>({tempRedCount})</color></size><size=60%> ");
+                sb.Append($"</size><size=35%><color=#72FEEC>({tempRedCount})</color></size><size=60%> ");
             else sb.Append(" ");
 
             if (bossCount > 0 )
             {
                 sb.Append($"<color=#FFEB04>{bossCount}</color>");
                 if (tempItemCounters.Value && tempBossCount > 0)
-                    sb.Append($"</size><size=40%><color=#90D5FF>({tempBossCount})</color></size><size=60%> ");
+                    sb.Append($"</size><size=35%><color=#90D5FF>({tempBossCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
             if (lunarCount > 0)
             {
                 sb.Append($"<color=#307FFF>{lunarCount}</color>");
                 if (tempItemCounters.Value && tempLunarCount > 0)
-                    sb.Append($" </size><size=40%><color=#90D5FF>({tempLunarCount})</color></size><size=60%> ");
+                    sb.Append($" </size><size=35%><color=#72FEEC>({tempLunarCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
             if (voidCount > 0)
             {
                 sb.Append($"<color=#ED7FCD>{voidCount}</color>");
                 if (tempItemCounters.Value && tempVoidCount > 0)
-                    sb.Append($"</size><size=40%><color=#90D5FF>({tempVoidCount})</color></size><size=60%> ");
+                    sb.Append($"</size><size=35%><color=#72FEEC>({tempVoidCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
             if (foodTierCount > 0)
             {
                 sb.Append($"<color=#FF8000>{foodTierCount}</color>");
                 if (tempItemCounters.Value && tempFoodTierCount > 0)
-                    sb.Append($"</size><size=40%><color=#90D5FF>({tempFoodTierCount})</color></size><size=60%> ");
+                    sb.Append($"</size><size=35%><color=#72FEEC>({tempFoodTierCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }    
             sb.Append($"</size><size=75%><color=#fff>{totalItemCount}</color>");
-            if (tempItemCounters.Value && tempTotalItemCount > 0)
-                sb.Append($"<size=50%><color=#90D5FF>({tempTotalItemCount})</color></size><size=75%>");
+            if ((tempItemCounters.Value || tempItemCountersTotalCounter.Value) && tempTotalItemCount > 0)
+                sb.Append($"<size=45%><color=#72FEEC>({tempTotalItemCount})</color></size><size=75%>");
 
             //Total item should be a little bigger?
             itemCountText.text = $"{sb.ToString()}";
