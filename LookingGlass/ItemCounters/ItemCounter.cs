@@ -18,6 +18,8 @@ namespace LookingGlass.ItemCounters
     {
         public static ConfigEntry<bool> itemCounters;
         public static ConfigEntry<float> itemCountersSize;
+        public static ConfigEntry<bool> tempItemCounters;
+        public static ConfigEntry<bool> tempItemCountersTotal;
         private static Hook overrideHook;
         private static Hook overrideHook2;
 
@@ -29,6 +31,8 @@ namespace LookingGlass.ItemCounters
         public void Setup()
         {
             itemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Counters", true, "Counts your items in the scoreboard");
+            tempItemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Temp Item Counters", true, "Counts your temp items in the scoreboard separately");
+            tempItemCountersTotal = BasePlugin.instance.Config.Bind<bool>("Misc", "Include Temp Items In Item Totals", true, "Include temp items in the item counters");
             var targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(ItemCounter).GetMethod(nameof(UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
@@ -52,14 +56,30 @@ namespace LookingGlass.ItemCounters
             }
         }
 
-        int GetItemsOfTierFast(Inventory inv, ItemTier tier)
+        int GetItemsOfTierFast(Inventory inv, ItemTier tier, bool includeTemp = true)
         {
             int num = 0;
             foreach (ItemIndex item in inv.itemAcquisitionOrder)
             {
                 if (ItemCatalog.GetItemDef(item).tier == tier)
                 {
-                    num += inv.GetItemCountEffective(item);
+                    if (includeTemp)
+                        num += inv.GetItemCountEffective(item);
+                    else
+                        num += inv.GetItemCountPermanent(item);
+                }
+            }
+            return num;
+        }
+
+        int GetTempItemsOfTierFast(Inventory inv, ItemTier tier)
+        {
+            int num = 0;
+            foreach (ItemIndex item in inv.itemAcquisitionOrder)
+            {
+                if (ItemCatalog.GetItemDef(item).tier == tier)
+                {
+                    num += inv.GetItemCountTemp(item);
                 }
             }
             return num;
@@ -75,16 +95,25 @@ namespace LookingGlass.ItemCounters
             //int greenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
             //int redCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier3);
 
- 
-            int whiteCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier1);
-            int greenCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier2);
-            int redCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier3);
-            int lunarCount = GetItemsOfTierFast(self.inventory, ItemTier.Lunar);
-            int bossCount = GetItemsOfTierFast(self.inventory, ItemTier.Boss);
-            int voidCount = GetItemsOfTierFast(self.inventory, ItemTier.VoidTier1)+ GetItemsOfTierFast(self.inventory, ItemTier.VoidTier2)+ GetItemsOfTierFast(self.inventory, ItemTier.VoidTier3)+ GetItemsOfTierFast(self.inventory, ItemTier.VoidBoss);
-            int foodTierCount = GetItemsOfTierFast(self.inventory, ItemTier.FoodTier);
+            bool tempItemCheck = tempItemCountersTotal.Value;
+
+            int whiteCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier1, tempItemCheck);
+            int greenCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier2, tempItemCheck);
+            int redCount = GetItemsOfTierFast(self.inventory, ItemTier.Tier3, tempItemCheck);
+            int lunarCount = GetItemsOfTierFast(self.inventory, ItemTier.Lunar, tempItemCheck);
+            int bossCount = GetItemsOfTierFast(self.inventory, ItemTier.Boss, tempItemCheck);
+            int voidCount = GetItemsOfTierFast(self.inventory, ItemTier.VoidTier1, tempItemCheck) + GetItemsOfTierFast(self.inventory, ItemTier.VoidTier2, tempItemCheck) + GetItemsOfTierFast(self.inventory, ItemTier.VoidTier3, tempItemCheck) + GetItemsOfTierFast(self.inventory, ItemTier.VoidBoss, tempItemCheck);
+            int foodTierCount = GetItemsOfTierFast(self.inventory, ItemTier.FoodTier, tempItemCheck);
             int totalItemCount = whiteCount + greenCount + redCount + lunarCount + bossCount + voidCount + foodTierCount;
 
+            int tempWhiteCount = GetTempItemsOfTierFast(self.inventory, ItemTier.Tier1);
+            int tempGreenCount = GetTempItemsOfTierFast(self.inventory, ItemTier.Tier2);
+            int tempRedCount = GetTempItemsOfTierFast(self.inventory, ItemTier.Tier3);
+            int tempLunarCount = GetTempItemsOfTierFast(self.inventory, ItemTier.Lunar);
+            int tempBossCount = GetTempItemsOfTierFast(self.inventory, ItemTier.Boss);
+            int tempVoidCount = GetTempItemsOfTierFast(self.inventory, ItemTier.VoidTier1) + GetTempItemsOfTierFast(self.inventory, ItemTier.VoidTier2) + GetTempItemsOfTierFast(self.inventory, ItemTier.VoidTier3) + GetTempItemsOfTierFast(self.inventory, ItemTier.VoidBoss);
+            int tempFoodTierCount = GetTempItemsOfTierFast(self.inventory, ItemTier.FoodTier);
+            int tempTotalItemCount = tempWhiteCount + tempGreenCount + tempRedCount + tempLunarCount + tempBossCount + tempVoidCount + tempFoodTierCount;
 
             //Made TotalItems larger
             //Removed the [] because it just kinda misaligned it
@@ -98,29 +127,56 @@ namespace LookingGlass.ItemCounters
             StringBuilder sb = new StringBuilder();
             sb.Append($"<size=60%>");
             //sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
-            sb.Append($"<color=#FFFFFF>{whiteCount}</color> ");
-            sb.Append($"<color=#77FF17>{greenCount}</color> ");
-            sb.Append($"<color=#E7543A>{redCount}</color> ");
+
+            sb.Append($"<color=#FFFFFF>{whiteCount}</color>");
+            if (tempItemCounters.Value && tempWhiteCount > 0)
+                sb.Append($"</size><size=40%><color=#90D5FF>({tempWhiteCount})</color></size><size=60%> ");
+            else sb.Append(" ");
+
+                sb.Append($"<color=#77FF17>{greenCount}</color>");
+            if (tempItemCounters.Value && tempGreenCount > 0)
+                sb.Append($"</size><size=40%><color=#90D5FF>({tempGreenCount})</color></size><size=60%> ");
+            else sb.Append(" ");
+
+            sb.Append($"<color=#E7543A>{redCount}</color>");
+            if (tempItemCounters.Value && tempRedCount > 0)
+                sb.Append($"</size><size=40%><color=#90D5FF>({tempRedCount})</color></size><size=60%> ");
+            else sb.Append(" ");
 
             if (bossCount > 0 )
             {
-                sb.Append($"<color=#FFEB04>{bossCount}</color> ");
+                sb.Append($"<color=#FFEB04>{bossCount}</color>");
+                if (tempItemCounters.Value && tempBossCount > 0)
+                    sb.Append($"</size><size=40%><color=#90D5FF>({tempBossCount})</color></size><size=60%> ");
+                else sb.Append(" ");
             }
             if (lunarCount > 0)
             {
-                sb.Append($"<color=#307FFF>{lunarCount}</color> ");
+                sb.Append($"<color=#307FFF>{lunarCount}</color>");
+                if (tempItemCounters.Value && tempLunarCount > 0)
+                    sb.Append($" </size><size=40%><color=#90D5FF>({tempLunarCount})</color></size><size=60%> ");
+                else sb.Append(" ");
             }
             if (voidCount > 0)
             {
-                sb.Append($"<color=#ED7FCD>{voidCount}</color> ");
+                sb.Append($"<color=#ED7FCD>{voidCount}</color>");
+                if (tempItemCounters.Value && tempVoidCount > 0)
+                    sb.Append($"</size><size=40%><color=#90D5FF>({tempVoidCount})</color></size><size=60%> ");
+                else sb.Append(" ");
             }
             if (foodTierCount > 0)
             {
-                sb.Append($"<color=#FF8000>{foodTierCount}</color> ");
+                sb.Append($"<color=#FF8000>{foodTierCount}</color>");
+                if (tempItemCounters.Value && tempFoodTierCount > 0)
+                    sb.Append($"</size><size=40%><color=#90D5FF>({tempFoodTierCount})</color></size><size=60%> ");
+                else sb.Append(" ");
             }    
             sb.Append($"</size><size=75%><color=#fff>{totalItemCount}</color>");
+            if (tempItemCounters.Value && tempTotalItemCount > 0)
+                sb.Append($"<size=50%><color=#90D5FF>({tempTotalItemCount})</color></size><size=75%>");
+
             //Total item should be a little bigger?
-            itemCountText.text = sb.ToString();
+            itemCountText.text = $"{sb.ToString()}";
             
         }
     }
