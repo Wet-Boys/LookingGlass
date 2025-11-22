@@ -32,9 +32,9 @@ namespace LookingGlass.ItemCounters
         public void Setup()
         {
             itemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Counters", true, "Counts your items in the scoreboard");
-            tempItemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Temp Item Counters", true, "Counts your temp items in the scoreboard separately");
+            tempItemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Temp Item Counters By Rarity", false, "Counts your temp items in the scoreboard separately by rarity");
             tempItemCountersTotalCounter = BasePlugin.instance.Config.Bind<bool>("Misc", "Temp Item Total Counter", true, "Counts your temp item total separately");
-            tempItemCountersTotal = BasePlugin.instance.Config.Bind<bool>("Misc", "Include Temp Items In Item Totals", true, "Include temp items in the item counters");
+            tempItemCountersTotal = BasePlugin.instance.Config.Bind<bool>("Misc", "Include Temp Items In Item Counter Totals", false, "Include temp items in the item counter totals");
             var targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(ItemCounter).GetMethod(nameof(UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
@@ -145,28 +145,28 @@ namespace LookingGlass.ItemCounters
                 sb.Append($"</size><size=35%><color=#72FEEC>({tempRedCount})</color></size><size=60%> ");
             else sb.Append(" ");
 
-            if (bossCount > 0 )
+            if (bossCount > 0 || tempBossCount > 0)
             {
                 sb.Append($"<color=#FFEB04>{bossCount}</color>");
                 if (tempItemCounters.Value && tempBossCount > 0)
                     sb.Append($"</size><size=35%><color=#90D5FF>({tempBossCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
-            if (lunarCount > 0)
+            if (lunarCount > 0 || tempLunarCount > 0)
             {
                 sb.Append($"<color=#307FFF>{lunarCount}</color>");
                 if (tempItemCounters.Value && tempLunarCount > 0)
                     sb.Append($" </size><size=35%><color=#72FEEC>({tempLunarCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
-            if (voidCount > 0)
+            if (voidCount > 0 || tempVoidCount > 0)
             {
                 sb.Append($"<color=#ED7FCD>{voidCount}</color>");
                 if (tempItemCounters.Value && tempVoidCount > 0)
                     sb.Append($"</size><size=35%><color=#72FEEC>({tempVoidCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
-            if (foodTierCount > 0)
+            if (foodTierCount > 0 || tempFoodTierCount > 0)
             {
                 sb.Append($"<color=#FF8000>{foodTierCount}</color>");
                 if (tempItemCounters.Value && tempFoodTierCount > 0)
