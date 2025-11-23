@@ -22,6 +22,8 @@ namespace LookingGlass.ItemStatsNameSpace
         public static ConfigEntry<bool> itemStatsCalculations;
         public static ConfigEntry<bool> fullDescOnPickup;
         public static ConfigEntry<bool> itemStatsOnPing;
+        public static ConfigEntry<bool> itemStatsOnPingByOtherPlayer;
+        public static ConfigEntry<bool> itemStatsShowHidden;
         public static ConfigEntry<float> itemStatsFontSize;
         public static ConfigEntry<bool> capChancePercentage;
         public static ConfigEntry<bool> abilityProcCoefficients;
@@ -45,6 +47,8 @@ namespace LookingGlass.ItemStatsNameSpace
             //Some items have pickup as flavor text and just check with tab if you need the full v
             fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", false, "Shows full item descriptions on pickup");
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world");
+            itemStatsOnPingByOtherPlayer = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping By Other Player", false, "Shows item descriptions when another player pings an item in the world");
+            itemStatsShowHidden = BasePlugin.instance.Config.Bind<bool>("Misc", "Show Hidden Items", false, "Shows item descriptions for hidden items");
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
             capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, "Caps displayed chances at 100%. May interact weirdly with luck if turned off");
             abilityProcCoefficients = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Proc Coefficients", true, "Shows ability proc coefficients on supported survivors");
@@ -55,6 +59,8 @@ namespace LookingGlass.ItemStatsNameSpace
             //Config that people are likelier to turn off should be higher up in Risk Menu
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPingByOtherPlayer, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsShowHidden, new CheckBoxConfig() { restartRequired = false }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
@@ -588,10 +594,10 @@ namespace LookingGlass.ItemStatsNameSpace
         void ItemPinged(Action<PingerController, PingerController.PingInfo> orig, PingerController self, PingerController.PingInfo newPingInfo)
         {
             orig(self, newPingInfo);
-            if (!itemStatsOnPing.Value || !(self.hasAuthority && newPingInfo.targetGameObject))
+            if (!itemStatsOnPing.Value || !newPingInfo.targetGameObject)
                 return;
-            CharacterMaster characterMaster = self.gameObject.GetComponent<CharacterMaster>();
-            if (!characterMaster)
+            CharacterMaster characterMaster = LocalUserManager.GetFirstLocalUser().cachedMaster;
+            if (!characterMaster || !itemStatsOnPingByOtherPlayer.Value && self.gameObject.GetComponent<CharacterMaster>() != characterMaster)
             {
                 return;
             }
@@ -621,7 +627,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 //Check for pickupDisplay because Cleansing Pools are not set to Hidden for some reason
                 //But they show up as ? because they dont have a display
-                if (!Shop.hidden && Shop.pickupDisplay)
+                if (itemStatsShowHidden.Value || (!Shop.hidden && Shop.pickupDisplay))
                 {
                     pickupIndex = Shop.pickup.pickupIndex;
                 }
