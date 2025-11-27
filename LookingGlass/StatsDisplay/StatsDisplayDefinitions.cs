@@ -225,6 +225,9 @@ namespace LookingGlass.StatsDisplay
             //Does this need saftey checks at all?
             StatsDisplayClass.statDictionary.Add("ping", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}ms{styleString}"; });
 
+            //StatsDisplayClass.statDictionary.Add("time", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}{styleString}"; });
+            //StatsDisplayClass.statDictionary.Add("realTime", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}{styleString}"; });
+
 
             //Are these really needed, they dont do anything v 
             //StatsDisplayClass.statDictionary.Add("isGlass", cachedUserBody => { return $"{utilityString}{(cachedUserBody.isGlass)}{styleString}"; });
