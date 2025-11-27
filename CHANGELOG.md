@@ -1,3 +1,9 @@
+### 1.14.1
+Added config options for temporary items.
+Added option to show item descriptions when another player pings an item.
+Added option to show item descriptions for hidden items.
+
+
 ### 1.14.0
 Added support for DLC3. (Fixes, Items, Skills, Portal, Buffs)  
 Pinging Drones now displays info, like items.  
