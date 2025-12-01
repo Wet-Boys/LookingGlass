@@ -156,9 +156,9 @@ namespace LookingGlass.CommandItemCount
             orig(self, options);
             bool showsQuantityInVanilla = self.GetComponent<ScrapperInfoPanelHelper>();
 
-            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("Scrapper") || parentName.StartsWith("Command")))
+            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("Scrapper")))
             {
-                // as a client interacting with a scrapper or command menu, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
+                // as a client interacting with a scrapper menu, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
                 // This prevetnts the numbers being created the first time the funciton is called as the options list is effectively garbage data on the first call because of wierd networking stuff
                 // thus preventing the item counts being incorrect and/or doubled
 
