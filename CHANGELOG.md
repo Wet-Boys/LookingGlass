@@ -1,3 +1,7 @@
+### 1.14.2
+Added config option for sorting items in crafting stations specifically.
+Added meal tier to default sorting options
+
 ### 1.14.1
 Added config options for temporary items.
 Added option to show item descriptions when another player pings an item.
