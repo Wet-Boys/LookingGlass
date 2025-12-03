@@ -56,8 +56,10 @@ namespace LookingGlass
             orig(self);
             // Is it more optimized to have more hooks (ie do this in awake)
             // Or less hooks but some redundency
-            self.GetComponent<Image>().raycastTarget = true;
-
+            if (self.TryGetComponent<Image>(out Image card))
+            {
+                card.raycastTarget = true;
+            }
         }
 
         public void AddAllyTooltips(Action<AllyCardController> orig, AllyCardController self)
