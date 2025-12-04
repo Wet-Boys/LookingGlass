@@ -1,3 +1,7 @@
+### 1.14.3
+Fixed incompat with RiskUI
+Fix for tooltips not working in artifact of command
+
 ### 1.14.2
 Added config option for sorting items in crafting stations specifically.
 Added meal tier to default sorting options
