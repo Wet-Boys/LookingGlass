@@ -1,4 +1,4 @@
-﻿using BepInEx.Configuration;
+using BepInEx.Configuration;
 using LookingGlass.Base;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions.Components.Options;
@@ -246,16 +246,42 @@ namespace LookingGlass.AutoSortItems
                     buttons.Add(item);
                 }
             }
+
+            // Calculate actual column count by checking Y positions of buttons
+            int actualMaxColumns = self.maxColumnCount;
+            if (buttons.Count > 1)
+            {
+                float firstButtonY = buttons[0].GetComponent<RectTransform>().anchoredPosition.y;
+                int columnCount = 1;
+                for (int i = 1; i < buttons.Count; i++)
+                {
+                    float currentY = buttons[i].GetComponent<RectTransform>().anchoredPosition.y;
+                    // Use a small tolerance for Y position comparison
+                    if (Mathf.Abs(currentY - firstButtonY) < 0.1f)
+                    {
+                        columnCount++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                actualMaxColumns = columnCount;
+            }
+
             for (int j = 0; j < options.Length; j++)
             {
+                if (j >= buttons.Count)
+                    break;
+                    
                 MPButton mpbutton = buttons[j];
                 //Log.Debug($"{Language.GetString(mpbutton.GetComponent<TooltipProvider>().titleToken)}");
-                int num = j - j % self.maxColumnCount;
-                int num2 = j % self.maxColumnCount;
-                int num3 = num2 - self.maxColumnCount;
+                int num = j - j % actualMaxColumns;
+                int num2 = j % actualMaxColumns;
+                int num3 = num2 - actualMaxColumns;
                 int num4 = num2 - 1;
                 int num5 = num2 + 1;
-                int num6 = num2 + self.maxColumnCount;
+                int num6 = num2 + actualMaxColumns;
                 //Log.Debug($"num[{num}] num2[{num2}] num3[{num3}] num4[{num4}] num5[{num5}] num6[{num6}] ");
                 Navigation navigation = mpbutton.navigation;
                 navigation.mode = Navigation.Mode.Explicit;
@@ -263,25 +289,25 @@ namespace LookingGlass.AutoSortItems
                 navigation.selectOnLeft = null;
                 navigation.selectOnUp = null;
                 navigation.selectOnDown = null;
-                if (num4 >= 0)
+                if (num4 >= 0 && num + num4 >= 0 && num + num4 < buttons.Count)
                 {
                     MPButton mpbutton2 = buttons[num + num4];
                     //Log.Debug($"selectOnLeft :{Language.GetString(mpbutton2.GetComponent<TooltipProvider>().titleToken)}");
                     navigation.selectOnLeft = mpbutton2;
                 }
-                if (num5 < self.maxColumnCount && num + num5 < options.Length)
+                if (num5 < actualMaxColumns && num + num5 >= 0 && num + num5 < buttons.Count)
                 {
                     MPButton mpbutton3 = buttons[num + num5];
                     //Log.Debug($"selectOnRight :{Language.GetString(mpbutton3.GetComponent<TooltipProvider>().titleToken)}");
                     navigation.selectOnRight = mpbutton3;
                 }
-                if (num + num3 >= 0)
+                if (num + num3 >= 0 && num + num3 < buttons.Count)
                 {
                     MPButton mpbutton4 = buttons[num + num3];
                     //Log.Debug($"selectOnUp :{Language.GetString(mpbutton4.GetComponent<TooltipProvider>().titleToken)}");
                     navigation.selectOnUp = mpbutton4;
                 }
-                if (num + num6 < options.Length)
+                if (num + num6 >= 0 && num + num6 < buttons.Count)
                 {
                     MPButton mpbutton5 = buttons[num + num6];
                     //Log.Debug($"selectOnDown :{Language.GetString(mpbutton5.GetComponent<TooltipProvider>().titleToken)}");
@@ -296,7 +322,14 @@ namespace LookingGlass.AutoSortItems
             var targetMethod = typeof(RoR2.UI.ItemInventoryDisplay).GetMethod(nameof(RoR2.UI.ItemInventoryDisplay.UpdateDisplay), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
             var destMethod = typeof(AutoSortItemsClass).GetMethod(nameof(UpdateDisplayOverride), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-  
+
+            // Hook SetPickupOptions to reorganize navigation for controller support
+            var pickupPanelSetMethod = typeof(RoR2.UI.PickupPickerPanel).GetMethod(nameof(RoR2.UI.PickupPickerPanel.SetPickupOptions), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var pickupPanelDestMethod = typeof(AutoSortItemsClass).GetMethod(nameof(SetPickupOptionsOverride), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (pickupPanelSetMethod != null && pickupPanelDestMethod != null)
+            {
+                new Hook(pickupPanelSetMethod, pickupPanelDestMethod, this);
+            }
         }
   
         private void UpdateDisplayOverride(Action<RoR2.UI.ItemInventoryDisplay> orig, RoR2.UI.ItemInventoryDisplay self)
@@ -353,6 +386,13 @@ namespace LookingGlass.AutoSortItems
             {
                 orig(self);
             }
+        }
+
+        private void SetPickupOptionsOverride(Action<RoR2.UI.PickupPickerPanel, PickupPickerController.Option[]> orig, RoR2.UI.PickupPickerPanel self, PickupPickerController.Option[] options)
+        {
+            orig(self, options);
+            // Set up controller navigation after the panel is initialized
+            BasePlugin.instance.StartCoroutine(ReOrganizeItems(options, self));
         }
 
         private void SettingsChanged(object sender, EventArgs e)
