@@ -1,5 +1,7 @@
 ### 1.14.4
 Seperate config for Drone info when pinging.  
+Drones now show full info with full description config.  
+
 Fixed Encrypted Portal never disappearing in stats.  
 Fixed a rare nullref for tooltips.  
 

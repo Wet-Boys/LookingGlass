@@ -46,7 +46,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Not a big fan, sometimes too much text to read at once.
             //Some items have pickup as flavor text and just check with tab if you need the full v
-            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", false, "Shows full item descriptions on pickup");
+            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Descriptions On Pickup", false, "Shows full item/equipment/drone descriptions on pickup or purchase");
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world, shop or pinter");
             droneStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Drone Info On Ping", true, "Shows drone descriptions when you ping a drone in the world or shop");
             StatsOnPingByOtherPlayer = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats On Ping By Other Player", false, "Shows item and drone descriptions when another player pings an item/drone in the world");
@@ -85,6 +85,9 @@ namespace LookingGlass.ItemStatsNameSpace
             destMethod = typeof(ItemStats).GetMethod(nameof(EquipmentText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
 
+            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetDrone), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(DroneText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var overrideHook22 = new Hook(targetMethod, destMethod, this);
 
 
             targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), new[] {typeof(ItemIndex), typeof(int), typeof(float) });
@@ -142,7 +145,7 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             orig(self, itemDef);
             if (fullDescOnPickup.Value)
-                if (Language.GetString(itemDef.descriptionToken) == itemDef.descriptionToken)
+                if (Language.IsTokenInvalid(itemDef.descriptionToken))
                 {
                     self.descriptionText.token = itemDef.pickupToken;
                 }
@@ -155,7 +158,31 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             orig(self, equipmentDef);
             if (fullDescOnPickup.Value)
-                self.descriptionText.token = equipmentDef.descriptionToken;
+            { 
+                if (Language.IsTokenInvalid(equipmentDef.descriptionToken))
+                {
+                    self.descriptionText.token = equipmentDef.pickupToken;
+                }
+                else
+                {
+                    self.descriptionText.token = equipmentDef.descriptionToken;
+                }
+            }
+        }
+        void DroneText(Action<GenericNotification, DroneDef> orig, GenericNotification self, DroneDef droneDef)
+        {
+            orig(self, droneDef);
+            if (fullDescOnPickup.Value)
+            {
+                if (Language.IsTokenInvalid(droneDef.skillDescriptionToken))
+                {
+                    self.descriptionText.token = droneDef.pickupToken;
+                }
+                else
+                {
+                    self.descriptionText.token = droneDef.skillDescriptionToken;
+                }
+            }
         }
         void ItemIndexText(Action<ItemIcon, ItemIndex, int, float> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount, float newDurationPercent)
         {
@@ -622,6 +649,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 pickupIndex = Item._pickupState.pickupIndex;
                 isTemp = Item._pickupState.isTempItem;
+                droneTier = Item._pickupState.upgradeValue;
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<DroneAvailability>(out var Drone))
             {
