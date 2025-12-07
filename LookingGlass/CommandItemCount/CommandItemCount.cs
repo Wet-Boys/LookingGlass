@@ -25,10 +25,12 @@ namespace LookingGlass.CommandItemCount
         private static Hook overrideHook;
         private static Hook contagiousItemsHook;
         private static Hook submitChoiceHook;
+        private static Hook craftingHook;
         public static ConfigEntry<bool> commandItemCount;
         public static ConfigEntry<bool> hideCountIfZero;
         public static ConfigEntry<bool> commandToolTips;
         public static ConfigEntry<bool> showCorruptedItems;
+        public static ConfigEntry<bool> sortCraftableItems;
 
         private List<int> optionMap = [-1];
         private bool isFromOnDisplayBegin = false;
@@ -53,16 +55,16 @@ namespace LookingGlass.CommandItemCount
             var targetMethod3 = typeof(PickupPickerController).GetMethod(nameof(PickupPickerController.SubmitChoice), BindingFlags.Public | BindingFlags.Instance);
             var destMethod3 = typeof(CommandItemCountClass).GetMethod(nameof(SubmitChoice), BindingFlags.NonPublic | BindingFlags.Instance);
             submitChoiceHook = new Hook(targetMethod3, destMethod3, this);
+            var targetMethod4 = typeof(CraftingController).GetMethod(nameof(CraftingController.FilterAvailableOptions), BindingFlags.NonPublic | BindingFlags.Instance);
+            var destMethod4 = typeof(CommandItemCountClass).GetMethod(nameof(SortByCraftableItem), BindingFlags.NonPublic | BindingFlags.Instance);
+            craftingHook = new Hook(targetMethod4, destMethod4, this);
             commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
             hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, "Hides the item count if you have none of an item");
             commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
             showCorruptedItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Show Corrupted Items", true, "Shows when items have been corrupted");
+            sortCraftableItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Sort Craftable Items", true, "Sort items that cannot be used in any crafting recipe to the bottom");
+
             SetupRiskOfOptions();
-
-            var targetMethod4 = typeof(CraftingController).GetMethod(nameof(CraftingController.FilterAvailableOptions), BindingFlags.NonPublic | BindingFlags.Instance);
-            var destMethod4 = typeof(CommandItemCountClass).GetMethod(nameof(SortByCraftableItem), BindingFlags.NonPublic | BindingFlags.Instance);
-             new Hook(targetMethod4, destMethod4, this);
-
         }
 
 
@@ -70,6 +72,7 @@ namespace LookingGlass.CommandItemCount
         void SortByCraftableItem(Action<CraftingController> orig, CraftingController self)
         {
             orig(self);
+            if (!sortCraftableItems.Value) return; // only sort if the option is enabled
 
             //Sort items that cannot be used in *any* crafting recipe to the bottom
             //The slots empty check to prevent re-sorting when putting in the first ingredient
@@ -86,6 +89,7 @@ namespace LookingGlass.CommandItemCount
             ModSettingsManager.AddOption(new CheckBoxOption(hideCountIfZero, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckHideCountIfZero }));
             ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(showCorruptedItems, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckShowCorruptedItems }));
+            ModSettingsManager.AddOption(new CheckBoxOption(sortCraftableItems, new CheckBoxConfig() { restartRequired = false }));
         }
         private static bool CheckHideCountIfZero()
         {
@@ -147,14 +151,14 @@ namespace LookingGlass.CommandItemCount
                 // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
                 (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, command);
             }
-            
+
 
             orig(self, options);
             bool showsQuantityInVanilla = self.GetComponent<ScrapperInfoPanelHelper>();
-      
-            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("Scrapper") || parentName.StartsWith("Command")))
+
+            if (isFromOnDisplayBegin && !NetworkServer.active && (parentName.StartsWith("Scrapper")))
             {
-                // as a client interacting with a scrapper or command menu, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
+                // as a client interacting with a scrapper menu, PickupPickerPanel.SetPickupOptions is called twice, once from PickupPickerController.OnDisplayBegin, and once from PickupPickerController.SetOptionsInternal.
                 // This prevetnts the numbers being created the first time the funciton is called as the options list is effectively garbage data on the first call because of wierd networking stuff
                 // thus preventing the item counts being incorrect and/or doubled
 
@@ -169,7 +173,7 @@ namespace LookingGlass.CommandItemCount
             for (int i = 0; i < options.Length; i++)
             {
                 ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
-                
+
                 //Equipments can show up too yknow
                 //No need to show a counter for those
 
@@ -271,7 +275,7 @@ namespace LookingGlass.CommandItemCount
                 //You don't need to know you have x0 of a command item, of a dlc, you don't own.
                 return;
             }
- 
+
             hgtextMeshProUGUI.text = $"x{count}";
             if (count == 0)
             {
