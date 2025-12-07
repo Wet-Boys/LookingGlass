@@ -1,15 +1,20 @@
+### 1.14.4
+Seperate config for Drone info when pinging.  
+Fixed Encrypted Portal never disappearing in stats.  
+Fixed a rare nullref for tooltips.  
+
 ### 1.14.3
-Fixed incompat with RiskUI
-Fix for tooltips not working in artifact of command
+Fixed incompat with RiskUI  
+Fix for tooltips not working in artifact of command  
 
 ### 1.14.2
-Added config option for sorting items in crafting stations specifically.
-Added meal tier to default sorting options
+Added config option for sorting items in crafting stations specifically.  
+Added meal tier to default sorting options  
 
 ### 1.14.1
-Added config options for temporary items.
-Added option to show item descriptions when another player pings an item.
-Added option to show item descriptions for hidden items.
+Added config options for temporary items.  
+Added option to show item descriptions when another player pings an item.  
+Added option to show item descriptions for hidden items.  
 
 
 ### 1.14.0
