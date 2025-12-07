@@ -313,14 +313,26 @@ namespace LookingGlass.CommandItemCount
 
             ItemDef itemDefinition = ItemCatalog.GetItemDef(pickupDefinition.itemIndex);
             EquipmentDef equipmentDef = EquipmentCatalog.GetEquipmentDef(pickupDefinition.equipmentIndex);
+            DroneDef droneDef = DroneCatalog.GetDroneDef(pickupDefinition.droneIndex);
             bool isItem = itemDefinition != null;
 
             TooltipContent content = new TooltipContent();
 
             content.titleColor = pickupDefinition.darkColor;
-            content.titleToken = isItem ? itemDefinition.nameToken : equipmentDef.nameToken;
-            content.bodyToken = isItem ? itemDefinition.descriptionToken : equipmentDef.descriptionToken;
-
+            content.titleToken = pickupDefinition.nameToken;
+            if (isItem) //Safer
+            {
+                content.bodyToken = itemDefinition.descriptionToken;
+            }
+            else if(equipmentDef)
+            {
+                content.bodyToken = equipmentDef.descriptionToken;
+            }
+            else if (droneDef)
+            {
+                content.bodyToken = droneDef.descriptionToken;
+            }
+             
             if (isItem && ItemStats.itemStats.Value)
             {
                 string stats;
