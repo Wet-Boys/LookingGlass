@@ -4,7 +4,7 @@ Drones now show full info with full description config.
 
 Fixed Encrypted Portal never disappearing in stats.  
 Fixed a rare nullref for tooltips.  
-
+ 
 ### 1.14.3
 Fixed incompat with RiskUI  
 Fix for tooltips not working in artifact of command  

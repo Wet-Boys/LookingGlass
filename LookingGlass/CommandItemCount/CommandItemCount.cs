@@ -30,8 +30,7 @@ namespace LookingGlass.CommandItemCount
         public static ConfigEntry<bool> hideCountIfZero;
         public static ConfigEntry<bool> commandToolTips;
         public static ConfigEntry<bool> showCorruptedItems;
-        public static ConfigEntry<bool> sortCraftableItems;
-
+       
         private List<int> optionMap = [-1];
         private bool isFromOnDisplayBegin = false;
 
@@ -55,21 +54,20 @@ namespace LookingGlass.CommandItemCount
             var targetMethod3 = typeof(PickupPickerController).GetMethod(nameof(PickupPickerController.SubmitChoice), BindingFlags.Public | BindingFlags.Instance);
             var destMethod3 = typeof(CommandItemCountClass).GetMethod(nameof(SubmitChoice), BindingFlags.NonPublic | BindingFlags.Instance);
             submitChoiceHook = new Hook(targetMethod3, destMethod3, this);
-            var targetMethod4 = typeof(CraftingController).GetMethod(nameof(CraftingController.FilterAvailableOptions), BindingFlags.NonPublic | BindingFlags.Instance);
-            var destMethod4 = typeof(CommandItemCountClass).GetMethod(nameof(SortByCraftableItem), BindingFlags.NonPublic | BindingFlags.Instance);
-            craftingHook = new Hook(targetMethod4, destMethod4, this);
+            //var targetMethod4 = typeof(CraftingController).GetMethod(nameof(CraftingController.FilterAvailableOptions), BindingFlags.NonPublic | BindingFlags.Instance);
+           // var destMethod4 = typeof(CommandItemCountClass).GetMethod(nameof(SortByCraftableItem), BindingFlags.NonPublic | BindingFlags.Instance);
+            //craftingHook = new Hook(targetMethod4, destMethod4, this);
             commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
             hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, "Hides the item count if you have none of an item");
             commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
             showCorruptedItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Show Corrupted Items", true, "Shows when items have been corrupted");
-            sortCraftableItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Sort Craftable Items", true, "Sort items that cannot be used in any crafting recipe to the bottom");
-
+           
             SetupRiskOfOptions();
         }
 
 
 
-        void SortByCraftableItem(Action<CraftingController> orig, CraftingController self)
+       /* void SortByCraftableItem(Action<CraftingController> orig, CraftingController self)
         {
             orig(self);
             if (!sortCraftableItems.Value) return; // only sort if the option is enabled
@@ -81,7 +79,7 @@ namespace LookingGlass.CommandItemCount
             {
                 self.options = self.options.OrderBy(entry => !entry.available).ToArray();
             }
-        }
+        }*/
 
         public void SetupRiskOfOptions()
         {
@@ -89,7 +87,7 @@ namespace LookingGlass.CommandItemCount
             ModSettingsManager.AddOption(new CheckBoxOption(hideCountIfZero, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckHideCountIfZero }));
             ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(showCorruptedItems, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckShowCorruptedItems }));
-            ModSettingsManager.AddOption(new CheckBoxOption(sortCraftableItems, new CheckBoxConfig() { restartRequired = false }));
+         
         }
         private static bool CheckHideCountIfZero()
         {
@@ -132,24 +130,29 @@ namespace LookingGlass.CommandItemCount
 
             bool potentialOrFragment = false;
             bool command = false;
+            bool isMealprep = false;
             if (self.pickerController)
             {
                 command = self.pickerController.name.StartsWith("CommandCube");
                 potentialOrFragment = self.pickerController.GetComponent<PickupIndexNetworker>(); //Good enough
                 //Both Fragments and Potentials would have a pickup
                 //But also Command so check that seperately
+                if (self.pickerController.TryGetComponent<CraftingController>(out var chef) && chef.AllSlotsEmpty())
+                {
+                    isMealprep = true;
+                }
             }
 
             string parentName = self.gameObject.name;
             bool withOneMore = parentName.StartsWith("OptionPickerPanel") || parentName.StartsWith("CommandPickerPanel");
-            bool isMealprep = parentName.StartsWith("MealPrep");
+        
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
 
             if (command || !potentialOrFragment || AutoSortItemsClass.SortPotentials.Value)
             {
                 // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
-                (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, command);
+                (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, command, isMealprep);
             }
 
 

@@ -567,6 +567,9 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage Instances: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Damage Reduction: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
@@ -574,6 +577,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 List<float> values = new();
                 values.Add(2 + stackCount);
+                values.Add(0.1f);
                 values.Add(15.5f - Util.ConvertAmplificationPercentageIntoReductionPercentage(.5f * stackCount));
                 return values;
             };
@@ -1995,7 +1999,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 List<float> values = new();
                 values.Add(2 + stackCount * 2);
-                values.Add(0.5f);
+                values.Add(0.45f);
                 values.Add(0);
                 return values;
             };

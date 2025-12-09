@@ -57,6 +57,7 @@ namespace LookingGlass.AutoSortItems
 
         public static ConfigEntry<bool> SortPotentials;
         public static ConfigEntry<bool> SortDeathScreen;
+        //public static ConfigEntry<bool> sortCraftableItems;
 
 
         public static AutoSortItemsClass instance;
@@ -100,6 +101,8 @@ namespace LookingGlass.AutoSortItems
             //
             SortPotentials = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Potentials & Fragments", false, "Sorts Void Potentials & Aurelionite Fragments according to Scrapper rules.");
             SortDeathScreen = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Death Screen & Monster Items", false, "Sort items on the game over screen, in run reports, or in Monster Inventories such as Evolution.");
+            //sortCraftableItems = BasePlugin.instance.Config.Bind<bool>("Auto Sort Items", "Sort Craftable Items", true, "Sort items that cannot be used in any crafting recipe to the bottom");
+
             //
             InitHooks();
             SetupRiskOfOptions();
@@ -129,6 +132,7 @@ namespace LookingGlass.AutoSortItems
 
             ModSettingsManager.AddOption(new CheckBoxOption(SortPotentials, new CheckBoxConfig() { restartRequired = false}));
             ModSettingsManager.AddOption(new CheckBoxOption(SortDeathScreen, new CheckBoxConfig() { restartRequired = false }));
+            //ModSettingsManager.AddOption(new CheckBoxOption(sortCraftableItems, new CheckBoxConfig() { restartRequired = false }));
 
         }
         //I'm going cross-eyed looking at all these
@@ -191,12 +195,12 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        internal (PickupPickerController.Option[], List<int>) SortPickupPicker(PickupPickerController.Option[] options, bool isCommand)
+        internal (PickupPickerController.Option[], List<int>) SortPickupPicker(PickupPickerController.Option[] options, bool isCommand, bool isMealprep)
         {
             List<ItemIndex> items = new List<ItemIndex>();
             List<ItemIndex> unSortedItems = new List<ItemIndex>(); //used to make mapping of what changed when sorting
             List<int> mapping = new List<int>(options.Length);
-
+            //bool meal2 = isMealprep && sortCraftableItems.Value;
             for (int i = 0; i < options.Length; i++)
             {
                 ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
@@ -206,8 +210,9 @@ namespace LookingGlass.AutoSortItems
                 }
                 items.Add(itemIndex);
                 unSortedItems.Add(itemIndex);
-
             }
+
+
             if ((isCommand && SortCommandAlphabetical.Value) || (!isCommand && SortScrapperAlphabetical.Value))
             {
                 items.Sort(delegate (ItemIndex index, ItemIndex index2)
@@ -222,6 +227,7 @@ namespace LookingGlass.AutoSortItems
             else
             {
                 items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, isCommand ? false : SortScrapperTier.Value, isCommand ? SortCommand.Value : SortScrapper.Value, isCommand ? SortCommandDescending.Value : SortScrapperDescending.Value));
+                
             }
 
             // make mapping of what was changed
@@ -230,6 +236,7 @@ namespace LookingGlass.AutoSortItems
             // apply mapping to options
             PickupPickerController.Option[] sortedOptions = Enumerable.ToArray(Enumerable.Select(mapping, (int index) => options[index]));
             //sortedOptions = sortedOptions.OrderBy(entry => !entry.available).ToArray();
+ 
             return (sortedOptions,mapping);
             
 

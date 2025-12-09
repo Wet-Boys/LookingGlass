@@ -135,50 +135,50 @@ namespace LookingGlass.ItemCounters
 
             sb.Append($"<color=#FFFFFF>{whiteCount}</color>");
             if (tempItemCounters.Value && tempWhiteCount > 0)
-                sb.Append($"</size><size=35%><style=cIsTemporary>({tempWhiteCount})</color></size><size=60%> ");
+                sb.Append($"</size><size=40%><style=cIsTemporary>({tempWhiteCount})</color></size><size=60%> ");
             else sb.Append(" ");
 
                 sb.Append($"<color=#77FF17>{greenCount}</color>");
             if (tempItemCounters.Value && tempGreenCount > 0)
-                sb.Append($"</size><size=35%><style=cIsTemporary>({tempGreenCount})</color></size><size=60%> ");
+                sb.Append($"</size><size=40%><style=cIsTemporary>({tempGreenCount})</color></size><size=60%> ");
             else sb.Append(" ");
 
             sb.Append($"<color=#E7543A>{redCount}</color>");
             if (tempItemCounters.Value && tempRedCount > 0)
-                sb.Append($"</size><size=35%><style=cIsTemporary>({tempRedCount})</color></size><size=60%> ");
+                sb.Append($"</size><size=40%><style=cIsTemporary>({tempRedCount})</color></size><size=60%> ");
             else sb.Append(" ");
 
             if (bossCount > 0 || tempBossCount > 0)
             {
                 sb.Append($"<color=#FFEB04>{bossCount}</color>");
                 if (tempItemCounters.Value && tempBossCount > 0)
-                    sb.Append($"</size><size=35%><style=cIsTemporary>({tempBossCount})</color></size><size=60%> ");
+                    sb.Append($"</size><size=40%><style=cIsTemporary>({tempBossCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
             if (lunarCount > 0 || tempLunarCount > 0)
             {
                 sb.Append($"<color=#307FFF>{lunarCount}</color>");
                 if (tempItemCounters.Value && tempLunarCount > 0)
-                    sb.Append($" </size><size=35%><style=cIsTemporary>({tempLunarCount})</color></size><size=60%> ");
+                    sb.Append($" </size><size=40%><style=cIsTemporary>({tempLunarCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
             if (voidCount > 0 || tempVoidCount > 0)
             {
                 sb.Append($"<color=#ED7FCD>{voidCount}</color>");
                 if (tempItemCounters.Value && tempVoidCount > 0)
-                    sb.Append($"</size><size=35%><style=cIsTemporary>({tempVoidCount})</color></size><size=60%> ");
+                    sb.Append($"</size><size=40%><style=cIsTemporary>({tempVoidCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }
             if (foodTierCount > 0 || tempFoodTierCount > 0)
             {
                 sb.Append($"<color=#FF8000>{foodTierCount}</color>");
                 if (tempItemCounters.Value && tempFoodTierCount > 0)
-                    sb.Append($"</size><size=35%><style=cIsTemporary>({tempFoodTierCount})</color></size><size=60%> ");
+                    sb.Append($"</size><size=40%><style=cIsTemporary>({tempFoodTierCount})</color></size><size=60%> ");
                 else sb.Append(" ");
             }    
             sb.Append($"</size><size=75%><color=#fff>{totalItemCount}</color>");
             if ((tempItemCounters.Value || tempItemCountersTotalCounter.Value) && tempTotalItemCount > 0)
-                sb.Append($"<size=45%><style=cIsTemporary>({tempTotalItemCount})</color></size><size=75%>");
+                sb.Append($"<size=50%><style=cIsTemporary>({tempTotalItemCount})</color></size><size=75%>");
 
             //Total item should be a little bigger?
             itemCountText.text = $"{sb.ToString()}";
