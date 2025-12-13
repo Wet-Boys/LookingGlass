@@ -37,8 +37,8 @@ namespace LookingGlass
         {
             // Check for modded luck values
             if (cachedUserBody && cachedUserBody.master) return cachedUserBody.master.luck;
-
-            return cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Clover) - cachedUserBody.inventory.GetItemCount(RoR2Content.Items.LunarBadLuck);
+            return 0;
+ 
         }
 
         public static float GetExponentialRechargeTime(float baseCooldown, float extraPercent, int count)

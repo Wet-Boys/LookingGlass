@@ -26,7 +26,7 @@ using static RoR2.HealthComponent;
 namespace LookingGlass
 {
     //[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, "1.14.0")] //Idk how to version number
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, "1.14.4")] //Idk how to version number
     public class BasePlugin : BaseUnityPlugin
     {
         internal static BasePlugin instance;

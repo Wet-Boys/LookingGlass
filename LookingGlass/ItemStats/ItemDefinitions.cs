@@ -13,6 +13,23 @@ namespace LookingGlass.ItemStatsNameSpace
         public static Dictionary<int, ItemStatsDef> allItemDefinitions = new Dictionary<int, ItemStatsDef>();
         public static Dictionary<int, ItemStatsDef> allEquipmentDefinitions = new Dictionary<int, ItemStatsDef>();
         
+        public static float GetRegenMult(Inventory inv)
+        {
+            //(0.8f + level * 0.2f)
+            if (Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5)
+            {
+                return 0.3f;
+            }
+            else if (inv.GetItemCountEffective(RoR2Content.Items.MonsoonPlayerHelper) > 0)
+            {
+                return 0.6f;
+            }
+            else if (inv.GetItemCountEffective(RoR2Content.Items.DrizzlePlayerHelper) > 0)
+            {
+                return 1.5f;
+            }
+            return 1f;
+        }
         public static void RegisterItemStatsDef(ItemStatsDef itemStatsDef, ItemIndex itemIndex)
         {
             allItemDefinitions.Add((int)itemIndex, itemStatsDef);
@@ -182,15 +199,11 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Base Regen: "); //Base Regen -> Scales with Level
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.FlatHealing);
-            itemStat.descriptions.Add("Level Scaled: "); //Scaled to current level
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.FlatHealing);
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                float level = master.GetBody() ? (float)(master.GetBody().level - 1) : TeamManager.instance.GetTeamLevel(TeamIndex.Player)-1;
-                values.Add(3f * stackCount);
-                values.Add((1f+level*0.2f) * (3f * stackCount));
+                values.Add((3f * stackCount));
+                //values.Add((3f * stackCount) * GetRegenMult(master.inventory));
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.HealWhileSafe.itemIndex, itemStat);
@@ -567,6 +580,9 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Damage Instances: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Damage Reduction: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Armor);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Recharge Time: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
@@ -574,6 +590,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 List<float> values = new();
                 values.Add(2 + stackCount);
+                values.Add(0.1f);
                 values.Add(15.5f - Util.ConvertAmplificationPercentageIntoReductionPercentage(.5f * stackCount));
                 return values;
             };
@@ -1995,7 +2012,7 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 List<float> values = new();
                 values.Add(2 + stackCount * 2);
-                values.Add(0.5f);
+                values.Add(0.45f);
                 values.Add(0);
                 return values;
             };
@@ -2255,11 +2272,11 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Base Regen: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.FlatHealing);
-            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
                 values.Add(40 * stackCount);
-                values.Add(1.6f * stackCount);
+                values.Add((1.6f * stackCount) * GetRegenMult(master.inventory));
                 return values;
             };
             allItemDefinitions.Add((int)RoR2Content.Items.Knurl.itemIndex, itemStat);
@@ -3042,7 +3059,8 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
-                values.Add(2.5f * stackCount);
+                values.Add((2.5f * stackCount) * GetRegenMult(master.inventory));
+                //values.Add(2.5f * stackCount);
                 var body = master.GetBody();
                 if (body)
                 {
