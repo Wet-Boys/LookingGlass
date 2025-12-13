@@ -1,5 +1,10 @@
 ### 1.14.4
-Regen Stat in stat display now halved on E5+, to reflect it halving the health gained by regen.
+Regen Stat on items now multiplied by difficulties regen modifier.   
+	- *(Like how luck affected stats are treated)*  
+
+Regen Stat in stat display now halved on E5+ & multiplied by RejuRacks to better show the actual amount your healing.  
+	- [regenRaw] added to show the unmodified stat.  
+
 Seperate config for Drone info when pinging.   
 Drones now show full info with full description config.    
  

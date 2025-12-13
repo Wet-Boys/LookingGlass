@@ -61,14 +61,15 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"{healingString}{(cachedUserBody.armor).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"{healingString}{(100 - (100 * (100 / (100 + cachedUserBody.armor)))).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("lvl1_regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseRegen).ToString(floatPrecision)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{(Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f: cachedUserBody.regen).ToString(floatPrecision)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("regenHp", cachedUserBody => { return $"{healingString}{(Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f : cachedUserBody.regen).ToString(floatPrecision)} hp/s{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("regenRaw", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{((Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f : cachedUserBody.regen) * (float)(1 + cachedUserBody.inventory.GetItemCountEffective(RoR2Content.Items.IncreaseHealing))).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("regenHp", cachedUserBody => { return $"{healingString}{((Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f : cachedUserBody.regen) * (float)(1 + cachedUserBody.inventory.GetItemCountEffective(RoR2Content.Items.IncreaseHealing))).ToString(floatPrecision)} hp/s{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("lvl1_maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseMaxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxShield", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxShield)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxBarrier", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxBarrier)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("barrierDecayRate", cachedUserBody => { return $"{healingString}{(cachedUserBody.barrierDecayRate).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("barrierDecayRate", cachedUserBody => { return $"{healingString}{(cachedUserBody.healthComponent.GetBarrierDecayRate()).ToString(floatPrecision)}{styleString}"; });
 
             //Current Health / ArmorReduc
             StatsDisplayClass.statDictionary.Add("effectiveHealth", cachedUserBody => {
@@ -153,11 +154,11 @@ namespace LookingGlass.StatsDisplay
             });
 
             StatsDisplayClass.statDictionary.Add("teddyBearBlockChance", cachedUserBody => {
-                int stackCount = cachedUserBody.inventory.GetItemCount(RoR2Content.Items.Bear);
+                int stackCount = cachedUserBody.inventory.GetItemCountEffective(RoR2Content.Items.Bear);
                 return $"{utilityString}{(((0.15f * stackCount) / ((0.15f * stackCount) + 1)) * 100f).ToString(floatPrecision)}%{styleString}";
             });
             StatsDisplayClass.statDictionary.Add("saferSpacesCD", cachedUserBody => {
-                int stackCount = cachedUserBody.inventory.GetItemCount(DLC1Content.Items.BearVoid);
+                int stackCount = cachedUserBody.inventory.GetItemCountEffective(DLC1Content.Items.BearVoid);
                 if (stackCount == 0)
                 {
                     return $"{utilityString}N/A{styleString}";
