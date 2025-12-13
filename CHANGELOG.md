@@ -10,7 +10,9 @@ Drones now show full info with full description config.
  
 Fixed Encrypted Portal never disappearing in stats.  
 Fixed a rare nullref for tooltips.   
+Fixed BarrierDecay stat not working.  
 Removed crafting sorting for networking related reasons.  
+
 
 ### 1.14.3
 Fixed incompat with RiskUI  
