@@ -61,8 +61,8 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("armor", cachedUserBody => { return $"{healingString}{(cachedUserBody.armor).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("armorDamageReduction", cachedUserBody => { return $"{healingString}{(100 - (100 * (100 / (100 + cachedUserBody.armor)))).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("lvl1_regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseRegen).ToString(floatPrecision)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("regenHp", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)} hp/s{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{(Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f: cachedUserBody.regen).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("regenHp", cachedUserBody => { return $"{healingString}{(Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f : cachedUserBody.regen).ToString(floatPrecision)} hp/s{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("lvl1_maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseMaxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxHealth)}{styleString}"; });

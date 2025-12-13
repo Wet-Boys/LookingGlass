@@ -133,6 +133,9 @@ namespace LookingGlass.ItemCounters
             sb.Append($"<size=60%>");
             //sb.Append($"<color=#{ColorCatalog.GetColorHexString(ColorCatalog.ColorIndex.Tier1Item)}>{whiteCount}</color> ");
 
+            //Temp vanilla : <color=#8bc7d5>
+            //Temp more sat: <color=#6ADCF6>
+
             sb.Append($"<color=#FFFFFF>{whiteCount}</color>");
             if (tempItemCounters.Value && tempWhiteCount > 0)
                 sb.Append($"</size><size=40%><style=cIsTemporary>({tempWhiteCount})</color></size><size=60%> ");

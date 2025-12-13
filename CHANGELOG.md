@@ -1,10 +1,12 @@
 ### 1.14.4
-Seperate config for Drone info when pinging.  
-Drones now show full info with full description config.  
-
-Fixed Encrypted Portal never disappearing in stats.  
-Fixed a rare nullref for tooltips.  
+Regen Stat in stat display now halved on E5+, to reflect it halving the health gained by regen.
+Seperate config for Drone info when pinging.   
+Drones now show full info with full description config.    
  
+Fixed Encrypted Portal never disappearing in stats.  
+Fixed a rare nullref for tooltips.   
+Removed crafting sorting for networking related reasons.  
+
 ### 1.14.3
 Fixed incompat with RiskUI  
 Fix for tooltips not working in artifact of command  
