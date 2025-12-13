@@ -312,7 +312,8 @@ namespace LookingGlass.AutoSortItems
             //Because there the items are added manually
             //However would also prevent sorting of enemy items. (Vields, Evo)
             //I am unaware of a better check atm
-            if (self != null && (self.inventory != null || SortDeathScreen.Value))
+           // if (self != null && (self.inventory != null || SortDeathScreen.Value))
+            if (self != null && (Run.instance.isRunning || SortDeathScreen.Value))
             {
                 display = self;
                 var temp = self.itemOrder;
