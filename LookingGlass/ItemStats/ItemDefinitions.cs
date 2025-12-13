@@ -199,10 +199,6 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Base Regen: "); //Base Regen -> Scales with Level
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.FlatHealing);
-            itemStat.descriptions.Add("Adjusted Base Regen: "); //Base Regen -> Scales with Level
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
-            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.FlatHealing);
-
             itemStat.calculateValues = (master, stackCount) =>
             {
                 List<float> values = new();
