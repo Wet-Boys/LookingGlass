@@ -149,6 +149,7 @@ namespace LookingGlass
             _goldPortal = false;
             _greenPortal = false;
             _voidPortal = false;
+            _acPortal = false;
         }
  
     }
