@@ -22,7 +22,8 @@ namespace LookingGlass.ItemStatsNameSpace
         public static ConfigEntry<bool> itemStatsCalculations;
         public static ConfigEntry<bool> fullDescOnPickup;
         public static ConfigEntry<bool> itemStatsOnPing;
-        public static ConfigEntry<bool> itemStatsOnPingByOtherPlayer;
+        public static ConfigEntry<bool> droneStatsOnPing;
+        public static ConfigEntry<bool> StatsOnPingByOtherPlayer;
         public static ConfigEntry<bool> itemStatsShowHidden;
         public static ConfigEntry<float> itemStatsFontSize;
         public static ConfigEntry<bool> capChancePercentage;
@@ -45,9 +46,10 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Not a big fan, sometimes too much text to read at once.
             //Some items have pickup as flavor text and just check with tab if you need the full v
-            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Item Description On Pickup", false, "Shows full item descriptions on pickup");
-            itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world");
-            itemStatsOnPingByOtherPlayer = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping By Other Player", false, "Shows item descriptions when another player pings an item in the world");
+            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Descriptions On Pickup", false, "Shows full item/equipment/drone descriptions on pickup or purchase");
+            itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world, shop or pinter");
+            droneStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Drone Info On Ping", true, "Shows drone descriptions when you ping a drone in the world or shop");
+            StatsOnPingByOtherPlayer = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats On Ping By Other Player", false, "Shows item and drone descriptions when another player pings an item/drone in the world");
             itemStatsShowHidden = BasePlugin.instance.Config.Bind<bool>("Misc", "Show Hidden Items", false, "Shows item descriptions for hidden items");
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
             capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, "Caps displayed chances at 100%. May interact weirdly with luck if turned off");
@@ -59,7 +61,8 @@ namespace LookingGlass.ItemStatsNameSpace
             //Config that people are likelier to turn off should be higher up in Risk Menu
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPingByOtherPlayer, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(droneStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(StatsOnPingByOtherPlayer, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsShowHidden, new CheckBoxConfig() { restartRequired = false }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
@@ -82,6 +85,9 @@ namespace LookingGlass.ItemStatsNameSpace
             destMethod = typeof(ItemStats).GetMethod(nameof(EquipmentText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
 
+            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetDrone), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(DroneText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var overrideHook22 = new Hook(targetMethod, destMethod, this);
 
 
             targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), new[] {typeof(ItemIndex), typeof(int), typeof(float) });
@@ -139,7 +145,7 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             orig(self, itemDef);
             if (fullDescOnPickup.Value)
-                if (Language.GetString(itemDef.descriptionToken) == itemDef.descriptionToken)
+                if (Language.IsTokenInvalid(itemDef.descriptionToken))
                 {
                     self.descriptionText.token = itemDef.pickupToken;
                 }
@@ -152,7 +158,31 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             orig(self, equipmentDef);
             if (fullDescOnPickup.Value)
-                self.descriptionText.token = equipmentDef.descriptionToken;
+            { 
+                if (Language.IsTokenInvalid(equipmentDef.descriptionToken))
+                {
+                    self.descriptionText.token = equipmentDef.pickupToken;
+                }
+                else
+                {
+                    self.descriptionText.token = equipmentDef.descriptionToken;
+                }
+            }
+        }
+        void DroneText(Action<GenericNotification, DroneDef> orig, GenericNotification self, DroneDef droneDef)
+        {
+            orig(self, droneDef);
+            if (fullDescOnPickup.Value)
+            {
+                if (Language.IsTokenInvalid(droneDef.skillDescriptionToken))
+                {
+                    self.descriptionText.token = droneDef.pickupToken;
+                }
+                else
+                {
+                    self.descriptionText.token = droneDef.skillDescriptionToken;
+                }
+            }
         }
         void ItemIndexText(Action<ItemIcon, ItemIndex, int, float> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount, float newDurationPercent)
         {
@@ -594,10 +624,12 @@ namespace LookingGlass.ItemStatsNameSpace
         void ItemPinged(Action<PingerController, PingerController.PingInfo> orig, PingerController self, PingerController.PingInfo newPingInfo)
         {
             orig(self, newPingInfo);
-            if (!itemStatsOnPing.Value || !newPingInfo.targetGameObject)
+            if (!newPingInfo.targetGameObject)
+                return;
+            if (!itemStatsOnPing.Value && !itemStatsOnPing.Value)
                 return;
             CharacterMaster characterMaster = LocalUserManager.GetFirstLocalUser().cachedMaster;
-            if (!characterMaster || !itemStatsOnPingByOtherPlayer.Value && self.gameObject.GetComponent<CharacterMaster>() != characterMaster)
+            if (!characterMaster || !StatsOnPingByOtherPlayer.Value && self.gameObject.GetComponent<CharacterMaster>() != characterMaster)
             {
                 return;
             }
@@ -617,9 +649,14 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 pickupIndex = Item._pickupState.pickupIndex;
                 isTemp = Item._pickupState.isTempItem;
+                droneTier = Item._pickupState.upgradeValue;
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<DroneAvailability>(out var Drone))
             {
+                if (!droneStatsOnPing.Value)
+                {
+                    return;
+                }
                 pickupIndex = PickupCatalog.FindPickupIndex(Drone.droneDef.droneIndex);
                 droneTier = newPingInfo.targetGameObject.GetComponent<SummonMasterBehavior>().droneUpgradeCount;
             }
@@ -634,6 +671,10 @@ namespace LookingGlass.ItemStatsNameSpace
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<DroneVendorTerminalBehavior>(out var DroneShop))
             {
+                if (!droneStatsOnPing.Value)
+                {
+                    return;
+                }
                 if (!DroneShop.hidden)
                 {
                     pickupIndex = DroneShop.CurrentPickupIndex;

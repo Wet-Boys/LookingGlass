@@ -92,7 +92,7 @@ namespace LookingGlass.StatsDisplay
             + "\n effectiveHealth, effectiveMaxHealth"
             + "\n barrierDecayRate" //Static in vanilla so eh?
             + "\n healthPercentage"
-            + "\n regen, regenHp"
+            + "\n regen, regenHp, regenRaw"
             + "\n armor, armorDamageReduction"
             + "\n curseHealthReduction "
             + "\n hasOSP "

@@ -1,32 +1,48 @@
+### 1.14.4
+Regen Stat on items now multiplied by difficulties regen modifier.   
+	- *(Like how luck affected stats are treated)*  
+
+Regen Stat in stat display now halved on E5+ & multiplied by RejuRacks to better show the actual amount you're healing.  
+	- [regenRaw] added to show the unmodified stat.  
+
+Seperate config for Drone info when pinging.   
+Drones now show full info with full description config.    
+ 
+Fixed Encrypted Portal never disappearing in stats.  
+Fixed a rare nullref for tooltips.   
+Fixed BarrierDecay stat not working.  
+Removed crafting sorting for networking related reasons.  
+
+
 ### 1.14.3
-Fixed incompat with RiskUI
-Fix for tooltips not working in artifact of command
+Fixed incompat with RiskUI  
+Fix for tooltips not working in artifact of command  
 
 ### 1.14.2
-Added config option for sorting items in crafting stations specifically.
-Added meal tier to default sorting options
+Added config option for sorting items in crafting stations specifically.  
+Added meal tier to default sorting options  
 
 ### 1.14.1
-Added config options for temporary items.
-Added option to show item descriptions when another player pings an item.
-Added option to show item descriptions for hidden items.
+Added config options for temporary items.  
+Added option to show item descriptions when another player pings an item.  
+Added option to show item descriptions for hidden items.  
 
 
 ### 1.14.0
-Added support for DLC3. (Fixes, Items, Skills, Portal, Buffs)
-Pinging Drones now displays info, like items.
-Hovering over allies now shows info, like items.
+Added support for DLC3. (Fixes, Items, Skills, Portal, Buffs)  
+Pinging Drones now displays info, like items.  
+Hovering over allies now shows info, like items.  
 
-Tier Item counts now hidden until you have 1 of that tier. (Other than main 3 tiers)
--To avoid showing counts for tiers that may not be accessible. (ie Void)
-
-Sorts chef by available and unavailable.
-Hid Item Counts on scrappers, as vanilla has that feature.
-Hid Item Counts for unavilable options. (ie locked items in command)
-Hid Item Counts on equipment options.
-Command Resize is more compact like vanilla.
-Command Resize increased minimum size (to fit text).
-Command Resize no longer multiplies ui color.
+Tier Item counts now hidden until you have 1 of that tier. (Other than main 3 tiers)  
+-*(To avoid showing counts for tiers that may not be accessible. (Void, Meal)*
+ 
+Sorts chef by available and unavailable.    
+Hid Item Counts on scrappers, as vanilla has that feature.  
+Hid Item Counts for unavilable options. (ie locked items in command)  
+Hid Item Counts on equipment options.  
+Command Resize is more compact like vanilla.  
+Command Resize increased minimum size (to fit text).  
+Command Resize no longer multiplies ui color.  
  
 
 ### 1.13.1
