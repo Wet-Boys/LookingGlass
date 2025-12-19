@@ -57,9 +57,9 @@ namespace LookingGlass.CommandItemCount
             //var targetMethod4 = typeof(CraftingController).GetMethod(nameof(CraftingController.FilterAvailableOptions), BindingFlags.NonPublic | BindingFlags.Instance);
            // var destMethod4 = typeof(CommandItemCountClass).GetMethod(nameof(SortByCraftableItem), BindingFlags.NonPublic | BindingFlags.Instance);
             //craftingHook = new Hook(targetMethod4, destMethod4, this);
-            commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command menu");
+            commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command and other pickup menus");
             hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, "Hides the item count if you have none of an item");
-            commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command menu");
+            commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command and other pickup menus");
             showCorruptedItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Show Corrupted Items", true, "Shows when items have been corrupted");
            
             SetupRiskOfOptions();
@@ -83,9 +83,9 @@ namespace LookingGlass.CommandItemCount
 
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { name = "Item Counts", restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(hideCountIfZero, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckHideCountIfZero }));
-            ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { name = "Pickup Menu Tooltips", restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(showCorruptedItems, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckShowCorruptedItems }));
          
         }
@@ -129,18 +129,18 @@ namespace LookingGlass.CommandItemCount
             }
 
             bool potentialOrFragment = false;
-            bool command = false;
-            bool isMealprep = false;
+            bool commandSettings = false;
+            CraftingController isMealprep = null;
             if (self.pickerController)
             {
-                command = self.pickerController.name.StartsWith("CommandCube");
+                commandSettings = self.pickerController.name.StartsWith("CommandCube");
                 potentialOrFragment = self.pickerController.GetComponent<PickupIndexNetworker>(); //Good enough
+
+                commandSettings = commandSettings || (potentialOrFragment && AutoSortItemsClass.SortPotentials.Value);
+
                 //Both Fragments and Potentials would have a pickup
                 //But also Command so check that seperately
-                if (self.pickerController.TryGetComponent<CraftingController>(out var chef) && chef.AllSlotsEmpty())
-                {
-                    isMealprep = true;
-                }
+                isMealprep = self.pickerController.GetComponent<CraftingController>();
             }
 
             string parentName = self.gameObject.name;
@@ -149,10 +149,10 @@ namespace LookingGlass.CommandItemCount
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
 
-            if (command || !potentialOrFragment || AutoSortItemsClass.SortPotentials.Value)
+            if (commandSettings || !potentialOrFragment || AutoSortItemsClass.SortPotentials.Value)
             {
                 // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.
-                (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, command, isMealprep);
+                (options, optionMap) = BasePlugin.instance.autoSortItems.SortPickupPicker(options, commandSettings, isMealprep);
             }
 
 
@@ -340,7 +340,7 @@ namespace LookingGlass.CommandItemCount
                 content.bodyToken = droneDef.descriptionToken;
             }
              
-            if (isItem && ItemStats.itemStats.Value)
+            if (isItem && ItemStats.fullDescInHud.Value)
             {
                 string stats;
                 if (corruption.Type == CorruptionType.Corrupted)
@@ -375,6 +375,8 @@ namespace LookingGlass.CommandItemCount
             }
 
             tooltipProvider.SetContent(content);
+
+            tooltipProvider.AllowTooltipOnNavigationSelect = true;
         }
     }
 }

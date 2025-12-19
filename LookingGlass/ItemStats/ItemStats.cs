@@ -1,16 +1,20 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
 using LookingGlass.StatsDisplay;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RoR2;
+using RoR2.Skills;
 using RoR2.Stats;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -18,7 +22,7 @@ namespace LookingGlass.ItemStatsNameSpace
 {
     internal class ItemStats : BaseThing
     {
-        public static ConfigEntry<bool> itemStats;
+        public static ConfigEntry<bool> fullDescInHud;
         public static ConfigEntry<bool> itemStatsCalculations;
         public static ConfigEntry<bool> fullDescOnPickup;
         public static ConfigEntry<bool> itemStatsOnPing;
@@ -28,6 +32,7 @@ namespace LookingGlass.ItemStatsNameSpace
         public static ConfigEntry<float> itemStatsFontSize;
         public static ConfigEntry<bool> capChancePercentage;
         public static ConfigEntry<bool> abilityProcCoefficients;
+        public static ConfigEntry<bool> cfgShowItemProcsOnSkillIcons;
 
         private static Hook overrideHook;
         private static Hook overrideHook2;
@@ -41,7 +46,7 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             InitHooks();
             ItemCatalog.availability.CallWhenAvailable(ItemDefinitions.RegisterAll);
-            itemStats = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats", true, "Shows full item descriptions on mouseover");
+            fullDescInHud = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Description in Hud", true, "Shows full item descriptions on mouseover");
             itemStatsCalculations = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats Calculations", true, "Gives calculations for vanilla items and modded items which have added specific support. (Sadly, items are not designed in a way to allow this to be automatic)");
 
             //Not a big fan, sometimes too much text to read at once.
@@ -50,64 +55,118 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world, shop or pinter");
             droneStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Drone Info On Ping", true, "Shows drone descriptions when you ping a drone in the world or shop");
             StatsOnPingByOtherPlayer = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats On Ping By Other Player", false, "Shows item and drone descriptions when another player pings an item/drone in the world");
-            itemStatsShowHidden = BasePlugin.instance.Config.Bind<bool>("Misc", "Show Hidden Items", false, "Shows item descriptions for hidden items");
+            itemStatsShowHidden = BasePlugin.instance.Config.Bind<bool>("Misc", "Show Hidden Items", false, "Shows item descriptions for hidden items in Multishops.\n\nThis is cheating.");
+            //Why is there just a random cheating config in this mod lol.
+            
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
             capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, "Caps displayed chances at 100%. May interact weirdly with luck if turned off");
             abilityProcCoefficients = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Proc Coefficients", true, "Shows ability proc coefficients on supported survivors");
+            cfgShowItemProcsOnSkillIcons = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Item Procs", true, "Shows item proc chances multiplied by the proc coefficient of the ability, in the abilities info box.");
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
         {
             //Config that people are likelier to turn off should be higher up in Risk Menu
-            ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(droneStatsOnPing, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(StatsOnPingByOtherPlayer, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsShowHidden, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(fullDescInHud, new CheckBoxConfig() {category = "Item Info", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(droneStatsOnPing, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(StatsOnPingByOtherPlayer, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+            
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { category = "Item Info", restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
+            ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { category = "Item Info", restartRequired = false, min = 1, max = 300 }));
+            ModSettingsManager.AddOption(new CheckBoxOption(capChancePercentage, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStats, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
-            ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
-            ModSettingsManager.AddOption(new CheckBoxOption(capChancePercentage, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(abilityProcCoefficients, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(cfgShowItemProcsOnSkillIcons, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = AbilityProcsEnabled }));
+
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsShowHidden, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+
         }
         private static bool ItemStatsDisabled()
         {
-            return !itemStats.Value;
+            return !fullDescInHud.Value;
+        }
+         private static bool AbilityProcsEnabled()
+        {
+            return !abilityProcCoefficients.Value;
         }
         void InitHooks()
         {
            
-            var targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetItem), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(ItemStats).GetMethod(nameof(PickupText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetItem), BindingFlags.Public | BindingFlags.Instance);
+            var destMethod = typeof(ItemStats).GetMethod(nameof(PickupText), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetEquipment), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(EquipmentText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetEquipment), BindingFlags.Public | BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(EquipmentText), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
 
-            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetDrone), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(DroneText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetDrone), BindingFlags.Public | BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(DroneText), BindingFlags.NonPublic | BindingFlags.Instance);
             var overrideHook22 = new Hook(targetMethod, destMethod, this);
 
 
             targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), new[] {typeof(ItemIndex), typeof(int), typeof(float) });
-            //targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(ItemIndexText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            //targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), BindingFlags.Public | BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(ItemIndexText), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);
 
-            targetMethod = typeof(PingerController).GetMethod(nameof(PingerController.SetCurrentPing), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(ItemPinged), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(PingerController).GetMethod(nameof(PingerController.SetCurrentPing), BindingFlags.NonPublic | BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(ItemPinged), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook3 = new Hook(targetMethod, destMethod, this);
 
-            targetMethod = typeof(RoR2.UI.SkillIcon).GetMethod(nameof(RoR2.UI.SkillIcon.Update), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(SkillUpdate), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(SkillIcon).GetMethod(nameof(RoR2.UI.SkillIcon.Update), BindingFlags.NonPublic | BindingFlags.Instance);
+            destMethod = typeof(ItemStats).GetMethod(nameof(SkillUpdate), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook4 = new Hook(targetMethod, destMethod, this);
 
             //Add Cooldown & ProcCoeff to Loadout on Character Select
             //Would need an IL  do i do that 
 
-        }
 
+             new ILHook(
+                 typeof(LoadoutPanelController.Row).GetMethod(nameof(RoR2.UI.LoadoutPanelController.Row.FromSkillSlot), BindingFlags.Public | BindingFlags.Static), 
+                 AddProcCDToLoadoutPanel);
+
+        }
+        public void AddProcCDToLoadoutPanel(ILContext il)
+        {
+            ILCursor c = new(il);
+            if (c.TryGotoNext(MoveType.Before,
+                x => x.MatchLdfld("RoR2.Skills.SkillDef", "skillDescriptionToken")))
+            {
+                //I cant figuer out how to not use remove here so whatever
+                c.Remove();
+                c.EmitDelegate<Func<SkillDef, string>>((skill) =>
+                {
+              
+                    if (abilityProcCoefficients.Value)
+                    {
+                        StringBuilder newDesc = new StringBuilder(Language.GetString(skill.skillDescriptionToken));
+                        newDesc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + skill.baseRechargeInterval.ToString("0.00") + "s</style>");
+                        if (ProcCoefficientData.hasProcCoefficient(skill.skillNameToken))
+                        {
+                            float proc = ProcCoefficientData.GetProcCoefficient(skill.skillNameToken);
+                            if (proc!= -1)
+                            {
+                                newDesc.Append("\nProc Coefficient: <style=cIsDamage>" + proc.ToString("0.0##") + "</color>");
+                            }
+                        }
+                        if (ProcCoefficientData.hasExtra(skill.skillNameToken))
+                        {
+                            //Extra info like Corrupted/Boosted proc and Ticks
+                            newDesc.Append(ProcCoefficientData.GetExtraInfo(skill.skillNameToken));
+                        }
+               
+                        return newDesc.ToString();
+                    }
+                    return skill.skillDescriptionToken;
+                });
+            }
+            else
+            {
+                Debug.LogError("IL FAILED : AddProcCDToLoadoutPanel");
+            }
+        }
 
 
         internal void EquipText(EquipmentIcon self)
@@ -141,6 +200,7 @@ namespace LookingGlass.ItemStatsNameSpace
             }
 
         }
+        
         void PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
         {
             orig(self, itemDef);
@@ -187,7 +247,7 @@ namespace LookingGlass.ItemStatsNameSpace
         void ItemIndexText(Action<ItemIcon, ItemIndex, int, float> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount, float newDurationPercent)
         {
             orig(self, newItemIndex, newItemCount, newDurationPercent);
-            if (itemStats.Value)
+            if (fullDescInHud.Value)
             {
                 SetItemDescription(self, newItemIndex, newItemCount);
             }
@@ -223,7 +283,6 @@ namespace LookingGlass.ItemStatsNameSpace
                     //CDR would be affected by Purity and some other junk so ig not like this
                 }*/
 
-
                 bool blacklistedSkill = false;
                 if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
                 {
@@ -244,82 +303,82 @@ namespace LookingGlass.ItemStatsNameSpace
                     //Extra info like Corrupted/Boosted proc and Ticks
                     desc.Append(ProcCoefficientData.GetExtraInfo(self.targetSkill.skillNameToken));
                 }
-                /*else if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                if (cfgShowItemProcsOnSkillIcons.Value)
                 {
-                    desc.Append("\nProc Coefficient: <style=cIsVoid>").Append((ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken)).ToString("0.0")).Append("</style>");
-                }*/
-
-                if (!blacklistedSkill)
-                {
-                    CharacterBody body = self.targetSkill.characterBody;
-
-                    int itemCount = 0;
-                    ItemStatsDef itemStats;
-
-                    //Dont check AllItemDefs and if inDict
-                    //Just use the Dict, so it's also nicely sorted by tier.
-                    foreach (var keypairValue in ItemDefinitions.allItemDefinitions)
+                    if (!blacklistedSkill)
                     {
-                        itemCount = body.inventory.GetItemCountEffective((ItemIndex)keypairValue.Key);
-                        if (itemCount > 0)
+                        CharacterBody body = self.targetSkill.characterBody;
+
+                        int itemCount = 0;
+                        ItemStatsDef itemStats;
+
+                        //Dont check AllItemDefs and if inDict
+                        //Just use the Dict, so it's also nicely sorted by tier.
+                        foreach (var keypairValue in ItemDefinitions.allItemDefinitions)
                         {
-                            itemStats = keypairValue.Value;
-                            if (itemStats.hasChance) //hasProc
+                            itemCount = body.inventory.GetItemCountEffective((ItemIndex)keypairValue.Key);
+                            if (itemCount > 0)
                             {
-                                bool healing = itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Health;
-                                desc.Append("\n  ").Append(Language.GetString(ItemCatalog.GetItemDef((ItemIndex)keypairValue.Key).nameToken));
-                                desc.Append(healing ? ": <style=cIsHealing>" : ": <style=cIsDamage>");
-
-                                if (healing)
+                                itemStats = keypairValue.Value;
+                                if (itemStats.hasChance) //hasProc
                                 {
-                                    //IDK BetterUI showed this and like behemoth ig?
-                                    desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]).ToString("0.#")).Append(" HP</style>");
-                                }
-                                else
-                                {
-                                    desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.#")).Append("%</style>");
-                                }
+                                    bool healing = itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Health;
+                                    desc.Append("\n  ").Append(Language.GetString(ItemCatalog.GetItemDef((ItemIndex)keypairValue.Key).nameToken));
+                                    desc.Append(healing ? ": <style=cIsHealing>" : ": <style=cIsDamage>");
+
+                                    if (healing)
+                                    {
+                                        //IDK BetterUI showed this and like behemoth ig?
+                                        desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]).ToString("0.#")).Append(" HP</style>");
+                                    }
+                                    else
+                                    {
+                                        desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0] * 100).ToString("0.#")).Append("%</style>");
+                                    }
 
 
-                                //Math Ceil leads to 201 lost seers, 26 runic
-                                //No math leads to 9 on tri tip
-                                //What is this bro
-                                //Thank you UnityEngine.Mathf for actually working
-                                if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
-                                {
-                                    desc.Append(" <style=cStack>(");
-                                    desc.Append(Mathf.CeilToInt(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
-                                    desc.Append(" to cap)</style>");
-                                }
-                                else if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.RunicLens)
-                                {
-                                    //Most ideally would calculated the chance with the min damage of the skill and add it to the chance or whatever
-                                    //But that's not really possible
-                                    desc.Append(" <style=cStack>(");
-                                    desc.Append(Mathf.CeilToInt(0.75f / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
-                                    desc.Append(" to cap)</style>");
-                                }
-
-                                /*if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
-                                {
-                                    // TODO align this text to the one above
-                                    desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
-
+                                    //Math Ceil leads to 201 lost seers, 26 runic
+                                    //No math leads to 9 on tri tip
+                                    //What is this bro
+                                    //Thank you UnityEngine.Mathf for actually working
                                     if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
                                     {
                                         desc.Append(" <style=cStack>(");
-                                        desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
+                                        desc.Append(Mathf.CeilToInt(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
                                         desc.Append(" to cap)</style>");
                                     }
-                                }*/
-                            }
-                        }
+                                    else if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.RunicLens)
+                                    {
+                                        //Most ideally would calculated the chance with the min damage of the skill and add it to the chance or whatever
+                                        //But that's not really possible
+                                        desc.Append(" <style=cStack>(");
+                                        desc.Append(Mathf.CeilToInt(0.75f / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
+                                        desc.Append(" to cap)</style>");
+                                    }
 
+                                    /*if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
+                                    {
+                                        // TODO align this text to the one above
+                                        desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
+
+                                        if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
+                                        {
+                                            desc.Append(" <style=cStack>(");
+                                            desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
+                                            desc.Append(" to cap)</style>");
+                                        }
+                                    }*/
+                                }
+                            }
+
+                        }
                     }
                 }
             }
             self.tooltipProvider.overrideBodyText = desc.ToString();
         }
+
+      
 
         float CalculateSkillCooldown(SkillIcon self)
         {
@@ -338,9 +397,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             return calculated_skill_cooldown;
         }
-
-        List<ItemDef> cachedItems = new List<ItemDef>();
-
+ 
         internal static void SetItemDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
         {
             var itemDef = ItemCatalog.GetItemDef(newItemIndex);
@@ -415,62 +472,46 @@ namespace LookingGlass.ItemStatsNameSpace
         }
 
 
-        public static void GetStyled(string input, ItemStatsDef.ValueType color)
+        public static string GetStyled(ItemStatsDef.ValueType color)
         {
             switch (color)
             {
                 case ItemStatsDef.ValueType.Healing:
                 case ItemStatsDef.ValueType.Armor:
-                    input = "<style=\"cIsHealing" + input;
-                    break;
+                    return "<style=cIsHealing";
                 case ItemStatsDef.ValueType.Damage:
-                    input = "<style=\"cIsDamage" + input;
-                    break;
+                    return "<style=cIsDamage";               
                 case ItemStatsDef.ValueType.Utility:
-                    input = "<style=\"cIsUtility" + input;
-                    break;
+                    return "<style=cIsUtility";
                 case ItemStatsDef.ValueType.Health:
-                    input += "<style=\"cIsHealth" + input;
-                    break;
+                   return"<style=cIsHealth";
                 case ItemStatsDef.ValueType.Void:
-                    input += "<style=\"cIsVoid" + input;
-                    break;
+                   return"<style=cIsVoid";
                 case ItemStatsDef.ValueType.Gold:
                 case ItemStatsDef.ValueType.HumanObjective:
-                    input = "<style=\"cHumanObjective" + input;
-                    break;
+                    return"<style=cHumanObjective";
                 case ItemStatsDef.ValueType.LunarObjective:
-                    input = "<style=\"cLunarObjective" + input;
-                    break;
+                    return"<style=cLunarObjective";
                 case ItemStatsDef.ValueType.Stack:
-                    input = "<style=\"cStack" + input;
-                    break;
+                    return"<style=cStack";
                 case ItemStatsDef.ValueType.WorldEvent:
-                    input = "<style=\"cWorldEvent" + input;
-                    break;
+                    return"<style=cWorldEvent";
                 case ItemStatsDef.ValueType.Artifact:
-                    input = "<style=\"cArtifact" + input;
-                    break;
+                    return"<style=cArtifact";
                 case ItemStatsDef.ValueType.UserSetting:
-                    input = "<style=\"cUserSetting" + input;
-                    break;
+                    return"<style=cUserSetting";
                 case ItemStatsDef.ValueType.Death:
-                    input = "<style=\"cDeath" + input;
-                    break;
+                    return"<style=cDeath";
                 case ItemStatsDef.ValueType.Sub:
-                    input = "<style=\"cSub" + input;
-                    break;
+                    return"<style=cSub";
                 case ItemStatsDef.ValueType.Mono:
-                    input = "<style=\"cMono" + input;
-                    break;
+                    return"<style=cMono";
                 case ItemStatsDef.ValueType.Shrine:
-                    input = "<style=\"cShrine" + input;
-                    break;
+                    return"<style=cShrine";
                 case ItemStatsDef.ValueType.Event:
-                    input = "<style=\"cEvent" + input;
-                    break;
+                    return "<style=cEvent";
             }
-            input += "</style>";
+            return "</style>"; 
         }
 
         //What does ref do pls help

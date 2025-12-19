@@ -1,15 +1,20 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.ItemStatsNameSpace;
 using MonoMod.RuntimeDetour;
+using MonoMod.RuntimeDetour.HookGen;
+using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
-using RiskOfOptions;
+using RoR2;
+using RoR2.Projectile;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
-using LookingGlass.ItemStatsNameSpace;
 
 namespace LookingGlass.EquipTimerFix
 {
@@ -26,15 +31,34 @@ namespace LookingGlass.EquipTimerFix
         public static ConfigEntry<bool> permanentSkillCooldownText;
         public void Setup()
         {
-            var targetMethod = typeof(EquipmentIcon).GetMethod(nameof(EquipmentIcon.SetDisplayData), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(CooldownFixer).GetMethod(nameof(SetDisplayData), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(EquipmentIcon).GetMethod(nameof(EquipmentIcon.SetDisplayData), BindingFlags.NonPublic | BindingFlags.Instance);
+            var destMethod = typeof(CooldownFixer).GetMethod(nameof(SetDisplayData), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-            targetMethod = typeof(SkillIcon).GetMethod(nameof(SkillIcon.Update), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(CooldownFixer).GetMethod(nameof(Update), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            overrideHook2 = new Hook(targetMethod, destMethod, this);
+
+            new Hook(typeof(SkillIcon).GetMethod(nameof(SkillIcon.Update), BindingFlags.NonPublic | BindingFlags.Instance),
+                typeof(CooldownFixer).GetMethod(nameof(Update), BindingFlags.NonPublic | BindingFlags.Instance), 
+                this);
+            /*new Hook(
+                typeof(EquipmentIcon.DisplayData).GetProperty(nameof(EquipmentIcon.DisplayData.showCooldown), BindingFlags.Public | BindingFlags.Instance).GetGetMethod(), 
+                typeof(CooldownFixer).GetMethod(nameof(showCooldownOverride), BindingFlags.Public | BindingFlags.Instance),
+                this);*/
+
             permanentEquipCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Equip", true, "Makes the cooldown indicator for the equip slot permanent and not just when you have 0 stock.");
             permanentSkillCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Skills", true, "Makes the cooldown indicator for skills permanent and not just when you have 0 stock.");
+        
+            
         }
+
+       /* public delegate bool orig_get_showCooldown(global::RoR2.UI.EquipmentIcon.DisplayData self);
+       
+        public bool showCooldownOverride(orig_get_showCooldown orig, global::RoR2.UI.EquipmentIcon.DisplayData self)
+        {
+            if (permanentEquipCooldownText.Value && self.hasEquipment && self.stock < self.maxStock)
+            {
+                return true;
+            }
+            return !self.isReady && self.hasEquipment;
+        }*/
 
         public void SetupRiskOfOptions()
         {
@@ -44,15 +68,16 @@ namespace LookingGlass.EquipTimerFix
         void SetDisplayData(Action<EquipmentIcon, EquipmentIcon.DisplayData> orig, EquipmentIcon self, EquipmentIcon.DisplayData newDisplayData)
         {
             orig(self, newDisplayData);
-            //This runs every frame bro what the fuck
-            if (ItemStats.itemStats.Value)
+            //This runs every frame but there's no better alternative
+            if (ItemStats.fullDescInHud.Value)
             {
                 BasePlugin.instance.itemStats.EquipText(self);
             }
-            if (permanentEquipCooldownText.Value && self.hasEquipment && newDisplayData.stock < newDisplayData.maxStock && self.cooldownText)
+            if (self.hasEquipment && self.cooldownText && !newDisplayData.equipmentDisabled && permanentEquipCooldownText.Value)
             {
-                self.cooldownText.gameObject.SetActive(true);
+                self.cooldownText.gameObject.SetActive(newDisplayData.stock < newDisplayData.maxStock);
             }
+          
         }
         void Update(Action<SkillIcon> orig, SkillIcon self)
         {

@@ -1,3 +1,28 @@
+### 1.15.0
+Condensed Stat Display & sorting options, to be more managable to use in RiskOfOptions. *(14 configs turned into 4)*
+
+
+Added option to disable all other info boxes when scoreboard is open, and only show stats.
+	- *For modpacks that have too many mods using that space.
+	- Preset to go alongside it.
+	
+Command & Pickup menus now show tooltips with Controllers.  
+Added Cooldown & ProcCoeff to loadout in lobby.  
+Added [damagePercent] stat.	*(track damage increases in %)*  
+Added [shieldPercent] stat.	*(% of CombinedHP that is shield)*  
+Added proper, local, Wandering Chef sorting.
+Added config to disable item procs in skill descriptions.  
+Access Node and Artifact Portal now tracked by [portals] stat
+
+Fixed PermamentEquipmentCooldown getting stuck showing 0.
+Fixed Command menu controller navigation getting broken by mod.
+Fixed maxRunKillCombo not getting reset per run.
+Fixed stat display being empty when opening a menu while paused.
+Fixed spacing on the last line of the stat display.
+Fixed closing command/scrapper menu on key press not working consistently.
+Fixed closing menu & translucent menu config not working on Drone Scrapper.  
+ 
+ 
 ### 1.14.4
 Regen Stat on items now multiplied by difficulties regen modifier.   
 	- *(Like how luck affected stats are treated)*  

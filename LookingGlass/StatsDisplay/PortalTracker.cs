@@ -9,7 +9,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-
+using System.Reflection;
+ 
 namespace LookingGlass
 {
     internal class PortalTracker : BaseThing
@@ -39,6 +40,8 @@ namespace LookingGlass
         public bool _greenPortal = false;
         public bool _voidPortal = false;
         public bool _acPortal = false;
+        public bool _artifactPortal = false;
+        public bool _accessNode = false;
 
         public PortalTracker()
         {
@@ -51,17 +54,38 @@ namespace LookingGlass
             //Gold, Void Portal -> Also when Lunar Seer??
 
 
-            var targetMethod = typeof(Stage).GetMethod(nameof(Stage.PreStartClient), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(PortalTracker).GetMethod(nameof(StageStart), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(Stage).GetMethod(nameof(Stage.PreStartClient), BindingFlags.Public | BindingFlags.Instance);
+            var destMethod = typeof(PortalTracker).GetMethod(nameof(StageStart), BindingFlags.NonPublic | BindingFlags.Instance);
             var overrideHook2 = new Hook(targetMethod, destMethod, this);
 
-            targetMethod = typeof(PortalSpawner).GetMethod(nameof(PortalSpawner.OnWillSpawnUpdated), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(PortalTracker).GetMethod(nameof(TrackPortalSpawner), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(PortalSpawner).GetMethod(nameof(PortalSpawner.OnWillSpawnUpdated), BindingFlags.NonPublic | BindingFlags.Instance);
+            destMethod = typeof(PortalTracker).GetMethod(nameof(TrackPortalSpawner), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);
+ 
+           new Hook(
+               typeof(PortalDialerController.PortalDialerPerformActionState).GetMethod(nameof(PortalDialerController.PortalDialerPerformActionState.OnEnter), BindingFlags.Public | BindingFlags.Instance),
+               typeof(PortalTracker).GetMethod(nameof(ArtifactPortal), BindingFlags.Public | BindingFlags.Instance)
+               ,this);
+
+            new Hook(
+             typeof(EntityStates.Missions.AccessCodes.Node.NodesOnAndReady).GetMethod(nameof(EntityStates.Missions.AccessCodes.Node.NodesOnAndReady.OnEnter), BindingFlags.Public | BindingFlags.Instance),
+             typeof(PortalTracker).GetMethod(nameof(AccessNode), BindingFlags.Public | BindingFlags.Instance)
+             ,this);
         }
 
+        public void ArtifactPortal(Action<PortalDialerController.PortalDialerPerformActionState> orig, PortalDialerController.PortalDialerPerformActionState self)
+        {
+            orig(self);
+            _artifactPortal = true;
+        }
+        public void AccessNode(Action<EntityStates.Missions.AccessCodes.Node.NodesOnAndReady> orig, EntityStates.Missions.AccessCodes.Node.NodesOnAndReady self)
+        {
+            orig(self);
+            _accessNode = true;
+        }
         public void SetupRiskOfOptions()
         {
+
         }
 
         public string ReturnAllAvailablePortals()
@@ -77,12 +101,17 @@ namespace LookingGlass
                 if (shopPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cIsUtility>Bazaar </style>";
+                    ActivePortals += "<style=cLunarObjective>Bazaar </style>";
                 }
                 if (goldPortal)
                 {
                     portals++;
                     ActivePortals += "<style=cIsDamage>Gold </style>";
+                }
+                if (_accessNode)
+                {
+                    portals++;
+                    ActivePortals += "<style=cIsHealth>Node </style>";
                 }
                 if (_acPortal)
                 {
@@ -102,7 +131,12 @@ namespace LookingGlass
                 if (msPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cLunarObjective>Celestial </style>";
+                    ActivePortals += "<style=cIsUtility>Celestial </style>";
+                }
+                if (_artifactPortal)
+                {
+                    portals++;
+                    ActivePortals += "<style=cIsDeath>Artifact </style>";
                 }
                 if (portals == 0)
                 {
@@ -150,7 +184,9 @@ namespace LookingGlass
             _greenPortal = false;
             _voidPortal = false;
             _acPortal = false;
+            _artifactPortal = false;
+            _accessNode = false;
         }
- 
+
     }
 }

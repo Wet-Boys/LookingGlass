@@ -1,11 +1,8 @@
 ﻿using LookingGlass.DPSMeterStuff;
 using RoR2;
 using RoR2.Networking;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace LookingGlass.StatsDisplay
 {
@@ -16,11 +13,12 @@ namespace LookingGlass.StatsDisplay
         // these delegates are called on a seperate thread, so using most of unity api is illegal here
         internal static void SetupDefs()
         {
-            string utilityString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsUtility>" : "";
-            string damageString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsDamage>" : "";
-            string healingString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsHealing>" : "";
-            string healthString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsHealth>" : "";
-            string voidString = StatsDisplayClass.builtInColors.Value ? "<style=\"cIsVoid>" : "";
+            string utilityString = StatsDisplayClass.builtInColors.Value ? "<style=cIsUtility>" : "";
+            string damageString = StatsDisplayClass.builtInColors.Value ? "<style=cIsDamage>" : "";
+            string healingString = StatsDisplayClass.builtInColors.Value ? "<style=cIsHealing>" : "";
+            string healthString = StatsDisplayClass.builtInColors.Value ? "<style=cIsHealth>" : "";
+            string voidString = StatsDisplayClass.builtInColors.Value ? "<style=cIsVoid>" : "";
+            string gray = StatsDisplayClass.builtInColors.Value ? "<style=cStack>" : "";
             string styleString = StatsDisplayClass.builtInColors.Value ? "</style>" : "";
             //NumberFormatInfo floatPrecision = new NumberFormatInfo();
             //floatPrecision.NumberDecimalDigits = StatsDisplayClass.floatPrecision.Value;
@@ -29,8 +27,12 @@ namespace LookingGlass.StatsDisplay
 
             #region Damage Related
             StatsDisplayClass.statDictionary.Add("lvl1_damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.baseDamage).ToString(floatPrecision)}{styleString}"; });
-             StatsDisplayClass.statDictionary.Add("baseDamage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; }); //Needs to be kept for old version support
             StatsDisplayClass.statDictionary.Add("damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("baseDamage", StatsDisplayClass.statDictionary["damage"]);
+
+            StatsDisplayClass.statDictionary.Add("damagePercentNoWatch", cachedUserBody => { return $"{damageString}{((cachedUserBody.damage / (cachedUserBody.baseDamage * (cachedUserBody.level * 0.2f + 0.8f))) * 100).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("damagePercent", cachedUserBody => { return $"{damageString}{((cachedUserBody.damage / (cachedUserBody.baseDamage * (cachedUserBody.level * 0.2f + 0.8f)) + 0.2 * cachedUserBody.inventory.GetItemCountEffective(DLC1Content.Items.FragileDamageBonus)) * 100).ToString(floatPrecision)}%{styleString}"; });
+
             StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"{damageString}{(cachedUserBody.attackSpeed).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("attackSpeedPercent", cachedUserBody => { return $"{damageString}{((cachedUserBody.attackSpeed / cachedUserBody.baseAttackSpeed) * 100).ToString(floatPrecision)}%{styleString}"; });
 
@@ -68,6 +70,7 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("lvl1_maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseMaxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxShield", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxShield)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("shieldPercent", cachedUserBody => { return $"{healingString}{((cachedUserBody.maxShield / cachedUserBody.healthComponent.fullCombinedHealth) *100).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxBarrier", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxBarrier)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("barrierDecayRate", cachedUserBody => { return $"{healingString}{(cachedUserBody.healthComponent.GetBarrierDecayRate()).ToString(floatPrecision)}{styleString}"; });
 
@@ -220,11 +223,12 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("experience", cachedUserBody => { return $"{utilityString}{(cachedUserBody.experience).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("level", cachedUserBody => { return $"{utilityString}{(cachedUserBody.level)}{styleString}"; });
   
-            StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{utilityString}{(Run.instance ? Run.instance.difficultyCoefficient.ToString(floatPrecision) : "N/A")}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{damageString}{(Run.instance ? Run.instance.difficultyCoefficient.ToString(floatPrecision) : "N/A")}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("stage", cachedUserBody => { return $"{utilityString}{Language.GetString(Stage.instance ? Stage.instance.sceneDef.nameToken : "N/A")}{styleString}"; });
             
             //Does this need saftey checks at all?
-            StatsDisplayClass.statDictionary.Add("ping", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}ms{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("ping", cachedUserBody => { return $"{gray}{(NetworkServer.active ? "0" : RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection).ToString())}ms{styleString}"; });
+ 
 
             //StatsDisplayClass.statDictionary.Add("time", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}{styleString}"; });
             //StatsDisplayClass.statDictionary.Add("realTime", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}{styleString}"; });

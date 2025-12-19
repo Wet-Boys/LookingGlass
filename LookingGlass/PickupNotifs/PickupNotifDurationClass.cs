@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using BepInEx.Configuration;
 using LookingGlass.HidePickupNotifs;
+using System.Reflection;
 
 namespace LookingGlass.PickupNotifsDuration
 {
@@ -24,8 +25,8 @@ namespace LookingGlass.PickupNotifsDuration
         }
         public void Setup()
         {
-            var targetMethod = typeof(RoR2.CharacterMasterNotificationQueue).GetMethod(nameof(RoR2.CharacterMasterNotificationQueue.PushNotification), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(PickupNotifDurationClass).GetMethod(nameof(PushNotification), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(RoR2.CharacterMasterNotificationQueue).GetMethod(nameof(RoR2.CharacterMasterNotificationQueue.PushNotification), BindingFlags.NonPublic | BindingFlags.Instance);
+            var destMethod = typeof(PickupNotifDurationClass).GetMethod(nameof(PushNotification), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
             notificationDuration = BasePlugin.instance.Config.Bind<float>("Misc", "Pickup Notifications Duration", 6, "Duration of pickup notifications. 6s is the vanilla duration");
         }

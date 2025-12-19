@@ -9,6 +9,7 @@ using RoR2.UI;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 
 namespace LookingGlass.HidePickupNotifs
 {
@@ -34,8 +35,8 @@ namespace LookingGlass.HidePickupNotifs
         void InitHooks()
         {
             var targetMethod = typeof(CharacterMasterNotificationQueue).GetMethod(nameof(CharacterMasterNotificationQueue.PushPickupNotification), new[] { typeof(CharacterMaster), typeof(PickupIndex), typeof(bool), typeof(int) });
-            //var targetMethod = typeof(CharacterMasterNotificationQueue).GetMethod(nameof(CharacterMasterNotificationQueue.PushPickupNotification), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-            var destMethod = typeof(HidePickupNotifications).GetMethod(nameof(PushPickupNotification), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            //var targetMethod = typeof(CharacterMasterNotificationQueue).GetMethod(nameof(CharacterMasterNotificationQueue.PushPickupNotification), BindingFlags.Public | BindingFlags.Static);
+            var destMethod = typeof(HidePickupNotifications).GetMethod(nameof(PushPickupNotification), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
         }
         void PushPickupNotification(Action<CharacterMaster, PickupIndex, bool, int> orig, CharacterMaster characterMaster, PickupIndex pickupIndex, bool isTemporary, int upgradeCount)

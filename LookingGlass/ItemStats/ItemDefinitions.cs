@@ -1371,13 +1371,13 @@ namespace LookingGlass.ItemStatsNameSpace
             allItemDefinitions.Add((int)DLC3Content.Items.ShieldBooster.itemIndex, itemStat);
 
 
-            //Shoper Compulsion
+            //Collectors Compulsion
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Max Stacks: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Shrine);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Max Bonus Stats: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Shrine);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
@@ -1608,10 +1608,10 @@ namespace LookingGlass.ItemStatsNameSpace
             //Removed stacking -> Increasing Stats per buff
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Max Stacks: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Shrine);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Max Bonus Stats: ");
-            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Shrine);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {

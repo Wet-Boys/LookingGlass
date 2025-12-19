@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using System.Reflection;
 
 namespace LookingGlass.DPSMeterStuff
 {
@@ -44,15 +45,15 @@ namespace LookingGlass.DPSMeterStuff
             maxCombo = maxComboConfigEntry.Value;
             maxKillComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Kill Combo", 0, "What are you gonna do, cheat the number?");
             maxKillCombo = maxKillComboConfigEntry.Value;
-            var targetMethod = typeof(GlobalEventManager).GetMethod(nameof(GlobalEventManager.ClientDamageNotified), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-            var destMethod = typeof(DPSMeter).GetMethod(nameof(TrackDamage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(GlobalEventManager).GetMethod(nameof(GlobalEventManager.ClientDamageNotified), BindingFlags.Public | BindingFlags.Static);
+            var destMethod = typeof(DPSMeter).GetMethod(nameof(TrackDamage), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-            targetMethod = typeof(Run).GetMethod(nameof(Run.OnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(DPSMeter).GetMethod(nameof(RunOnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(Run).GetMethod(nameof(Run.OnEnable), BindingFlags.NonPublic | BindingFlags.Instance);
+            destMethod = typeof(DPSMeter).GetMethod(nameof(RunOnEnable), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);
 
-            targetMethod = typeof(Stage).GetMethod(nameof(Stage.PreStartClient), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(DPSMeter).GetMethod(nameof(ResetOnStage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(Stage).GetMethod(nameof(Stage.PreStartClient), BindingFlags.Public | BindingFlags.Instance);
+            destMethod = typeof(DPSMeter).GetMethod(nameof(ResetOnStage), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);
         }
 
@@ -72,6 +73,7 @@ namespace LookingGlass.DPSMeterStuff
             damageDealtSincePeriod = 0;
             maxRunCombo = 0;
             killsThisRun = 0;
+            maxRunKillCombo = 0;
         }
         void TrackDamage(Action<DamageDealtMessage> orig, DamageDealtMessage damageDealtMessage)
         {
@@ -132,7 +134,7 @@ namespace LookingGlass.DPSMeterStuff
                 damageDealtSincePeriod = 0;
             }
         }
-        internal void Update()
+        internal void FixedUpdate()
         {
             if (timer > 0)
             {
