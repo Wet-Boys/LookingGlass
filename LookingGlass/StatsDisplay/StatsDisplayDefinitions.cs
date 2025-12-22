@@ -30,8 +30,8 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("damage", cachedUserBody => { return $"{damageString}{(cachedUserBody.damage).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("baseDamage", StatsDisplayClass.statDictionary["damage"]);
 
-            StatsDisplayClass.statDictionary.Add("damagePercentNoWatch", cachedUserBody => { return $"{damageString}{((cachedUserBody.damage / (cachedUserBody.baseDamage * (cachedUserBody.level * 0.2f + 0.8f))) * 100).ToString(floatPrecision)}%{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("damagePercent", cachedUserBody => { return $"{damageString}{((cachedUserBody.damage / (cachedUserBody.baseDamage * (cachedUserBody.level * 0.2f + 0.8f)) + 0.2 * cachedUserBody.inventory.GetItemCountEffective(DLC1Content.Items.FragileDamageBonus)) * 100).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("damagePercent", cachedUserBody => { return $"{damageString}{((cachedUserBody.damage / (cachedUserBody.baseDamage * (cachedUserBody.level * 0.2f + 0.8f))) * 100).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("damagePercentWithWatch", cachedUserBody => { return $"{damageString}{((cachedUserBody.damage / (cachedUserBody.baseDamage * (cachedUserBody.level * 0.2f + 0.8f)) * (1+0.2 * cachedUserBody.inventory.GetItemCountEffective(DLC1Content.Items.FragileDamageBonus))) * 100).ToString(floatPrecision)}%{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("attackSpeed", cachedUserBody => { return $"{damageString}{(cachedUserBody.attackSpeed).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("attackSpeedPercent", cachedUserBody => { return $"{damageString}{((cachedUserBody.attackSpeed / cachedUserBody.baseAttackSpeed) * 100).ToString(floatPrecision)}%{styleString}"; });

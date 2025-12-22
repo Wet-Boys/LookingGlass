@@ -318,10 +318,10 @@ namespace LookingGlass.CommandItemCount
             }
 
 
-            ItemDef itemDefinition = ItemCatalog.GetItemDef(pickupDefinition.itemIndex);
+            ItemDef itemDef = ItemCatalog.GetItemDef(pickupDefinition.itemIndex);
             EquipmentDef equipmentDef = EquipmentCatalog.GetEquipmentDef(pickupDefinition.equipmentIndex);
             DroneDef droneDef = DroneCatalog.GetDroneDef(pickupDefinition.droneIndex);
-            bool isItem = itemDefinition != null;
+            bool isItem = itemDef != null;
 
             TooltipContent content = new TooltipContent();
 
@@ -329,7 +329,7 @@ namespace LookingGlass.CommandItemCount
             content.titleToken = pickupDefinition.nameToken;
             if (isItem) //Safer
             {
-                content.bodyToken = itemDefinition.descriptionToken;
+                content.bodyToken = itemDef.descriptionToken;
             }
             else if(equipmentDef)
             {
@@ -346,18 +346,18 @@ namespace LookingGlass.CommandItemCount
                 if (corruption.Type == CorruptionType.Corrupted)
                 {
                     // intentional extra </style> tag because some items have broken descriptions *glares at titanic knurl*
-                    stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
+                    stats = $"<size=85%><color=#808080>{Language.GetString(itemDef.descriptionToken)}</color></style></size>";
                     ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(corruption.Items[0]);
                     stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
-                    stats += ItemStats.GetItemDescription(corruptedItemDefinition, corruptedItemDefinition.itemIndex, corruption.ItemCount, null, withOneMore);
+                    stats += ItemStats.GetItemDescription(corruptedItemDefinition, corruption.ItemCount, null, withOneMore);
                 }
                 else if (corruption.Type == CorruptionType.Void)
                 {
-                    stats = ItemStats.GetItemDescription(itemDefinition, itemDefinition.itemIndex, corruption.ItemCount, null, withOneMore, true);
+                    stats = ItemStats.GetItemDescription(itemDef, corruption.ItemCount, null, withOneMore, true);
                 }
                 else
                 {
-                    stats = ItemStats.GetItemDescription(itemDefinition, itemDefinition.itemIndex, count, null, withOneMore);
+                    stats = ItemStats.GetItemDescription(itemDef, count, null, withOneMore);
                 }
 
                 if (stats != null)
@@ -367,7 +367,7 @@ namespace LookingGlass.CommandItemCount
             }
             else if (isItem && corruption.Type == CorruptionType.Corrupted)
             {
-                string stats = $"<size=85%><color=#808080>{Language.GetString(itemDefinition.descriptionToken)}</color></style></size>";
+                string stats = $"<size=85%><color=#808080>{Language.GetString(itemDef.descriptionToken)}</color></style></size>";
                 ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(corruption.Items[0]);
                 stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
                 stats += Language.GetString(corruptedItemDefinition.descriptionToken);

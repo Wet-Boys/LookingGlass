@@ -17,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace LookingGlass.ItemStatsNameSpace
 {
@@ -34,10 +35,10 @@ namespace LookingGlass.ItemStatsNameSpace
         public static ConfigEntry<bool> abilityProcCoefficients;
         public static ConfigEntry<bool> cfgShowItemProcsOnSkillIcons;
 
-        private static Hook overrideHook;
+        /*private static Hook overrideHook;
         private static Hook overrideHook2;
         private static Hook overrideHook3;
-        private static Hook overrideHook4;
+        private static Hook overrideHook4;*/
         public ItemStats()
         {
             Setup();
@@ -60,7 +61,7 @@ namespace LookingGlass.ItemStatsNameSpace
             
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
             capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, "Caps displayed chances at 100%. May interact weirdly with luck if turned off");
-            abilityProcCoefficients = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Proc Coefficients", true, "Shows ability proc coefficients on supported survivors");
+            abilityProcCoefficients = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Proc Coefficients", true, "Shows ability cooldowns.\nShow ability proc coefficients on supported survivors");
             cfgShowItemProcsOnSkillIcons = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Item Procs", true, "Shows item proc chances multiplied by the proc coefficient of the ability, in the abilities info box.");
             SetupRiskOfOptions();
         }
@@ -93,183 +94,122 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         void InitHooks()
         {
-           
-            var targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetItem), BindingFlags.Public | BindingFlags.Instance);
-            var destMethod = typeof(ItemStats).GetMethod(nameof(PickupText), BindingFlags.NonPublic | BindingFlags.Instance);
-            overrideHook = new Hook(targetMethod, destMethod, this);
-            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetEquipment), BindingFlags.Public | BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(EquipmentText), BindingFlags.NonPublic | BindingFlags.Instance);
-            overrideHook = new Hook(targetMethod, destMethod, this);
+            //Full Desc on pickup Config
+            new Hook(typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetItem), BindingFlags.Public | BindingFlags.Instance),
+                    typeof(ItemStats).GetMethod(nameof(Item_PickupText), BindingFlags.NonPublic | BindingFlags.Instance),
+                    this);
+ 
+            new Hook(typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetEquipment), BindingFlags.Public | BindingFlags.Instance),
+                     typeof(ItemStats).GetMethod(nameof(Equipment_PickupText), BindingFlags.NonPublic | BindingFlags.Instance),
+                     this);
 
-            targetMethod = typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetDrone), BindingFlags.Public | BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(DroneText), BindingFlags.NonPublic | BindingFlags.Instance);
-            var overrideHook22 = new Hook(targetMethod, destMethod, this);
-
-
-            targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), new[] {typeof(ItemIndex), typeof(int), typeof(float) });
-            //targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), BindingFlags.Public | BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(ItemIndexText), BindingFlags.NonPublic | BindingFlags.Instance);
-            overrideHook2 = new Hook(targetMethod, destMethod, this);
+            new Hook(typeof(GenericNotification).GetMethod(nameof(GenericNotification.SetDrone), BindingFlags.Public | BindingFlags.Instance),
+                                typeof(ItemStats).GetMethod(nameof(Drone_PickupText), BindingFlags.NonPublic | BindingFlags.Instance),
+                                this);
+  
+      
+            //Actual things
+            var targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), new[] {typeof(ItemIndex), typeof(int), typeof(float) });
+            var destMethod = typeof(ItemStats).GetMethod(nameof(ItemIcon_FullDescriptionAndStats), BindingFlags.NonPublic | BindingFlags.Instance);
+            new Hook(targetMethod, destMethod, this);
 
             targetMethod = typeof(PingerController).GetMethod(nameof(PingerController.SetCurrentPing), BindingFlags.NonPublic | BindingFlags.Instance);
             destMethod = typeof(ItemStats).GetMethod(nameof(ItemPinged), BindingFlags.NonPublic | BindingFlags.Instance);
-            overrideHook3 = new Hook(targetMethod, destMethod, this);
-
-            targetMethod = typeof(SkillIcon).GetMethod(nameof(RoR2.UI.SkillIcon.Update), BindingFlags.NonPublic | BindingFlags.Instance);
-            destMethod = typeof(ItemStats).GetMethod(nameof(SkillUpdate), BindingFlags.NonPublic | BindingFlags.Instance);
-            overrideHook4 = new Hook(targetMethod, destMethod, this);
-
-            //Add Cooldown & ProcCoeff to Loadout on Character Select
-            //Would need an IL  do i do that 
+            new Hook(targetMethod, destMethod, this);
 
 
-             new ILHook(
-                 typeof(LoadoutPanelController.Row).GetMethod(nameof(RoR2.UI.LoadoutPanelController.Row.FromSkillSlot), BindingFlags.Public | BindingFlags.Static), 
+
+
+   
+
+            new ILHook(
+                 typeof(LoadoutPanelController.Row).GetMethod(nameof(LoadoutPanelController.Row.FromSkillSlot), BindingFlags.Public | BindingFlags.Static), 
                  AddProcCDToLoadoutPanel);
 
-        }
-        public void AddProcCDToLoadoutPanel(ILContext il)
-        {
-            ILCursor c = new(il);
-            if (c.TryGotoNext(MoveType.Before,
-                x => x.MatchLdfld("RoR2.Skills.SkillDef", "skillDescriptionToken")))
-            {
-                //I cant figuer out how to not use remove here so whatever
-                c.Remove();
-                c.EmitDelegate<Func<SkillDef, string>>((skill) =>
-                {
-              
-                    if (abilityProcCoefficients.Value)
-                    {
-                        StringBuilder newDesc = new StringBuilder(Language.GetString(skill.skillDescriptionToken));
-                        newDesc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + skill.baseRechargeInterval.ToString("0.00") + "s</style>");
-                        if (ProcCoefficientData.hasProcCoefficient(skill.skillNameToken))
-                        {
-                            float proc = ProcCoefficientData.GetProcCoefficient(skill.skillNameToken);
-                            if (proc!= -1)
-                            {
-                                newDesc.Append("\nProc Coefficient: <style=cIsDamage>" + proc.ToString("0.0##") + "</color>");
-                            }
-                        }
-                        if (ProcCoefficientData.hasExtra(skill.skillNameToken))
-                        {
-                            //Extra info like Corrupted/Boosted proc and Ticks
-                            newDesc.Append(ProcCoefficientData.GetExtraInfo(skill.skillNameToken));
-                        }
-               
-                        return newDesc.ToString();
-                    }
-                    return skill.skillDescriptionToken;
-                });
-            }
-            else
-            {
-                Debug.LogError("IL FAILED : AddProcCDToLoadoutPanel");
-            }
+            new Hook(typeof(HUD).GetMethod(nameof(HUD.ActivateScoreboard), BindingFlags.Public | BindingFlags.Instance),
+                  UpdateAllHUDIconsWhenScoreboard); 
+
+            new Hook(typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.SetMaster), BindingFlags.Public | BindingFlags.Instance),
+                 UpdateScoreboardEquipIcon);
+
+            new Hook(typeof(GameEndReportPanelController).GetMethod(nameof(GameEndReportPanelController.SetPlayerInfo), BindingFlags.NonPublic | BindingFlags.Instance),
+                 ItemsOnDeathScreen);
         }
 
-
-        internal void EquipText(EquipmentIcon self)
+        void ItemsOnDeathScreen(Action<GameEndReportPanelController, RunReport.PlayerInfo, int> orig, GameEndReportPanelController self, RunReport.PlayerInfo playerInfo, int playerIndex)
         {
-            // Multiplayer compatibility
-            if (self.targetInventory && self.tooltipProvider && self.currentDisplayData.equipmentDef)
-            {
-                //Why did it do Master -> Body -> Inventory just do -> Inventory
-                CharacterMaster master = self.targetInventory.GetComponentInParent<CharacterMaster>();
-
-                //Show if perma up time?
-                //Show if perma up time WarHorn?
-                //Show up time as %?
-
-                float cooldownScale = master.inventory.CalculateEquipmentCooldownScale();
-                StringBuilder desc = new StringBuilder(Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken));
-
-                String currentCooldownFormatted = (self.currentDisplayData.equipmentDef.cooldown * cooldownScale).ToString(StatsDisplayDefinitions.floatPrecision);
-                desc.Append($"\n\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted}s</style>");
-                if (cooldownScale != 1)
-                {
-                    String cooldownReductionFormatted = ((1 - cooldownScale) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
-                    desc.Append(
-                    $" <style=\"cStack\">(Base: " + self.currentDisplayData.equipmentDef.cooldown + ")</style>" +
-                    $"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>"
-                    );
-                }
-                desc.Append(GetEquipmentExtras(master, self.currentDisplayData.equipmentDef.equipmentIndex));
-
-                self.tooltipProvider.overrideBodyText = desc.ToString();
-            }
-
-        }
-        
-        void PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
-        {
-            orig(self, itemDef);
-            if (fullDescOnPickup.Value)
-                if (Language.IsTokenInvalid(itemDef.descriptionToken))
-                {
-                    self.descriptionText.token = itemDef.pickupToken;
-                }
-                else
-                {
-                    self.descriptionText.token = itemDef.descriptionToken;
-                }
-        }
-        void EquipmentText(Action<GenericNotification, EquipmentDef> orig, GenericNotification self, EquipmentDef equipmentDef)
-        {
-            orig(self, equipmentDef);
-            if (fullDescOnPickup.Value)
-            { 
-                if (Language.IsTokenInvalid(equipmentDef.descriptionToken))
-                {
-                    self.descriptionText.token = equipmentDef.pickupToken;
-                }
-                else
-                {
-                    self.descriptionText.token = equipmentDef.descriptionToken;
-                }
-            }
-        }
-        void DroneText(Action<GenericNotification, DroneDef> orig, GenericNotification self, DroneDef droneDef)
-        {
-            orig(self, droneDef);
-            if (fullDescOnPickup.Value)
-            {
-                if (Language.IsTokenInvalid(droneDef.skillDescriptionToken))
-                {
-                    self.descriptionText.token = droneDef.pickupToken;
-                }
-                else
-                {
-                    self.descriptionText.token = droneDef.skillDescriptionToken;
-                }
-            }
-        }
-        void ItemIndexText(Action<ItemIcon, ItemIndex, int, float> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount, float newDurationPercent)
-        {
-            orig(self, newItemIndex, newItemCount, newDurationPercent);
+            orig(self, playerInfo, playerIndex);
             if (fullDescInHud.Value)
             {
-                SetItemDescription(self, newItemIndex, newItemCount);
-            }
+                for (int i = 0; i < self.itemInventoryDisplay.itemIcons.Count; i++)
+                {
+                    SetItemDescription(self.itemInventoryDisplay.itemIcons[i]);
+                }
+            }         
         }
-        void SkillUpdate(Action<SkillIcon> orig, SkillIcon self)
+
+
+
+        //You can't select the icons in any other way can you?
+        //And because you override, we really *do Not* need to update it every single frame
+        //We can just update it when the player would see it
+        void UpdateAllHUDIconsWhenScoreboard(Action<HUD> orig, HUD self)
         {
             orig(self);
+            //Debug.Log("SCOREBOARD");
+           
+         
+            if (fullDescInHud.Value)
+            {
+                for (int i = 0; i < self.itemInventoryDisplay.itemIcons.Count; i++)
+                {
+                    SetItemDescription(self.itemInventoryDisplay.itemIcons[i]);
+                }
+                for (int i = 0; i < self.equipmentIcons.Length; i++)
+                {
+                    EquipmentIcon_AddCDProcInfo(self.equipmentIcons[i]);
+                }
+            }
+            if (abilityProcCoefficients.Value)
+            {
+                for (int i = 0; i < self.skillIcons.Length; i++)
+                {
+                    SkillIcon_SkillInfoCDProc(self.skillIcons[i]);
+                }
+            }
+        }
+        
+        void UpdateScoreboardEquipIcon(Action<ScoreboardStrip,CharacterMaster> orig, ScoreboardStrip self, CharacterMaster master)
+        {
+            orig(self, master);
+            if (fullDescInHud.Value)
+            {
+                for (int i = 0; i < self.itemInventoryDisplay.itemIcons.Count; i++)
+                {
+                    SetItemDescription(self.itemInventoryDisplay.itemIcons[i]);
+                }
+                EquipmentIcon_AddCDProcInfo(self.equipmentIcon);
+            }
+        }
+
+        public void SkillIcon_SkillInfoCDProc(SkillIcon self)
+        {
             GenericSkill targetSkill = self.targetSkill;
             if (targetSkill == null)
                 return;
-            string skillDescriptionToken = targetSkill.skillDescriptionToken;
-            if (skillDescriptionToken == null)
+            if (targetSkill.skillDescriptionToken == null)
                 return;
-            StringBuilder desc = new StringBuilder(Language.GetString(skillDescriptionToken));
+            if (self.tooltipProvider == null)
+                return;
+            StringBuilder desc = new StringBuilder(Language.GetString(targetSkill.skillDescriptionToken));
 
             if (abilityProcCoefficients.Value)
             {
                 //Why was there a "In Proc Dict" check for this?
                 //Maybe could do if cooldown == 0 then dont show but it's fine
-                desc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(self).ToString("0.00") + "s</style>");
+                desc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + CalculateSkillCooldown(targetSkill).ToString("0.00") + "s</style>");
 
-                if (self.targetSkill.finalRechargeInterval != self.targetSkill.skillDef.baseRechargeInterval)
+                if (targetSkill.finalRechargeInterval != targetSkill.skillDef.baseRechargeInterval)
                 {
                     //If final recharge differs from base, show base spereately?
                     String cooldownReductionFormatted = ((1 - (self.targetSkill.finalRechargeInterval / self.targetSkill.skillDef.baseRechargeInterval)) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
@@ -278,25 +218,21 @@ namespace LookingGlass.ItemStatsNameSpace
                     desc.Append(" <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
                     desc.Append($"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>");
                 }
-                /*if (self.targetSkill.cooldownScale != 1)
-                {
-                    //CDR would be affected by Purity and some other junk so ig not like this
-                }*/
-
+     
                 bool blacklistedSkill = false;
-                if (ProcCoefficientData.hasProcCoefficient(self.targetSkill.skillNameToken))
+                if (ProcCoefficientData.hasProcCoefficient(targetSkill.skillNameToken))
                 {
-                    blacklistedSkill = ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) == -1;
+                    blacklistedSkill = ProcCoefficientData.GetProcCoefficient(targetSkill.skillNameToken) == -1;
                     //This way we could blacklist procs on most movement skills.
                     //So it doesn't say like "10% ATG" on Mando Slide
                     if (!blacklistedSkill)
                     {
-                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken).ToString("0.0##") + "</color>");
+                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(targetSkill.skillNameToken).ToString("0.0##") + "</color>");
                     }
                     //If -1, show nothing
                     //If 0, show that it has 0 Proc Coeff for clarity
                     //But don't show like "0 % chance to trigger all the items"
-                    blacklistedSkill = blacklistedSkill || ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken) == 0;
+                    blacklistedSkill = blacklistedSkill || ProcCoefficientData.GetProcCoefficient(targetSkill.skillNameToken) == 0;
                 }
                 if (ProcCoefficientData.hasExtra(self.targetSkill.skillNameToken))
                 {
@@ -307,7 +243,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 {
                     if (!blacklistedSkill)
                     {
-                        CharacterBody body = self.targetSkill.characterBody;
+                        CharacterBody body = targetSkill.characterBody;
 
                         int itemCount = 0;
                         ItemStatsDef itemStats;
@@ -355,19 +291,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                         desc.Append(Mathf.CeilToInt(0.75f / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
                                         desc.Append(" to cap)</style>");
                                     }
-
-                                    /*if (self.targetSkill.skillNameToken == "VOIDSURVIVOR_PRIMARY_NAME" || self.targetSkill.skillNameToken == "VOIDSURVIVOR_SECONDARY_NAME")
-                                    {
-                                        // TODO align this text to the one above
-                                        desc.Append("\n").Append("<style=cIsVoid>").Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0] * 100).ToString("0.000")).Append("%</style>");
-
-                                        if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.Linear)
-                                        {
-                                            desc.Append(" <style=cStack>(");
-                                            desc.Append((int)Math.Ceiling(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient("CORRUPTED_" + self.targetSkill.skillNameToken))[0]));
-                                            desc.Append(" to cap)</style>");
-                                        }
-                                    }*/
+ 
                                 }
                             }
 
@@ -377,20 +301,106 @@ namespace LookingGlass.ItemStatsNameSpace
             }
             self.tooltipProvider.overrideBodyText = desc.ToString();
         }
-
-      
-
-        float CalculateSkillCooldown(SkillIcon self)
+ 
+        public void AddProcCDToLoadoutPanel(ILContext il)
         {
-            if (self.targetSkill.skillDef.baseRechargeInterval < 0.5f)
-                return self.targetSkill.skillDef.baseRechargeInterval;
+            ILCursor c = new(il);
+            if (c.TryGotoNext(MoveType.Before,
+                x => x.MatchLdfld("RoR2.Skills.SkillDef", "skillDescriptionToken")))
+            {
+                //I cant figuer out how to not use remove here so whatever
+                c.Remove();
+                c.EmitDelegate<Func<SkillDef, string>>((skill) =>
+                {
+              
+                    if (abilityProcCoefficients.Value)
+                    {
+                        StringBuilder newDesc = new StringBuilder(Language.GetString(skill.skillDescriptionToken));
+                        newDesc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + skill.baseRechargeInterval.ToString("0.00") + "s</style>");
+                        if (ProcCoefficientData.hasProcCoefficient(skill.skillNameToken))
+                        {
+                            float proc = ProcCoefficientData.GetProcCoefficient(skill.skillNameToken);
+                            if (proc!= -1)
+                            {
+                                newDesc.Append("\nProc Coefficient: <style=cIsDamage>" + proc.ToString("0.0##") + "</color>");
+                            }
+                        }
+                        if (ProcCoefficientData.hasExtra(skill.skillNameToken))
+                        {
+                            //Extra info like Corrupted/Boosted proc and Ticks
+                            newDesc.Append(ProcCoefficientData.GetExtraInfo(skill.skillNameToken));
+                        }
+               
+                        return newDesc.ToString();
+                    }
+                    return skill.skillDescriptionToken;
+                });
+            }
+            else
+            {
+                Debug.LogError("IL FAILED : AddProcCDToLoadoutPanel");
+            }
+        }
+
+
+        void ItemIcon_FullDescriptionAndStats(Action<ItemIcon, ItemIndex, int, float> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount, float newDurationPercent)
+        {
+            orig(self, newItemIndex, newItemCount, newDurationPercent);
+            if (StatsDisplayClass.scoreBoardOpen && fullDescInHud.Value)
+            {
+                SetItemDescription(self);
+            }
+        }
+
+        internal void EquipmentIcon_AddCDProcInfo(EquipmentIcon self)
+        {
+            // Multiplayer compatibility
+           
+            if (self.targetInventory && self.tooltipProvider && self.currentDisplayData.equipmentDef)
+            {
+                if (self.currentDisplayData.equipmentDisabled)
+                {
+                    self.tooltipProvider.overrideBodyText = string.Empty;
+                    return;
+                }
+                //Why did it do Master -> Body -> Inventory just do -> Inventory
+                //CharacterMaster master = self.targetInventory.GetComponentInParent<CharacterMaster>();
+
+                //Show if perma up time?
+                //Show if perma up time WarHorn?
+                //Show up time as %?
+
+                float cooldownScale = self.targetInventory.CalculateEquipmentCooldownScale();
+                StringBuilder desc = new StringBuilder(Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken));
+
+                String currentCooldownFormatted = (self.currentDisplayData.equipmentDef.cooldown * cooldownScale).ToString(StatsDisplayDefinitions.floatPrecision);
+                desc.Append($"\n\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted}s</style>");
+                if (cooldownScale != 1)
+                {
+                    String cooldownReductionFormatted = ((1 - cooldownScale) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
+                    desc.Append(
+                    $" <style=\"cStack\">(Base: " + self.currentDisplayData.equipmentDef.cooldown + ")</style>" +
+                    $"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>"
+                    );
+                }
+                desc.Append(GetEquipmentExtras(self.targetInventory.GetComponent<CharacterMaster>(), self.currentDisplayData.equipmentDef.equipmentIndex));
+
+                self.tooltipProvider.overrideBodyText = desc.ToString();
+            }
+
+        }
+    
+        float CalculateSkillCooldown(GenericSkill self)
+        {
+            if (self.skillDef.baseRechargeInterval < 0.5f)
+                return self.skillDef.baseRechargeInterval;
 
             //Post-SotS AttackSpeedCDR skills bypass the 0.5f cooldown cap
             //By modifying the .baseRechargeInterval
-            if (self.targetSkill.baseRechargeInterval < 0.5f)
-                return self.targetSkill.baseRechargeInterval;
+            if (self.baseRechargeInterval < 0.5f)
+                return self.baseRechargeInterval;
 
-            float calculated_skill_cooldown = self.targetSkill.baseRechargeInterval * self.targetSkill.cooldownScale - self.targetSkill.flatCooldownReduction;
+            float calculated_skill_cooldown = self.baseRechargeInterval * self.cooldownScale - self.flatCooldownReduction;
 
             if (calculated_skill_cooldown < 0.5f)
                 calculated_skill_cooldown = 0.5f;
@@ -398,36 +408,38 @@ namespace LookingGlass.ItemStatsNameSpace
             return calculated_skill_cooldown;
         }
  
-        internal static void SetItemDescription(ItemIcon self, ItemIndex newItemIndex, int newItemCount)
+        internal static void SetItemDescription(ItemIcon self)
         {
-            var itemDef = ItemCatalog.GetItemDef(newItemIndex);
-            if (itemDef.nameToken == "ITEM_MYSTICSITEMS_MANUSCRIPT_NAME")
-                return;
+ 
+            var itemDef = ItemCatalog.GetItemDef(self.itemIndex);
+           /* if (itemDef.nameToken == "ITEM_MYSTICSITEMS_MANUSCRIPT_NAME")
+                return;*/ //I dont think this is needed anymore...
             if (self.tooltipProvider != null && itemDef != null)
             {
-                CharacterMaster master = null;
-
                 var strip = self.GetComponentInParent<ScoreboardStrip>();
-                if (strip && strip.master)
+                if (strip)
                 {
-                    master = strip.master;
+                    self.tooltipProvider.overrideBodyText = GetItemDescription(itemDef, self.itemCount, strip.master, false);
                 }
-                self.tooltipProvider.overrideBodyText = GetItemDescription(itemDef, newItemIndex, newItemCount, master, false);
+                else
+                {
+                    self.tooltipProvider.overrideBodyText = GetItemDescription(itemDef, self.itemCount, LocalUserManager.GetFirstLocalUser().cachedMaster, false);
+                }
             }
         }
         public static string GetItemDescription(
-            ItemDef itemDef, ItemIndex newItemIndex, int newItemCount, CharacterMaster master, bool withOneMore, bool forceNew = false)
+            ItemDef itemDef, int newItemCount, CharacterMaster master, bool withOneMore, bool forceNew = false)
         {
-            if (Language.GetString(itemDef.descriptionToken) == itemDef.descriptionToken)
+            if (Language.IsTokenInvalid(itemDef.descriptionToken))
             {
                 return Language.GetString(itemDef.pickupToken);
             }
             var itemDescription = $"<size={itemStatsFontSize.Value}%>{Language.GetString(itemDef.descriptionToken)}\n";
             try
             {
-                if (itemStatsCalculations.Value && ItemDefinitions.allItemDefinitions.ContainsKey((int)newItemIndex))
+                if (itemStatsCalculations.Value && ItemDefinitions.allItemDefinitions.ContainsKey((int)itemDef.itemIndex))
                 {
-                    ItemStatsDef statsDef = ItemDefinitions.allItemDefinitions[(int)newItemIndex];
+                    ItemStatsDef statsDef = ItemDefinitions.allItemDefinitions[(int)itemDef.itemIndex];
                     if (withOneMore && statsDef.descriptions.Count != 0)
                     {
                         if (newItemCount == 0 || forceNew)
@@ -440,25 +452,29 @@ namespace LookingGlass.ItemStatsNameSpace
                         }
                         newItemCount++;
                     }
-                    if (master == null)
-                    {
-                        master = LocalUserManager.GetFirstLocalUser().cachedMaster;
-                    }
-                    float luck = 0f;
-                    if (master != null)
-                    {
-                        luck = master.luck;
-                    }
+ 
                     List<float> values;
-                    if (statsDef.calculateValues == null)
+                    if (statsDef.calculateValuesFlat != null)
                     {
-                        values = statsDef.calculateValuesNew(luck, newItemCount, 1f);
+                        values = statsDef.calculateValuesFlat(newItemCount);
                     }
                     else
                     {
-                        values = statsDef.calculateValues(master, newItemCount);
+                        if (statsDef.calculateValuesNew != null)
+                        {
+                            values = statsDef.calculateValuesNew(master ? master.luck : 0, newItemCount, 1f);
+                        }
+                        else if (statsDef.calculateValues != null)
+                        {
+                            values = statsDef.calculateValues(master, newItemCount);
+                        }
+                        else
+                        {
+                            values = statsDef.calculateValuesBody(master ? master.GetBody() : LocalUserManager.GetFirstLocalUser().cachedBody, newItemCount);
+                        }
                     }
-                    if (values is not null)
+              
+                    if (values != null)
                     {
                         GetItemStatsFormatted(ref statsDef, ref values, ref itemDescription, true);
                     }
@@ -583,28 +599,29 @@ namespace LookingGlass.ItemStatsNameSpace
                         //    itemDescription += "<color=\"white";
                         //    break;
                 }
+                //Probably aughta use float precisions config ig
                 switch (statsDef.measurementUnits[i])
                 {
                     case ItemStatsDef.MeasurementUnits.Meters:
-                        input += $"\">{values[i]:0.###}m</style>";
+                        input += $"\">{values[i]:0.##}m</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.Percentage:
-                        input += $"\">{values[i] * 100:0.###}%</style>";
+                        input += $"\">{values[i] * 100:0.##}%</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.FlatHealth:
-                        input += $"\">{values[i]:0.###} HP</style>";
+                        input += $"\">{values[i]:0.##} HP</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.PercentHealth:
-                        input += $"\">{values[i] * 100:0.###}% HP</style>";
+                        input += $"\">{values[i] * 100:0.##}% HP</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.FlatHealing:
-                        input += $"\">{values[i]:0.###} HP/s</style>";
+                        input += $"\">{values[i]:0.##} HP/s</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.PercentHealing:
-                        input += $"\">{values[i] * 100:0.###}% HP/s</style>";
+                        input += $"\">{values[i] * 100:0.##}% HP/s</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.Number:
-                        input += $"\">{values[i]:0.###}</style>";
+                        input += $"\">{values[i]:0.##}</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.ProcCoeff:
                         input += $"\">{values[i]:0.0##}</style>";
@@ -613,7 +630,7 @@ namespace LookingGlass.ItemStatsNameSpace
                         input += $"\">{values[i]:0.#}$</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.Seconds:
-                        input += $"\">{values[i]:0.###} seconds</style>";
+                        input += $"\">{values[i]:0.##} seconds</style>";
                         break;
                     default:
                         break;
@@ -631,22 +648,19 @@ namespace LookingGlass.ItemStatsNameSpace
                 {
                     ItemStatsDef statsDef = ItemDefinitions.allEquipmentDefinitions[(int)equipmentIndex];
                     List<float> values;
-                    if (master == null)
-                    {
-                        master = LocalUserManager.GetFirstLocalUser().cachedMaster;
-                    }
+
                     float luck = 0f;
                     if (master != null)
                     {
                         luck = master.luck;
                     }
-                    if (statsDef.calculateValues == null)
+                    if (statsDef.calculateValuesFlat == null)
                     {
                         values = statsDef.calculateValuesNew(luck, 1, 1f);
                     }
                     else
                     {
-                        values = statsDef.calculateValues(master, 1);
+                        values = statsDef.calculateValuesFlat(0);
                     }
                     if (values is not null)
                     {
@@ -661,13 +675,61 @@ namespace LookingGlass.ItemStatsNameSpace
         }
 
 
+
+
+        void Item_PickupText(Action<GenericNotification, ItemDef> orig, GenericNotification self, ItemDef itemDef)
+        {
+            orig(self, itemDef);
+            if (fullDescOnPickup.Value)
+                if (Language.IsTokenInvalid(itemDef.descriptionToken))
+                {
+                    self.descriptionText.token = itemDef.pickupToken;
+                }
+                else
+                {
+                    self.descriptionText.token = itemDef.descriptionToken;
+                }
+        }
+        void Equipment_PickupText(Action<GenericNotification, EquipmentDef> orig, GenericNotification self, EquipmentDef equipmentDef)
+        {
+            orig(self, equipmentDef);
+            if (fullDescOnPickup.Value)
+            {
+                if (Language.IsTokenInvalid(equipmentDef.descriptionToken))
+                {
+                    self.descriptionText.token = equipmentDef.pickupToken;
+                }
+                else
+                {
+                    self.descriptionText.token = equipmentDef.descriptionToken;
+                }
+            }
+        }
+        void Drone_PickupText(Action<GenericNotification, DroneDef> orig, GenericNotification self, DroneDef droneDef)
+        {
+            orig(self, droneDef);
+            if (fullDescOnPickup.Value)
+            {
+                if (Language.IsTokenInvalid(droneDef.skillDescriptionToken))
+                {
+                    self.descriptionText.token = droneDef.pickupToken;
+                }
+                else
+                {
+                    self.descriptionText.token = droneDef.skillDescriptionToken;
+                }
+            }
+        }
+
+
+
         //Heavily uses https://github.com/Moffein/ItemStats/blob/master/ItemStats/ItemStatsPlugin.cs
         void ItemPinged(Action<PingerController, PingerController.PingInfo> orig, PingerController self, PingerController.PingInfo newPingInfo)
         {
             orig(self, newPingInfo);
             if (!newPingInfo.targetGameObject)
                 return;
-            if (!itemStatsOnPing.Value && !itemStatsOnPing.Value)
+            if (!itemStatsOnPing.Value && !droneStatsOnPing.Value)
                 return;
             CharacterMaster characterMaster = LocalUserManager.GetFirstLocalUser().cachedMaster;
             if (!characterMaster || !StatsOnPingByOtherPlayer.Value && self.gameObject.GetComponent<CharacterMaster>() != characterMaster)
@@ -688,6 +750,10 @@ namespace LookingGlass.ItemStatsNameSpace
             bool isTemp = false;
             if (newPingInfo.targetGameObject.TryGetComponent<GenericPickupController>(out var Item))
             {
+                if (!itemStatsOnPing.Value)
+                {
+                    return;
+                }
                 pickupIndex = Item._pickupState.pickupIndex;
                 isTemp = Item._pickupState.isTempItem;
                 droneTier = Item._pickupState.upgradeValue;
@@ -703,6 +769,10 @@ namespace LookingGlass.ItemStatsNameSpace
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<ShopTerminalBehavior>(out var Shop))
             {
+                if (!itemStatsOnPing.Value)
+                {
+                    return;
+                }
                 //Check for pickupDisplay because Cleansing Pools are not set to Hidden for some reason
                 //But they show up as ? because they dont have a display
                 if (itemStatsShowHidden.Value || (!Shop.hidden && Shop.pickupDisplay))
@@ -723,6 +793,10 @@ namespace LookingGlass.ItemStatsNameSpace
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<PickupDistributorBehavior>(out var TempShop))
             {
+                if (!itemStatsOnPing.Value)
+                {
+                    return;
+                }
                 if (!TempShop.hidden)
                 {
                     pickupIndex = TempShop.pickup.pickupIndex;

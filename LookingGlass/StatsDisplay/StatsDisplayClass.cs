@@ -46,6 +46,7 @@ namespace LookingGlass.StatsDisplay
         {
             Set,            //
             LookingGlass,   //
+            //Percentages,   //
             Simpler,        //No DPS/Combo 
             Extra,          //CritDamage,Luck,Curse%, Osp
             Extra_For_OnlyStats,          //CritDamage,Luck,Curse%, Osp
@@ -79,7 +80,8 @@ namespace LookingGlass.StatsDisplay
         Image cachedImage;
         private static Hook overrideHook;
         private static Hook overrideHook2;
-        static bool scoreBoardOpen;
+        public static bool scoreBoardOpen;
+        public static bool deathScreen;
         static readonly Regex statsRegex = new(@"(?<!\\)\[(\w+)\]", RegexOptions.Compiled);
         static JobHandle regexHandle;
         // using timer as updating canvas with large changed strings is not cheap
@@ -159,7 +161,7 @@ namespace LookingGlass.StatsDisplay
                 , $"String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is:{syntaxList}");
             statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display font size", -1, "General font size of the stats display menu.\n\nIf set to -1, it will be sized relative to the Objective Header and Objectives. 14 on the default hud.");
 
-            statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display update interval", 0.2f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance for large texts\n\nValues below 0.2 are not recommended for normal play for performance reasons.\n\n");
+            statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display update interval", 0.25f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance for large texts\n\nValues below 0.2 are not recommended for normal play for performance reasons.\n\n");
             statsDisplayUpdateInterval.SettingChanged += Display_SettingChanged;
             builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, "Uses the default styling for stats display syntax items.");
             builtInColors.SettingChanged += BuiltInColors_SettingChanged;
@@ -202,8 +204,7 @@ namespace LookingGlass.StatsDisplay
             targetMethod = typeof(ScoreboardController).GetMethod(nameof(ScoreboardController.OnDisable), BindingFlags.NonPublic | BindingFlags.Instance);
             destMethod = typeof(StatsDisplayClass).GetMethod(nameof(OnDisable), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);
-
-
+ 
 
             statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Preset", StatDisplayPreset.Set, "Override current Stat Display settings with a premade preset.Further changes can made from there.\n\n" +
                 "Extra: More stats on Tab\n\n" +
@@ -423,20 +424,20 @@ namespace LookingGlass.StatsDisplay
                     new2 =
                         "<margin-left=0.6em>"
                         + "<size=115%>Stats</size>\n"
-                        + "Damage: [damage]\n"
+                        + "Damage: [damage] | [damagePercentWithWatch]\n"
                         + "Attack Speed: [attackSpeedPercent]\n"
                         + "Crit Stats: [critWithLuck] | [critMultiplier]\n"
                         + "Bleed Chance: [bleedChanceWithLuck]\n"
                         + "Regen: [regenHp]\n"
                         + "Armor: [armor] | [armorDamageReduction]\n"
+                        //+ "Ehp: [effectiveHealth] | [effectiveMaxHealth]\n"
                         + "Ehp: [effectiveHealth]\n"
-                        + "Speed: [speedPercent]\n"
+                        + "Speed: [speed] | [speedPercent]\n"
                         + "Jumps: [availableJumps] / [maxJumps]\n"
                         + "Luck: [luck]\n"
                         + "Curse: [curseHealthReduction]\n"
                         + "Total Kills: [killCountRun]\n"
-                        + "Max Combo: [maxComboThisRun]\n"
-                        + "Mountain Shrines: [mountainShrines]\n"
+                        + "Ping: [ping]\n"
                         + "Portals: [portals] \n"
                         + "</margin>";
                     break;
@@ -456,7 +457,7 @@ namespace LookingGlass.StatsDisplay
                         + "\n<align=center>Stats:</align>\r\n\r\n\r\n"
                         + "</line-height></size>"
                         + "<margin-left=0.6em><line-height=110%>"
-                        + "Damage: [damage] | [damagePercent]\n"
+                        + "Damage: [damage] | [damagePercentWithWatch]\n"
                         + "Attack Speed: [attackSpeedPercent]\n"
                         + "Crit Stats: [critWithLuck] | [critMultiplier]\n"
                         + "Bleed Chance: [bleedChanceWithLuck]\n"
@@ -467,8 +468,8 @@ namespace LookingGlass.StatsDisplay
                         + "Jumps: [availableJumps] / [maxJumps]\n"
                         + "Luck: [luck]\n"
                         + "Curse: [curseHealthReduction]\n"
-                        + "Kills: [killCount]\n"
-                        + "Total Kills: [killCountRun]\n"
+                        + "Kills: [killCount] | [killCountRun]\n"
+                        //+ "Total Kills: [killCountRun]\n"
                         //+ "Max Combo: [maxComboThisRun]\n"
                         //+ "Mountain Shrines: [mountainShrines]\n" //Stat lost most of it's relevance with icons stacking in vanilla tbh
                         + "Ping: [ping]\n"
