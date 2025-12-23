@@ -70,9 +70,15 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("lvl1_maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseMaxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxShield", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxShield)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("shieldPercent", cachedUserBody => { return $"{healingString}{((cachedUserBody.maxShield / cachedUserBody.healthComponent.fullCombinedHealth) *100).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxBarrier", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxBarrier)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("shieldFraction", cachedUserBody => { return $"{healingString}{((cachedUserBody.maxShield / cachedUserBody.healthComponent.fullCombinedHealth) *100).ToString(floatPrecision)}%{styleString}"; });
             StatsDisplayClass.statDictionary.Add("barrierDecayRate", cachedUserBody => { return $"{healingString}{(cachedUserBody.healthComponent.GetBarrierDecayRate()).ToString(floatPrecision)}{styleString}"; });
+
+
+            StatsDisplayClass.statDictionary.Add("maxHpPercent", cachedUserBody => { return $"{healingString}{((cachedUserBody.healthComponent.fullCombinedHealth / (cachedUserBody.baseMaxHealth * (cachedUserBody.level * 0.3f + 0.7f))) * 100).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("maxHealthPercent", cachedUserBody => { return $"{healingString}{((cachedUserBody.maxHealth / (cachedUserBody.baseMaxHealth * (cachedUserBody.level * 0.3f + 0.7f))) * 100).ToString(floatPrecision)}%{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("maxShieldPercent", cachedUserBody => { return $"{healingString}{((cachedUserBody.maxShield / (cachedUserBody.baseMaxHealth * (cachedUserBody.level * 0.3f + 0.7f))) * 100).ToString(floatPrecision)}%{styleString}"; });
+
 
             //Current Health / ArmorReduc
             StatsDisplayClass.statDictionary.Add("effectiveHealth", cachedUserBody => {
@@ -99,7 +105,7 @@ namespace LookingGlass.StatsDisplay
             });
 
             StatsDisplayClass.statDictionary.Add("critHeal", cachedUserBody => { return $"{healingString}{(cachedUserBody.critHeal).ToString(floatPrecision)}{styleString}"; });
-            //Unused stat so it might be confusing to include ^ 
+            //Unused stat do not document
 
             StatsDisplayClass.statDictionary.Add("hasOneShotProtection", cachedUserBody => {
                 if (!cachedUserBody.healthComponent)

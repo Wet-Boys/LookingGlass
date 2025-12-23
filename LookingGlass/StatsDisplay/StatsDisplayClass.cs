@@ -100,16 +100,17 @@ namespace LookingGlass.StatsDisplay
             + "\n bleedChance, bleedChanceWithLuck"
 
             + "\n maxHealth, maxShield, maxBarrier "
+            + "\n hpAddPercent, healthAddPercent, shieldAddPercent"
             + "\n effectiveHealth, effectiveMaxHealth"
-            + "\n shieldPercent, barrierDecayRate" //Static in vanilla so eh?
+            + "\n shieldFraction, barrierDecayRate"
             + "\n healthPercentage"
             + "\n regen, regenHp, regenRaw"
             + "\n armor, armorDamageReduction"
             + "\n curseHealthReduction "
             + "\n hasOSP "
 
-            + "\n speed, speedPercent, velocity"
-            + "\n acceleration "
+            + "\n speed, speedPercent, speedPercentSprintAffected"
+            + "\n velocity, acceleration "
             + "\n availableJumps, maxJumps"
             + "\n jumpPower, maxJumpHeight"
             + "\n level, experience "
@@ -122,14 +123,14 @@ namespace LookingGlass.StatsDisplay
             + "\n"
             + "\n killCount, killCountRun "
             + "\n dps, percentDps "
-            + "\n combo, maxComboThisRun, maxCombo "
+            + "\n combo, maxComboThisRun, maxCombo"
             + "\n killCombo, maxKillComboThisRun, maxKillCombo"
             + "\n remainingComboDuration"
             + "\n"
             + "\n teddyBearBlockChance, saferSpacesCD "
             + "\n instaKillChance "
             + "\n"
-            + "lvl1_damage, lvl1_maxHealth";
+            + "\n lvl1_damage, lvl1_maxHealth";
         public void Setup()
         {
             //statsDisplay = BasePlugin.instance.Config.Bind<StatsDisplayEnum>("Stats Display", "StatsDisplay", StatsDisplayEnum.AltSecondary, "Enables Stats Display.\n\nSecondary: Will display different text while the Scoreboard is open\n\nOnlyTab: Will display text only while the scoreboard is open. ");
@@ -175,6 +176,7 @@ namespace LookingGlass.StatsDisplay
                 + "Damage: [damage]\n"
                 + "Attack Speed: [attackSpeed]\n" 
                 + "Crit Chance: [critWithLuck]\n"
+                //+ "Crit Stats: [critWithLuck] | [critMultiplier]\n"
                 + "Bleed Chance: [bleedChanceWithLuck]\n"
                 + "Regen: [regen]\n"
                 + "Armor: [armor] | [armorDamageReduction]\n"
@@ -414,6 +416,14 @@ namespace LookingGlass.StatsDisplay
                     new1 = (string)statsDisplayString.DefaultValue;
                     new2 = (string)secondaryStatsDisplayString.DefaultValue;
                     break;
+                /*case StatDisplayPreset.LookingGlass:
+                    new1 = (string)statsDisplayString.DefaultValue;
+                    new2 = (string)secondaryStatsDisplayString.DefaultValue;
+
+                    new1.Replace("damage", "damagePercent");
+                    new1.Replace("attackSpeed", "attackSpeedPercent");
+                    new1.Replace("speed", "speedPercent");
+                    break;*/
                 case StatDisplayPreset.Extra:
                     //+Luck
                     //+Crit Damage Mult
@@ -430,12 +440,12 @@ namespace LookingGlass.StatsDisplay
                         + "Bleed Chance: [bleedChanceWithLuck]\n"
                         + "Regen: [regenHp]\n"
                         + "Armor: [armor] | [armorDamageReduction]\n"
-                        //+ "Ehp: [effectiveHealth] | [effectiveMaxHealth]\n"
+                        + "Max Hp: [maxHpPercent]\n"
                         + "Ehp: [effectiveHealth]\n"
                         + "Speed: [speed] | [speedPercent]\n"
                         + "Jumps: [availableJumps] / [maxJumps]\n"
                         + "Luck: [luck]\n"
-                        + "Curse: [curseHealthReduction]\n"
+                        //+ "Curse: [curseHealthReduction]\n"
                         + "Total Kills: [killCountRun]\n"
                         + "Ping: [ping]\n"
                         + "Portals: [portals] \n"
@@ -463,15 +473,16 @@ namespace LookingGlass.StatsDisplay
                         + "Bleed Chance: [bleedChanceWithLuck]\n"
                         + "Regen: [regenHp]\n"
                         + "Armor: [armor] | [armorDamageReduction]\n"
+                        + "Max Hp: [maxHpPercent]\n"
                         + "Ehp: [effectiveHealth]\n"
                         + "Speed: [speed] | [speedPercent]\n"
                         + "Jumps: [availableJumps] / [maxJumps]\n"
                         + "Luck: [luck]\n"
-                        + "Curse: [curseHealthReduction]\n"
-                        + "Kills: [killCount] | [killCountRun]\n"
+                        //+ "Curse: [curseHealthReduction]\n"
+                        + "Kills: [killCount]\n"
                         //+ "Total Kills: [killCountRun]\n"
                         //+ "Max Combo: [maxComboThisRun]\n"
-                        //+ "Mountain Shrines: [mountainShrines]\n" //Stat lost most of it's relevance with icons stacking in vanilla tbh
+                        //+ "Mountain Shrines: [mountainShrines]\n" //Stat lost most of it's relevance with icons stacking in vanilla
                         + "Ping: [ping]\n"
                         + "Portals: [portals] \n"
                         + "</line-height></margin>";
