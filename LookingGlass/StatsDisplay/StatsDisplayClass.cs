@@ -254,8 +254,8 @@ namespace LookingGlass.StatsDisplay
 
             
 
-           ///ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 24, FormatString = "{0:F1}" }));
-            ModSettingsManager.AddOption(new StepSliderOption(statsDisplaySize, new StepSliderConfig() { restartRequired = false, min = -1, max = 24, increment = 0.2f,FormatString = "{0:F1}" }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 24, FormatString = "{0:F1}" }));
+            //ModSettingsManager.AddOption(new StepSliderOption(statsDisplaySize, new StepSliderConfig() { restartRequired = false, min = -1, max = 24, increment = 0.2f,FormatString = "{0:F1}" }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(movePurchaseText, new CheckBoxConfig() { restartRequired = false }));
 
