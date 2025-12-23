@@ -160,7 +160,7 @@ namespace LookingGlass.StatsDisplay
                 + "Combo: [combo]\n"
                 + "</margin>"
                 , $"String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is:{syntaxList}");
-            statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display font size", -1, "General font size of the stats display menu.\n\nIf set to -1, it will be sized relative to the Objective Header and Objectives. 14 on the default hud.");
+            statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display font size", -1f, "General font size of the stats display menu.\n\nIf set to -1, it will be sized relative to the Objective Header and Objectives. 13.5 on the default hud.");
 
             statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display update interval", 0.25f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance for large texts\n\nValues below 0.2 are not recommended for normal play for performance reasons.\n\n");
             statsDisplayUpdateInterval.SettingChanged += Display_SettingChanged;
@@ -254,12 +254,13 @@ namespace LookingGlass.StatsDisplay
 
             
 
-            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 100 }));
+           ///ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 24, FormatString = "{0:F1}" }));
+            ModSettingsManager.AddOption(new StepSliderOption(statsDisplaySize, new StepSliderConfig() { restartRequired = false, min = -1, max = 24, increment = 0.2f,FormatString = "{0:F1}" }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(movePurchaseText, new CheckBoxConfig() { restartRequired = false }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { name = "Update interval", restartRequired = false, min = 0.01f, max = 1f, formatString = "{0:F2}s" }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { name = "Update interval", restartRequired = false, min = 0.01f, max = 1f, FormatString = "{0:F2}s" }));
             ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayOverrideHeight, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { restartRequired = false, min = 0, max = 100 }));
             ModSettingsManager.AddOption(new IntSliderOption(floatPrecision, new IntSliderConfig() { name = "Float precision", restartRequired = false, min = 0, max = 5 }));
@@ -534,8 +535,7 @@ namespace LookingGlass.StatsDisplay
                           "<margin-left=0.6em><line-height=110%>"
                           + "Crit Chance: [critWithLuck]\n"
                           + "Bleed Chance: [bleedChanceWithLuck]\n"
-                          + "Mountain Shrines: [mountainShrines]\n"
-                          + "Bazaar Portal: [shopPortal]"
+                          + "Portal: [portals]"
                           + "</line-height></margin>";
                     break;
                 
@@ -747,7 +747,7 @@ namespace LookingGlass.StatsDisplay
                                 }
                                 else
                                 {
-                                    textComponent.fontSize = (textComponent.fontSize + 12) / 2f;
+                                    textComponent.fontSize = (textComponent.fontSize + 11) / 2f;
                                 }
                                 //Increased Padding to match Objectives spacing and general alignment
                                 /*if (matchingLeftPadding.Value)

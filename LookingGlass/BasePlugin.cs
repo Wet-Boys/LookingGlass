@@ -88,7 +88,7 @@ namespace LookingGlass
             resizeCommandWindowClass = new ModifyCommandWindow();
             itemCounter = new ItemCounter();
             buffTimers = new BuffTimersClass();
-            dpsMeter = new DPSMeter();
+   
             portalTracking = new PortalTracker();
             equipFixer = new CooldownFixer();
           
@@ -97,6 +97,7 @@ namespace LookingGlass
             hidePickupNotifications = new HidePickupNotifications();
             pickupNotifDurationClass = new PickupNotifDurationClass();
             unHiddenItems = new UnHiddenItems();
+            dpsMeter = new DPSMeter();
 
             statsDisplayClass.CheckForOldDefaultSettingsThatNeedToBeUpdated();
 
