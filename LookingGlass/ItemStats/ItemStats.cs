@@ -310,28 +310,35 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 //I cant figuer out how to not use remove here so whatever
                 c.Remove();
-                c.EmitDelegate<Func<SkillDef, string>>((skill) =>
+
+                //c.Emit(OpCodes.Ldloc, 7);
+                c.Emit(OpCodes.Ldloc, 2);
+                c.EmitDelegate<Func<SkillDef, string, string>>((skill, loadoutCat) =>
                 {
-              
-                    if (abilityProcCoefficients.Value)
+                    //If in, passive slot,uhh dont
+                    //if (!skill.skillNameToken.Contains("PASSIVE"))
+                    if (!(loadoutCat == "LOADOUT_SKILL_MISC" || loadoutCat == "LOADOUT_DRONE"))
                     {
-                        StringBuilder newDesc = new StringBuilder(Language.GetString(skill.skillDescriptionToken));
-                        newDesc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + skill.baseRechargeInterval.ToString("0.00") + "s</style>");
-                        if (ProcCoefficientData.hasProcCoefficient(skill.skillNameToken))
+                        if (abilityProcCoefficients.Value)
                         {
-                            float proc = ProcCoefficientData.GetProcCoefficient(skill.skillNameToken);
-                            if (proc!= -1)
+                            StringBuilder newDesc = new StringBuilder(Language.GetString(skill.skillDescriptionToken));
+                            newDesc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + skill.baseRechargeInterval.ToString("0.00") + "s</style>");
+                            if (ProcCoefficientData.hasProcCoefficient(skill.skillNameToken))
                             {
-                                newDesc.Append("\nProc Coefficient: <style=cIsDamage>" + proc.ToString("0.0##") + "</color>");
+                                float proc = ProcCoefficientData.GetProcCoefficient(skill.skillNameToken);
+                                if (proc!= -1)
+                                {
+                                    newDesc.Append("\nProc Coefficient: <style=cIsDamage>" + proc.ToString("0.0##") + "</color>");
+                                }
                             }
-                        }
-                        if (ProcCoefficientData.hasExtra(skill.skillNameToken))
-                        {
-                            //Extra info like Corrupted/Boosted proc and Ticks
-                            newDesc.Append(ProcCoefficientData.GetExtraInfo(skill.skillNameToken));
-                        }
+                            if (ProcCoefficientData.hasExtra(skill.skillNameToken))
+                            {
+                                //Extra info like Corrupted/Boosted proc and Ticks
+                                newDesc.Append(ProcCoefficientData.GetExtraInfo(skill.skillNameToken));
+                            }
                
-                        return newDesc.ToString();
+                            return newDesc.ToString();
+                        }
                     }
                     return skill.skillDescriptionToken;
                 });
