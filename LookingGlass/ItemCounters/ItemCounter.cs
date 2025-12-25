@@ -11,6 +11,8 @@ using RoR2.UI;
 using RoR2;
 using UnityEngine.UI;
 using TMPro;
+using System.Reflection;
+using UnityEngine;
 
 namespace LookingGlass.ItemCounters
 {
@@ -31,15 +33,15 @@ namespace LookingGlass.ItemCounters
         }
         public void Setup()
         {
-            itemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Counters", true, "Counts your items in the scoreboard");
-            tempItemCounters = BasePlugin.instance.Config.Bind<bool>("Misc", "Temp Item Counters By Rarity", false, "Counts your temp items in the scoreboard separately by rarity");
-            tempItemCountersTotalCounter = BasePlugin.instance.Config.Bind<bool>("Misc", "Temp Item Total Counter", true, "Counts your temp item total separately");
-            tempItemCountersTotal = BasePlugin.instance.Config.Bind<bool>("Misc", "Include Temp Items In Item Counter Totals", false, "Include temp items in the item counter totals");
-            var targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(ItemCounter).GetMethod(nameof(UpdateMoneyText), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            itemCounters = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Tiered Item Counters", true, "Adds tiered item counters to the scoreboard next to the total item counter.");
+            tempItemCountersTotalCounter = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Temp Item Total Counter", true, "Counts your temp item total separately");
+            tempItemCounters = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Temp Item Counters By Rarity", false, "Counts your temp items in the scoreboard separately by rarity");         
+            tempItemCountersTotal = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Include Temp Items In Item Counter Totals", false, "Include temp items in the item counter totals");
+            var targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.UpdateMoneyText), BindingFlags.NonPublic | BindingFlags.Instance);
+            var destMethod = typeof(ItemCounter).GetMethod(nameof(UpdateMoneyText), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-            targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.SetMaster), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(ItemCounter).GetMethod(nameof(SetMaster), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.SetMaster), BindingFlags.Public | BindingFlags.Instance);
+            destMethod = typeof(ItemCounter).GetMethod(nameof(SetMaster), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);
         }
 
@@ -57,8 +59,15 @@ namespace LookingGlass.ItemCounters
             LayoutElement layout = self.itemCountText != null ? self.itemCountText.GetComponent<LayoutElement>() : self.moneyText.GetComponent<LayoutElement>();
             if (layout)
             {
-                layout.preferredWidth = 300;
+                //layout.preferredWidth = 300;
             }
+
+           /* if (self.itemCountText && self.itemCountText.transform.childCount == 0)
+            {
+                GameObject counters2 = GameObject.Instantiate(self.itemCountText.gameObject, self.itemCountText.transform);
+                self.itemCountText.transform.localPosition = new Vector3(-10f, -5f, 0);
+                counters2.transform.localPosition = new Vector3(0f, -17f, 0);
+            }*/
         }
 
         int GetItemsOfTierFast(Inventory inv, ItemTier tier, bool includeTemp = true)
@@ -96,6 +105,10 @@ namespace LookingGlass.ItemCounters
             if (!self.inventory || !itemCounters.Value)
                 return;
             TextMeshProUGUI itemCountText = self.itemCountText != null ? self.itemCountText : self.moneyText;
+ 
+            //TextMeshProUGUI itemCountText2 = self.itemCountText.GetComponentInChildren<TextMeshProUGUI>(); */
+
+
             //int whiteCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier1);
             //int greenCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier2);
             //int redCount = self.master.inventory.GetTotalItemCountOfTier(ItemTier.Tier3);

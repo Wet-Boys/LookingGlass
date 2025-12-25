@@ -12,7 +12,8 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
- 
+using System.Reflection;
+
 namespace LookingGlass.BuffTimers
 {
     public class BuffTimersClass : BaseThing
@@ -29,8 +30,8 @@ namespace LookingGlass.BuffTimers
         }
         public void Setup()
         {
-            var targetMethod = typeof(BuffDisplay).GetMethod(nameof(BuffDisplay.UpdateLayout), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(BuffTimersClass).GetMethod(nameof(UpdateLayout), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(BuffDisplay).GetMethod(nameof(BuffDisplay.UpdateLayout), BindingFlags.Public | BindingFlags.Instance);
+            var destMethod = typeof(BuffTimersClass).GetMethod(nameof(UpdateLayout), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
             buffTimers = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Timers", true, "Enables buff timers. These are not networked in the base game, please install NetworkedTimedBuffs if you want clients to see them aswell.");
             buffTimerDecimal = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Timers Decimal", true, "Display buff timers with 1 decimal. 1.4 instead of rounding up to 2.");

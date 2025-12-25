@@ -1,15 +1,23 @@
 ﻿using BepInEx.Configuration;
+using HarmonyLib;
 using LookingGlass.Base;
+using LookingGlass.ItemStatsNameSpace;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
+using MonoMod.RuntimeDetour.HookGen;
+using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
-using RiskOfOptions;
+using RoR2;
+using RoR2.Projectile;
+using RoR2.Skills;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
-using LookingGlass.ItemStatsNameSpace;
 
 namespace LookingGlass.EquipTimerFix
 {
@@ -26,35 +34,100 @@ namespace LookingGlass.EquipTimerFix
         public static ConfigEntry<bool> permanentSkillCooldownText;
         public void Setup()
         {
-            var targetMethod = typeof(EquipmentIcon).GetMethod(nameof(EquipmentIcon.SetDisplayData), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(CooldownFixer).GetMethod(nameof(SetDisplayData), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            overrideHook = new Hook(targetMethod, destMethod, this);
-            targetMethod = typeof(SkillIcon).GetMethod(nameof(SkillIcon.Update), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(CooldownFixer).GetMethod(nameof(Update), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            overrideHook2 = new Hook(targetMethod, destMethod, this);
             permanentEquipCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Equip", true, "Makes the cooldown indicator for the equip slot permanent and not just when you have 0 stock.");
             permanentSkillCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Skills", true, "Makes the cooldown indicator for skills permanent and not just when you have 0 stock.");
+ 
+            new ILHook(
+              typeof(SkillIcon).GetMethod(nameof(SkillIcon.Update), BindingFlags.NonPublic | BindingFlags.Instance),
+              Show_Skill_CooldownOverride);
+
+            new Hook(AccessTools.PropertyGetter(typeof(EquipmentIcon.DisplayData), nameof(EquipmentIcon.DisplayData.showCooldown)),
+                   ShowEquipCooldownOverride);
         }
+
+        public delegate bool orig_EquipCooldown(ref EquipmentIcon.DisplayData self);
+        public bool ShowEquipCooldownOverride(orig_EquipCooldown orig, ref global::RoR2.UI.EquipmentIcon.DisplayData self)
+        {
+            if (permanentEquipCooldownText.Value)
+            {
+                return self.stock < self.maxStock && self.hasEquipment;
+            }
+            return orig(ref self);
+        }
+
+        public void Show_Skill_CooldownOverride(ILContext il)
+        {
+            ILCursor c = new(il);
+            /*if (c.TryGotoNext(MoveType.Before,
+                x => x.MatchLdloc(2),
+                x => x.MatchLdcI4(0),
+                x => x.MatchBgt(out _))
+                &&
+                c.TryGotoNext(MoveType.After,
+                x => x.MatchLdloc(2)))
+            {
+                c.EmitDelegate<Func<int, int>>((skill) =>
+                {
+                    if (permanentSkillCooldownText.Value)
+                    {
+                        return 0;
+                    }
+                    return skill;
+                });
+            }
+            else
+            {
+                Debug.LogError("IL FAILED : Show_Skill_CooldownOverride");
+            }*/
+
+            c.TryGotoNext(MoveType.After,
+            x => x.MatchLdfld("RoR2.UI.SkillIcon", "cooldownText"));
+            if (c.TryGotoNext(MoveType.After,
+                x => x.MatchLdloc(3)))
+            {
+                c.Emit(OpCodes.Ldarg_0);
+                c.EmitDelegate<Func<bool, SkillIcon, bool>>((skill, self) =>
+                {
+                    if (permanentSkillCooldownText.Value && self.targetSkill.finalRechargeInterval != 0)
+                    {
+                        return !(self.targetSkill.stock < self.targetSkill.maxStock);
+                    }
+                    return skill;
+                });
+            }
+            else
+            {
+                Debug.LogError("IL FAILED : Show_Skill_CooldownOverride2");
+            }
+ 
+            if (c.TryGotoNext(MoveType.After,
+                x => x.MatchLdloc(4)))
+            {
+                c.EmitDelegate<Func<bool, bool>>((skill) =>
+                {
+                    if (permanentSkillCooldownText.Value)
+                    {
+                        return false;
+                    }
+                    return skill;
+                });
+            }
+            else
+            {
+                Debug.LogError("IL FAILED : Show_Skill_CooldownOverride2");
+            }
+        }
+
+
 
         public void SetupRiskOfOptions()
         {
             ModSettingsManager.AddOption(new CheckBoxOption(permanentEquipCooldownText, new CheckBoxConfig() { restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(permanentSkillCooldownText, new CheckBoxConfig() { restartRequired = false }));
         }
-        void SetDisplayData(Action<EquipmentIcon, EquipmentIcon.DisplayData> orig, EquipmentIcon self, EquipmentIcon.DisplayData newDisplayData)
-        {
-            orig(self, newDisplayData);
-            //This runs every frame bro what the fuck
-            if (ItemStats.itemStats.Value)
-            {
-                BasePlugin.instance.itemStats.EquipText(self);
-            }
-            if (permanentEquipCooldownText.Value && self.hasEquipment && newDisplayData.stock < newDisplayData.maxStock && self.cooldownText)
-            {
-                self.cooldownText.gameObject.SetActive(true);
-            }
-        }
-        void Update(Action<SkillIcon> orig, SkillIcon self)
+       
+ 
+        void Skill_Cooldown(Action<SkillIcon> orig, SkillIcon self)
         {
             orig(self);
 

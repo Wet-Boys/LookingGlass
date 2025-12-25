@@ -199,16 +199,16 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("SEEKER_SPECIAL_ALT1_NAME", 1f);
 
             // False son
-            skills.Add("FALSESON_PRIMARY_NAME", 1f);
+            skills.Add("FALSESON_PRIMARY_NAME", 1f);        //
             skillsAdditional.Add("FALSESON_PRIMARY_NAME", "\nMid-Air Charged Proc: <style=cHumanObjective>1.5</style>"); 
-            skills.Add("FALSESON_SECONDARY_NAME", 1f);
-            skills.Add("FALSESON_SECONDARY_ALT1_NAME", 1f);
-            skills.Add("FALSESON_UTILITY_NAME", 1f);
-            skills.Add("FALSESON_UTILITY_ALT1_NAME", 0f);
-            skills.Add("FALSESON_SPECIAL_NAME", 0.45f);
+            skills.Add("FALSESON_SECONDARY_NAME", 1f);      //Lunar Spikes
+            skills.Add("FALSESON_SECONDARY_ALT1_NAME", 1f); //
+            skills.Add("FALSESON_UTILITY_NAME", 1f);        //Step of the Brothers
+            skills.Add("FALSESON_UTILITY_ALT1_NAME", 0f);   //
+            skills.Add("FALSESON_SPECIAL_NAME", 0.45f);     //
             skillsAdditional.Add("FALSESON_SPECIAL_NAME", "\nTicks: <style=cIsDamage>32</style>, Scales with <style=cIsHealing>Growth</style>"); //??
-            skills.Add("FALSESON_SPECIAL_ALT1_NAME", 1f);
-
+            skills.Add("FALSESON_SPECIAL_ALT1_NAME", 1f);   //
+                
             // Chef
             //Boosted skills do not have unique name tokens (Do have unique desc tho)
             skills.Add("CHEF_PRIMARY_NAME", 1f);        //Cleaver Held / Boosted 1.5
