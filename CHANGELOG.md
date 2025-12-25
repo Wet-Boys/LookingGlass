@@ -19,11 +19,11 @@ Expanded Item, Equip & Skill icon descriptions now update specifically when open
 	- Less math that needs to *constantly* be done, instead just one big update instead.  
 
 
-DPS/Kills/Combo no longer counts minion damage.
+DPS/Kills/Combo no longer counts minion damage.   
 Permanent Skill/Equip cooldown should work a bit better in general.  
 Fixed PermamentEquipmentCooldown getting stuck showing 0.  
 Fixed Command menu controller navigation getting broken by mod.  
-Fixed DPS meter counting kills multiple times on a lot of attacks.
+Fixed DPS meter counting kills multiple times on a lot of attacks.  
 Fixed maxRunKillCombo not getting reset per run.  
 Fixed stat display being empty when opening a menu while paused.  
 Fixed spacing on the last line of the stat display.  

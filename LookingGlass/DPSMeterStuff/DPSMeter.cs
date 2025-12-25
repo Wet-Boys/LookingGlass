@@ -39,6 +39,7 @@ namespace LookingGlass.DPSMeterStuff
 
 
         public static ConfigEntry<bool> disableDPSMeter;
+        public static ConfigEntry<bool> dpsCountMinions;
         public static ConfigEntry<float> dpsDuration;
 
 
@@ -107,10 +108,8 @@ namespace LookingGlass.DPSMeterStuff
             orig(damageDealtMessage);
             try
             {
-                //Minion damage is tracker seperately by the game and minion kills are not your kills so idk tbh.
-                //CharacterBody attacker = damageDealtMessage.attacker.GetComponent<CharacterBody>();
                 if (damageDealtMessage.attacker == LocalUserManager.GetFirstLocalUser().cachedBodyObject)
-                //|| (attacker.master.minionOwnership && attacker.master.minionOwnership.ownerMaster &&  LocalUserManager.GetFirstLocalUser().cachedMasterObject))
+                //if (damageDealtMessage.attacker == LocalUserManager.GetFirstLocalUser().cachedBodyObject || damageDealtMessage.attacker.TryGetComponent<CharacterBody>(out var attacker) || attacker.master.minionOwnership && attacker.master.minionOwnership.ownerMaster && LocalUserManager.GetFirstLocalUser().cachedMasterObject))
                 {
              
                     damageDealtSincePeriod += damageDealtMessage.damage;
