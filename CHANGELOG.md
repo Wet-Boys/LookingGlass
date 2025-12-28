@@ -15,10 +15,15 @@ Added [shieldFraction] stat.	*(% of CombinedHP that is shield)*
 Added config to disable item procs in skill descriptions.  
 Access Node and Artifact Portal now tracked by [portals] stat
 
-Expanded Item, Equip & Skill icon descriptions now update specifically when opening the scoreboard.  
-	- Less math that needs to *constantly* be done, instead just one big update instead.  
 
-
+Expanded Item icons no longer all update every item pickup.\
+Expanded Equip icons no longer update every frame.\  
+Expanded Skill icons no longer update every frame.\
+Expanded Item Counters no longer update every frame when scoreboard is open.\
+	- Instead, just update when Scoreboard is opened, or item counts change.
+	- Should be a lot more optimized, report any cases where something isn't updating.
+ 
+Total Temp Item counter config should now work even if Tiered Counters are disabled.  
 DPS/Kills/Combo no longer counts minion damage.   
 Permanent Skill/Equip cooldown should work a bit better in general.  
 Fixed PermamentEquipmentCooldown getting stuck showing 0.  

@@ -201,11 +201,10 @@ namespace LookingGlass.StatsDisplay
             detachedPosition.SettingChanged += DetachedPosition_SettingChanged;
 
             var targetMethod = typeof(ScoreboardController).GetMethod(nameof(ScoreboardController.OnEnable), BindingFlags.NonPublic | BindingFlags.Instance);
-            var destMethod = typeof(StatsDisplayClass).GetMethod(nameof(OnEnable), BindingFlags.NonPublic | BindingFlags.Instance);
-            overrideHook = new Hook(targetMethod, destMethod, this);
+            new Hook(targetMethod, OnEnable);
+            
             targetMethod = typeof(ScoreboardController).GetMethod(nameof(ScoreboardController.OnDisable), BindingFlags.NonPublic | BindingFlags.Instance);
-            destMethod = typeof(StatsDisplayClass).GetMethod(nameof(OnDisable), BindingFlags.NonPublic | BindingFlags.Instance);
-            overrideHook2 = new Hook(targetMethod, destMethod, this);
+            new Hook(targetMethod, OnDisable);
  
 
             statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Preset", StatDisplayPreset.Set, "Override current Stat Display settings with a premade preset.Further changes can made from there.\n\n" +
