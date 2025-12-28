@@ -21,7 +21,7 @@ Expanded Equip icons no longer update every frame.\
 Expanded Skill icons no longer update every frame.\
 Expanded Item Counters no longer update every frame when scoreboard is open.\
 	- Instead, just update when Scoreboard is opened, or item counts change.
-	- Should be a lot more optimized, report any cases where something isn't updating.
+	- Should be more optimized, report any cases where something isn't updating.
  
 Total Temp Item counter config should now work even if Tiered Counters are disabled.  
 DPS/Kills/Combo no longer counts minion damage.   
