@@ -108,6 +108,8 @@ namespace LookingGlass.StatsDisplay
             + "\n armor, armorDamageReduction"
             + "\n curseHealthReduction "
             + "\n hasOSP "
+            + "\n damagePercent, damagePercentWithWatch"
+            + "\n maxHpPercent, maxHealthStat, maxShieldStat"
 
             + "\n speed, speedPercent, speedPercentSprintAffected"
             + "\n velocity, acceleration "
