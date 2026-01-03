@@ -12,6 +12,7 @@ using RiskOfOptions.Options;
 using RiskOfOptions;
 using static Rewired.InputMapper;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace LookingGlass.CommandWindowBlur
 {
@@ -38,9 +39,14 @@ namespace LookingGlass.CommandWindowBlur
         }
         void InitHooks()
         {
-            var targetMethod = typeof(RoR2.PickupPickerController).GetMethod(nameof(RoR2.PickupPickerController.OnDisplayBegin), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(NoWindowBlur).GetMethod(nameof(OnDisplayBegin), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(RoR2.PickupPickerController).GetMethod(nameof(RoR2.PickupPickerController.OnDisplayBegin), BindingFlags.NonPublic | BindingFlags.Instance);
+            var destMethod = typeof(NoWindowBlur).GetMethod(nameof(OnDisplayBegin), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
+
+
+            new Hook(
+                typeof(DroneScrapperPickerController).GetMethod(nameof(DroneScrapperPickerController.OnDisplayBegin), BindingFlags.NonPublic | BindingFlags.Instance),
+                typeof(NoWindowBlur).GetMethod(nameof(DroneScrapper_OnDisplayBegin), BindingFlags.NonPublic | BindingFlags.Instance), this);
         }
         void OnDisplayBegin(Action<RoR2.PickupPickerController, NetworkUIPromptController, LocalUser, CameraRigController> orig, RoR2.PickupPickerController self, NetworkUIPromptController networkUIPromptController, LocalUser localUser, CameraRigController cameraRigController)
         {
@@ -53,8 +59,22 @@ namespace LookingGlass.CommandWindowBlur
             {
                 t.enabled = !disable.Value;
             }
-            BasePlugin.instance.buttonsToCloseMenu.OnDisplayBeginStuff(self);
-            BasePlugin.instance.resizeCommandWindowClass.ResizeWindow(self);
+            BasePlugin.instance.buttonsToCloseMenu.AddCloser(self.panelInstance, networkUIPromptController);
+         
         }
+
+        void DroneScrapper_OnDisplayBegin(Action<DroneScrapperPickerController, NetworkUIPromptController, LocalUser, CameraRigController> orig, DroneScrapperPickerController self, NetworkUIPromptController networkUIPromptController, LocalUser localUser, CameraRigController cameraRigController)
+        {
+ 
+            orig(self, networkUIPromptController, localUser, cameraRigController);
+
+            TranslucentImage t = self.panelInstance.gameObject.GetComponentInChildren<TranslucentImage>();
+            if (t is not null)
+            {
+                t.enabled = !disable.Value;
+            }
+            BasePlugin.instance.buttonsToCloseMenu.AddCloser(self.panelInstance, networkUIPromptController);
+        }
+
     }
 }

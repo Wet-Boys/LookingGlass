@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Reflection;
 
 namespace LookingGlass
 {
@@ -30,16 +31,16 @@ namespace LookingGlass
             allyInfoConfig = BasePlugin.instance.Config.Bind<bool>("Misc", "Ally Info", true, "Hovering over ally cards shows info if they are a Drone.");
             ModSettingsManager.AddOption(new CheckBoxOption(allyInfoConfig, new CheckBoxConfig() { restartRequired = false }));
 
-            var targetMethod = typeof(AllyCardController).GetMethod(nameof(AllyCardController.UpdateInfo), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(AllyCardInfo).GetMethod(nameof(AddAllyTooltips), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(AllyCardController).GetMethod(nameof(AllyCardController.UpdateInfo), BindingFlags.NonPublic | BindingFlags.Instance);
+            var destMethod = typeof(AllyCardInfo).GetMethod(nameof(AddAllyTooltips), BindingFlags.Public | BindingFlags.Instance);
             new Hook(targetMethod, destMethod, this);
 
-            targetMethod = typeof(AllyCardController).GetMethod(nameof(AllyCardController.Awake), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(AllyCardInfo).GetMethod(nameof(MakeTargetable), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(AllyCardController).GetMethod(nameof(AllyCardController.Awake), BindingFlags.NonPublic | BindingFlags.Instance);
+            destMethod = typeof(AllyCardInfo).GetMethod(nameof(MakeTargetable), BindingFlags.Public | BindingFlags.Instance);
             new Hook(targetMethod, destMethod, this);
 
-            targetMethod = typeof(AllyCardManager).GetMethod(nameof(AllyCardManager.OnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(AllyCardInfo).GetMethod(nameof(AddRaycaster), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            targetMethod = typeof(AllyCardManager).GetMethod(nameof(AllyCardManager.OnEnable), BindingFlags.NonPublic | BindingFlags.Instance);
+            destMethod = typeof(AllyCardInfo).GetMethod(nameof(AddRaycaster), BindingFlags.Public | BindingFlags.Instance);
             new Hook(targetMethod, destMethod, this);
         }
 

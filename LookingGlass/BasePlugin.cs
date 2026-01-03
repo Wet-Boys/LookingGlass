@@ -26,7 +26,7 @@ using static RoR2.HealthComponent;
 namespace LookingGlass
 {
     //[BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, "1.14.4")] //Idk how to version number
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, "1.14.5")] //Idk how to version number
     public class BasePlugin : BaseUnityPlugin
     {
         internal static BasePlugin instance;
@@ -83,34 +83,39 @@ namespace LookingGlass
 
             noWindowBlur = new NoWindowBlur();
             buttonsToCloseMenu = new ButtonsToCloseMenu();
-            hidePickupNotifications = new HidePickupNotifications();
+        
             commandItemCountClass = new CommandItemCountClass();
             resizeCommandWindowClass = new ModifyCommandWindow();
             itemCounter = new ItemCounter();
             buffTimers = new BuffTimersClass();
-            dpsMeter = new DPSMeter();
+   
             portalTracking = new PortalTracker();
             equipFixer = new CooldownFixer();
-            unHiddenItems = new UnHiddenItems();
+          
             buffDescriptions = new BuffDescriptionsClass();
-            pickupNotifDurationClass = new PickupNotifDurationClass();
             allyCardStuff = new AllyCardInfo();
+            hidePickupNotifications = new HidePickupNotifications();
+            pickupNotifDurationClass = new PickupNotifDurationClass();
+            unHiddenItems = new UnHiddenItems();
+            dpsMeter = new DPSMeter();
 
             statsDisplayClass.CheckForOldDefaultSettingsThatNeedToBeUpdated();
+
+             ModSettingsManager.SetModDescription("Stat info, item stacking info, skill and equipment cooldown info, and much more ui related things.");
         }
 
         private void FixedUpdate()
         {
-            buttonsToCloseMenu.Update();
-            dpsMeter.Update();
+            dpsMeter.FixedUpdate();
             
             // get current camera body target
             StatsDisplayClass.cachedUserBody = LocalUserManager.GetFirstLocalUser()?.cameraRigController ?
                 LocalUserManager.GetFirstLocalUser().cameraRigController.targetBody :
                 null;
             
-            statsDisplayClass.Update();
+            statsDisplayClass.FixedUpdate();
         }
+     
 
         public static Texture2D LoadTexture(byte[] bytes, int width, int height)
         {

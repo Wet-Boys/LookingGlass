@@ -9,6 +9,7 @@ using RoR2.UI;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Reflection;
 
 namespace LookingGlass.BuffDescriptions
 {
@@ -29,13 +30,13 @@ namespace LookingGlass.BuffDescriptions
             buffDescriptions = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Descriptions", true, "Gives descriptions to buffs (All vanilla by default, modded buffs need to be setup)");
             buffDescriptionsFontSize = BasePlugin.instance.Config.Bind<float>("Buff Info", "Buff Font Size", 100f, "Changes the font size of buff descriptions");
 
-            var targetMethod = typeof(BuffIcon).GetMethod(nameof(BuffIcon.UpdateIcon), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var destMethod = typeof(BuffDescriptionsClass).GetMethod(nameof(BuffIconUpdateIcon), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var targetMethod = typeof(BuffIcon).GetMethod(nameof(BuffIcon.UpdateIcon), BindingFlags.Public | BindingFlags.Instance);
+            var destMethod = typeof(BuffDescriptionsClass).GetMethod(nameof(BuffIconUpdateIcon), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
 
             //This runs too early to use RoR2Content.Buffs, they're not populated yet
-            /*targetMethod = typeof(Language).GetMethod(nameof(Language.LoadStrings), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(BuffDescriptionsClass).GetMethod(nameof(LoadLanguages), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            /*targetMethod = typeof(Language).GetMethod(nameof(Language.LoadStrings), BindingFlags.Public | BindingFlags.Instance);
+            destMethod = typeof(BuffDescriptionsClass).GetMethod(nameof(LoadLanguages), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook2 = new Hook(targetMethod, destMethod, this);*/
 
             //BuffCatalog does not have availablity

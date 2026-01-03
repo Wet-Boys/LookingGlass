@@ -2,11 +2,15 @@
 using LookingGlass.Base;
 using LookingGlass.BuffDescriptions;
 using MonoMod.RuntimeDetour;
+using RiskOfOptions;
+using RiskOfOptions.OptionConfigs;
+using RiskOfOptions.Options;
 using RoR2;
 using RoR2.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -18,9 +22,7 @@ namespace LookingGlass.DPSMeterStuff
         public ulong killsThisStage = 0;
         public ulong killsThisRun = 0;
  
-
-        private static Hook overrideHook;
-        private static Hook overrideHook2;
+ 
         public float damageDealtSincePeriod = 0;
         public float currentCombatDamage = 0;
         public static ConfigEntry<float> maxComboConfigEntry;
@@ -32,32 +34,58 @@ namespace LookingGlass.DPSMeterStuff
         public static ConfigEntry<ulong> maxKillComboConfigEntry;
         public ulong maxKillCombo = 0;
         public ulong maxRunKillCombo = 0;
-        public const float DPS_MAX_TIME = 5;
+        public static float DPS_MAX_TIME = 5;
         public float timer = DPS_MAX_TIME;
+
+
+        public static ConfigEntry<bool> disableDPSMeter;
+        public static ConfigEntry<bool> dpsCountMinions;
+        public static ConfigEntry<float> dpsDuration;
+
+
         public DPSMeter()
         {
             Setup();
         }
         public void Setup()
         {
+            disableDPSMeter = BasePlugin.instance.Config.Bind<bool>("Misc", "Disable Damage tracking", false, "Disables DPS & Combo & Kill tracking.\n\nIncase you are not interested in these features & stats and are looking for optimization.");
+            dpsDuration = BasePlugin.instance.Config.Bind<float>("Misc", "DPS Tracking Duration", 5f, "Duration during which Combos & DPS is added together");
+            dpsDuration.SettingChanged += DpsDuration_SettingChanged;
+            DPS_MAX_TIME = dpsDuration.Value;
+            SetupRiskOfOptions();
+            if (disableDPSMeter.Value)
+            {
+                return;
+            }
+
             maxComboConfigEntry = BasePlugin.instance.Config.Bind<float>("Stats", "Max Combo", 0, "What are you gonna do, cheat the number?");
             maxCombo = maxComboConfigEntry.Value;
             maxKillComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Kill Combo", 0, "What are you gonna do, cheat the number?");
             maxKillCombo = maxKillComboConfigEntry.Value;
-            var targetMethod = typeof(GlobalEventManager).GetMethod(nameof(GlobalEventManager.ClientDamageNotified), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-            var destMethod = typeof(DPSMeter).GetMethod(nameof(TrackDamage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            overrideHook = new Hook(targetMethod, destMethod, this);
-            targetMethod = typeof(Run).GetMethod(nameof(Run.OnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(DPSMeter).GetMethod(nameof(RunOnEnable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            overrideHook2 = new Hook(targetMethod, destMethod, this);
 
-            targetMethod = typeof(Stage).GetMethod(nameof(Stage.PreStartClient), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            destMethod = typeof(DPSMeter).GetMethod(nameof(ResetOnStage), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            overrideHook2 = new Hook(targetMethod, destMethod, this);
+            
+ 
+            new Hook(typeof(GlobalEventManager).GetMethod(nameof(GlobalEventManager.ClientDamageNotified), BindingFlags.Public | BindingFlags.Static),
+                TrackDamage);
+
+            new Hook(typeof(Run).GetMethod(nameof(Run.OnEnable), BindingFlags.NonPublic | BindingFlags.Instance), 
+                RunOnEnable);
+
+            new Hook(typeof(Stage).GetMethod(nameof(Stage.PreStartClient), BindingFlags.Public | BindingFlags.Instance), 
+                ResetOnStage);
+        }
+
+        private void DpsDuration_SettingChanged(object sender, EventArgs e)
+        {
+            DPS_MAX_TIME = dpsDuration.Value;
         }
 
         public void SetupRiskOfOptions()
         {
+            ModSettingsManager.AddOption(new SliderOption(dpsDuration, new SliderConfig() { restartRequired = false, min = 3, max = 10f, FormatString = "{0:0}s" }));
+            ModSettingsManager.AddOption(new CheckBoxOption(disableDPSMeter, new CheckBoxConfig() { restartRequired = true }));
+           
         }
 
         void ResetOnStage(Action<Stage> orig, Stage self)
@@ -72,16 +100,18 @@ namespace LookingGlass.DPSMeterStuff
             damageDealtSincePeriod = 0;
             maxRunCombo = 0;
             killsThisRun = 0;
+            maxRunKillCombo = 0;
         }
+        public HealthComponent latestKill;
         void TrackDamage(Action<DamageDealtMessage> orig, DamageDealtMessage damageDealtMessage)
         {
             orig(damageDealtMessage);
             try
             {
-                CharacterBody attacker = damageDealtMessage.attacker.GetComponent<CharacterBody>();
-                if (attacker == LocalUserManager.GetFirstLocalUser().cachedBody || (attacker.master.minionOwnership && attacker.master.minionOwnership.ownerMaster && attacker.master.minionOwnership.ownerMaster.GetBody() == LocalUserManager.GetFirstLocalUser().cachedBody))
+                if (damageDealtMessage.attacker == LocalUserManager.GetFirstLocalUser().cachedBodyObject)
+                //if (damageDealtMessage.attacker == LocalUserManager.GetFirstLocalUser().cachedBodyObject || damageDealtMessage.attacker.TryGetComponent<CharacterBody>(out var attacker) || attacker.master.minionOwnership && attacker.master.minionOwnership.ownerMaster && LocalUserManager.GetFirstLocalUser().cachedMasterObject))
                 {
-                    ulong thing = (ulong)damageDealtMessage.damage;
+             
                     damageDealtSincePeriod += damageDealtMessage.damage;
                     currentCombatDamage += damageDealtMessage.damage;
                     if (maxCombo < currentCombatDamage)
@@ -100,8 +130,9 @@ namespace LookingGlass.DPSMeterStuff
                         //Like .alive can be a bit unreliable and count kills twice but like uhh
                         //So is this weird other check
                         //if (victim && (victim.combinedHealth + victim.barrier) - damageDealtMessage.damage <= 0)
-                        if (victim && !victim.alive)
+                        if (victim && !victim.alive && latestKill != victim)
                         {
+                            latestKill = victim;
                             currentComboKills++;
                             killsThisRun++;
                             killsThisStage++;
@@ -123,6 +154,7 @@ namespace LookingGlass.DPSMeterStuff
             }
         }
         //Who the fuck made ALL DAMAGE int
+        //This seems like not the best thing to spam up to 10s of times per second tbh.
         IEnumerator RemoveFromDamageDealtAfterSeconds(float time, float damage)
         {
             yield return new WaitForSeconds(time);
@@ -132,14 +164,14 @@ namespace LookingGlass.DPSMeterStuff
                 damageDealtSincePeriod = 0;
             }
         }
-        internal void Update()
+        internal void FixedUpdate()
         {
             if (timer > 0)
             {
                 timer -= Time.deltaTime;
                 if (timer <= 0)
                 {
-                    timer = -1;
+                    timer = -1f;
                     maxComboConfigEntry.Value = maxCombo;
                     currentCombatDamage = 0;
 
