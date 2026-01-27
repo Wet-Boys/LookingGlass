@@ -474,22 +474,25 @@ namespace LookingGlass.AutoSortItems
 
         ItemIndex[] SortItemsNew(ItemIndex[] items, int count, ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
         {
-            // TODO: this breaks as soon as you try to change sort settings or remove items from your inventory :catplant:
+            List<ItemIndex> allItems = new List<ItemIndex>();
+            for (int i = 0; i < count; i++)
+            {
+                allItems.Add(items[i]);
+            }
 
             Dictionary<ItemIndex, int> acquiredOrder = null;
             bool sortByAcquired = cfgSortByTier.Value != TierSortMode.TierIgnoringAcquiredOrder;
             if (sortByAcquired)
             {
                 // create a reverse mapping to avoid quadratic-time checking for acquisition order
-                ItemIndex[] itemsOriginal = (ItemIndex[])items.Clone();
                 acquiredOrder = new();
-                for (int i = 0; i < itemsOriginal.Count(); i++)
+                for (int i = 0; i < items.Count(); i++)
                 {
-                    acquiredOrder[itemsOriginal[i]] = i;
+                    acquiredOrder[items[i]] = i;
                 }
             }
 
-            return items.OrderBy(ItemComparer).ToArray();
+            return allItems.OrderBy(ItemComparer).ToArray();
 
             Tuple<int, int, int, int, int> ItemComparer(ItemIndex itemIndex)
             {
@@ -653,7 +656,6 @@ namespace LookingGlass.AutoSortItems
             scrapList.Clear();
             List<PickupIndex> newArray = new List<PickupIndex>();
             List<PickupIndex> ITEMS = new List<PickupIndex>();
-            List<PickupIndex> ITEMSSorted = new List<PickupIndex>();
             List<PickupIndex> equipment = new List<PickupIndex>();
             for (int i = 0; i < count; i++)
             {
