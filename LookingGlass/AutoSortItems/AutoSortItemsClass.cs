@@ -242,7 +242,7 @@ namespace LookingGlass.AutoSortItems
                     }
                     else
                     {
-                        items = new List<ItemIndex>(SortItemsNew(items.ToArray(), items.Count, display, false, false, SortCommand.Value >= CommandSortType.Largest_Smallest, SortCommand.Value == CommandSortType.Largest_Smallest));
+                        items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, false, SortCommand.Value >= CommandSortType.Largest_Smallest, SortCommand.Value == CommandSortType.Largest_Smallest));
 
                     }
                 }
@@ -265,11 +265,11 @@ namespace LookingGlass.AutoSortItems
                     }
                     else if (SortScrapper.Value == ScrapperSortType.MatchHud)
                     {
-                        items = new List<ItemIndex>(SortItemsNew(items.ToArray(), items.Count, display, false, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest));
+                        items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest));
                     }
                     else
                     {
-                        items = new List<ItemIndex>(SortItemsNew(items.ToArray(), items.Count, display, false, SortScrapperTier.Value, SortScrapper.Value >= ScrapperSortType.Largest_Smallest, SortScrapper.Value == ScrapperSortType.Largest_Smallest));
+                        items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, SortScrapperTier.Value, SortScrapper.Value >= ScrapperSortType.Largest_Smallest, SortScrapper.Value == ScrapperSortType.Largest_Smallest));
                     }
 
                 }
@@ -442,7 +442,7 @@ namespace LookingGlass.AutoSortItems
                         }
                         //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
                     }
-                    self.itemOrder = SortItemsNew(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest);
+                    self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest);
                 }
                 catch (Exception e)
                 {
@@ -472,7 +472,7 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        ItemIndex[] SortItemsNew(ItemIndex[] items, int count, ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
+        ItemIndex[] SortItems(ItemIndex[] items, int count, ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
         {
             List<ItemIndex> allItems = new List<ItemIndex>();
             for (int i = 0; i < count; i++)
@@ -543,108 +543,6 @@ namespace LookingGlass.AutoSortItems
                     return new(scrapKey, tierKey, stackSizeKey, itemIndexKey, qualityKey);
                 }
             }
-        }
-
-        ItemIndex[] SortItems(ItemIndex[] items, int count, RoR2.UI.ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize) //This really should be refactored but it works so...
-        {
-            foreach (var tierList in itemTierLists)
-            {
-                tierList.Clear();
-            }
-            scrapList.Clear();
-            ItemIndex[] newArray = new ItemIndex[count];
-            List<ItemIndex> allItems = new List<ItemIndex>();
-            for (int i = 0; i < count; i++)
-            {
-                if (seperateScrap && (ItemCatalog.GetItemDef(items[i]).ContainsTag(ItemTag.Scrap) || ItemCatalog.GetItemDef(items[i]).ContainsTag(ItemTag.PriorityScrap) || items[i] == DLC1Content.Items.RegeneratingScrapConsumed.itemIndex))
-                {
-                    scrapList.Add(items[i]);
-                }
-                else if (sortByTier)
-                {
-                    ItemTier tier = ItemCatalog.GetItemDef(items[i]).tier;
-                    if (CombineVoidTiers.Value)
-                    {
-                        // pretend the item is the regular version of the tier
-                        tier = tier switch
-                        {
-                            ItemTier.VoidBoss => ItemTier.Boss,
-                            ItemTier.VoidTier3 => ItemTier.Tier3,
-                            ItemTier.VoidTier2 => ItemTier.Tier2,
-                            ItemTier.VoidTier1 => ItemTier.Tier1,
-                            _ => tier
-                        };
-                    }
-                    itemTierLists[tierMatcher[tier]].Add(items[i]);
-                }
-                else
-                {
-                    allItems.Add(items[i]);
-                    newArray[i] = items[i];
-                }
-            }
-            items = newArray;
-
-            if (sortByTier)
-            {
-                bool sortByAcquired = cfgSortByTier.Value != TierSortMode.TierIgnoringAcquiredOrder;
-                for (int i = 0; i < itemTierLists.Count; i++)
-                {
-                    itemTierLists[i] = new List<ItemIndex>(itemTierLists[i].OrderBy((itemIndex) =>
-                        // if sort by acquired enabled, will ignore itemIndex
-                        (sortByAcquired ? 0 : (int)itemIndex)
-                        // if sort by stack size disabled, will ignore stacks
-                        + (!sortByStackSize ? 0 : (descendingStackSize ? -1 : 1) * display.itemStacks[(int)itemIndex] * 20000)).ToArray());
-                }
-
-                if (scrapList.Count >= 0)
-                {
-                    scrapList = scrapList.OrderBy(item => tierMatcher[ItemCatalog.GetItemDef(item).tier]).ToList();
-                }
-                int num = 0;
-                if (seperateScrap && ScrapSorting.Value == ScrapSortMode.Start)
-                {
-                    for (int i = 0; i < scrapList.Count; i++)
-                    {
-                        items[num] = scrapList[i];
-                        num++;
-                    }
-                }
-                for (int i = 0; i < itemTierLists.Count; i++)
-                {
-                    for (int x = 0; x < itemTierLists[i].Count; x++)
-                    {
-                        items[num] = itemTierLists[i][x];
-                        num++;
-                    }
-                }
-                if (seperateScrap && ScrapSorting.Value == ScrapSortMode.End)
-                {
-                    for (int i = 0; i < scrapList.Count; i++)
-                    {
-                        items[num] = scrapList[i];
-                        num++;
-                    }
-                }
-            }
-            else
-            {
-                allItems = new List<ItemIndex>(allItems.ToArray().OrderBy((item) =>
-                +((descendingStackSize ? -1 : 1) * (sortByStackSize ? 1 : 0) * display.itemStacks[(int)item] * 20000)).ToArray());
-                foreach (var item in scrapList)
-                {
-                    if (ScrapSorting.Value == ScrapSortMode.Start)
-                    {
-                        allItems.Insert(0, item);
-                    }
-                    else if (ScrapSorting.Value == ScrapSortMode.End)
-                    {
-                        allItems.Add(item);
-                    }
-                }
-                items = allItems.ToArray();
-            }
-            return items;
         }
 
         PickupIndex[] SortPickups(PickupIndex[] pickups, int count, ItemInventoryDisplay display, bool sortByTier, bool sortByStackSize, bool descendingStackSize) //This really should be refactored but it works so...
