@@ -29,6 +29,7 @@ using UnityEngine;
 namespace LookingGlass
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("com.Gorakh.ItemQualities", BepInDependency.DependencyFlags.SoftDependency)]
     public class BasePlugin : BaseUnityPlugin
     {
         internal static BasePlugin instance;

@@ -39,12 +39,20 @@ namespace LookingGlass.AutoSortItems
             Largest_Smallest,
             Smallest_Largest,
         }
+        internal enum QualitySortType
+        {
+            Off,
+            Grouped,
+            Separated
+        }
 
         public static ConfigEntry<ScrapSortMode> ScrapSorting;
         public static ConfigEntry<TierSortMode> cfgSortByTier;
         public static ConfigEntry<string> TierOrder;
         public static ConfigEntry<bool> CombineVoidTiers;
         public static ConfigEntry<StackSortType> cfgSortByStackSize;
+
+        public static ConfigEntry<QualitySortType> SortQualityItems;
 
         public static ConfigEntry<CommandSortType> SortCommand;
         public static ConfigEntry<ScrapperSortType> SortScrapper;
@@ -105,6 +113,8 @@ namespace LookingGlass.AutoSortItems
 
             cfgSortByStackSize = BasePlugin.instance.Config.Bind("Auto Sort Items", "Stack Size Sort", StackSortType.Largest_Smallest, "Sorts by Stack Size");
 
+            SortQualityItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Quality Items", QualitySortType.Grouped, "Sorts quality items from ItemQualities mod");
+
             SortCommand = BasePlugin.instance.Config.Bind("Auto Sort Items", "Command Sorting", CommandSortType.Off, "Sorts Command menus by stack count or alphabetically.\n\n");
             //Most people would be accustomed to the vanilla sort order, so shouldn't mess with that.
             //Additionally sorting Void Potentials is just kind of, who cares.
@@ -140,6 +150,12 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new ChoiceOption(SortCommand, new ChoiceConfig() { restartRequired = false, /*checkIfDisabled = CheckNotCommandSortAlphabetical*/ }));
             ModSettingsManager.AddOption(new ChoiceOption(SortScrapper, new ChoiceConfig() { restartRequired = false, /*checkIfDisabled = CheckNotScrapperSortTierAlphabetical*/ }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
+
+            // only show this config if itemqualities is enabled
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Gorakh.ItemQualities"))
+            {
+                ModSettingsManager.AddOption(new ChoiceOption(SortQualityItems, new ChoiceConfig() { restartRequired = false }));
+            }
 
 
             ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit }));
@@ -226,7 +242,7 @@ namespace LookingGlass.AutoSortItems
                     }
                     else
                     {
-                        items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, false, SortCommand.Value >= CommandSortType.Largest_Smallest, SortCommand.Value == CommandSortType.Largest_Smallest));
+                        items = new List<ItemIndex>(SortItemsNew(items.ToArray(), items.Count, display, false, false, SortCommand.Value >= CommandSortType.Largest_Smallest, SortCommand.Value == CommandSortType.Largest_Smallest));
 
                     }
                 }
@@ -249,11 +265,11 @@ namespace LookingGlass.AutoSortItems
                     }
                     else if (SortScrapper.Value == ScrapperSortType.MatchHud)
                     {
-                        items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest));
+                        items = new List<ItemIndex>(SortItemsNew(items.ToArray(), items.Count, display, false, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest));
                     }
                     else
                     {
-                        items = new List<ItemIndex>(SortItems(items.ToArray(), items.Count, display, false, SortScrapperTier.Value, SortScrapper.Value >= ScrapperSortType.Largest_Smallest, SortScrapper.Value == ScrapperSortType.Largest_Smallest));
+                        items = new List<ItemIndex>(SortItemsNew(items.ToArray(), items.Count, display, false, SortScrapperTier.Value, SortScrapper.Value >= ScrapperSortType.Largest_Smallest, SortScrapper.Value == ScrapperSortType.Largest_Smallest));
                     }
 
                 }
@@ -426,7 +442,7 @@ namespace LookingGlass.AutoSortItems
                         }
                         //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
                     }
-                    self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest);
+                    self.itemOrder = SortItemsNew(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest);
                 }
                 catch (Exception e)
                 {
@@ -453,6 +469,76 @@ namespace LookingGlass.AutoSortItems
             }
             catch (Exception)
             {
+            }
+        }
+
+        ItemIndex[] SortItemsNew(ItemIndex[] items, int count, ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
+        {
+            // TODO: this breaks as soon as you try to change sort settings or remove items from your inventory :catplant:
+
+            Dictionary<ItemIndex, int> acquiredOrder = null;
+            bool sortByAcquired = cfgSortByTier.Value != TierSortMode.TierIgnoringAcquiredOrder;
+            if (sortByAcquired)
+            {
+                // create a reverse mapping to avoid quadratic-time checking for acquisition order
+                ItemIndex[] itemsOriginal = (ItemIndex[])items.Clone();
+                acquiredOrder = new();
+                for (int i = 0; i < itemsOriginal.Count(); i++)
+                {
+                    acquiredOrder[itemsOriginal[i]] = i;
+                }
+            }
+
+            return items.OrderBy(ItemComparer).ToArray();
+
+            Tuple<int, int, int, int, int> ItemComparer(ItemIndex itemIndex)
+            {
+                int scrapKey = 0;
+                if (seperateScrap && (
+                    ItemCatalog.GetItemDef(itemIndex).ContainsTag(ItemTag.Scrap) 
+                    || ItemCatalog.GetItemDef(itemIndex).ContainsTag(ItemTag.PriorityScrap) 
+                    || itemIndex == DLC1Content.Items.RegeneratingScrapConsumed.itemIndex)) // todo: account for quality regen scrap? maybe?
+                {
+                    scrapKey = (ScrapSorting.Value == ScrapSortMode.End) ? 1 : -1;
+                }
+
+                int tierKey = 0;
+                if (sortByTier)
+                {
+                    ItemTier tier = ItemCatalog.GetItemDef(itemIndex).tier;
+                    if (CombineVoidTiers.Value)
+                    {
+                        // pretend the item is the regular version of the tier
+                        tier = tier switch
+                        {
+                            ItemTier.VoidBoss => ItemTier.Boss,
+                            ItemTier.VoidTier3 => ItemTier.Tier3,
+                            ItemTier.VoidTier2 => ItemTier.Tier2,
+                            ItemTier.VoidTier1 => ItemTier.Tier1,
+                            _ => tier
+                        };
+                    }
+                    tierKey = sortByTier ? tierMatcher[tier] : 0;
+                }
+
+                int stackSizeKey = 0;
+                if (sortByStackSize)
+                {
+                    stackSizeKey = display.itemStacks[(int)itemIndex] * (descendingStackSize ? -1 : 1);
+                }
+
+                int itemIndexKey = sortByAcquired ? acquiredOrder[itemIndex] : (int)itemIndex;
+
+                int qualityKey = 0; // todo :)
+
+                if (SortQualityItems.Value == QualitySortType.Separated)
+                {
+                    return new(scrapKey, tierKey, qualityKey, stackSizeKey, itemIndexKey);
+                }
+                else
+                {
+                    return new(scrapKey, tierKey, stackSizeKey, itemIndexKey, qualityKey);
+                }
             }
         }
 
