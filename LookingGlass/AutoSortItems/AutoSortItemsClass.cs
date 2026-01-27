@@ -287,7 +287,8 @@ namespace LookingGlass.AutoSortItems
                 {
                     unsorted.Add(options[i].pickupIndex);
                 }
-                var sorted = new List<PickupIndex>(SortPickups(unsorted.ToArray(), unsorted.Count, display, SortScrapperTier.Value, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest));
+                // todo: sort out the inconsistent scrapper vs. inventory settings being used here
+                var sorted = new List<PickupIndex>(SortPickups(unsorted.ToArray(), unsorted.Count, display, ScrapSorting.Value != ScrapSortMode.Mixed, SortScrapperTier.Value, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest));
 
 
                 List<PickupIndex> ingredients = new List<PickupIndex>();
@@ -545,15 +546,9 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        PickupIndex[] SortPickups(PickupIndex[] pickups, int count, ItemInventoryDisplay display, bool sortByTier, bool sortByStackSize, bool descendingStackSize) //This really should be refactored but it works so...
+        PickupIndex[] SortPickups(PickupIndex[] pickups, int count, ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
         {
-            foreach (var tierList in itemTierLists)
-            {
-                tierList.Clear();
-            }
-            scrapList.Clear();
-            List<PickupIndex> newArray = new List<PickupIndex>();
-            List<PickupIndex> ITEMS = new List<PickupIndex>();
+            List<ItemIndex> itemIndices = new List<ItemIndex>();
             List<PickupIndex> equipment = new List<PickupIndex>();
             for (int i = 0; i < count; i++)
             {
@@ -561,27 +556,7 @@ namespace LookingGlass.AutoSortItems
                 if (def.itemIndex != ItemIndex.None)
                 {
                     ItemDef item = ItemCatalog.GetItemDef(def.itemIndex);
-                    if (sortByTier)
-                    {
-                        ItemTier tier = item.tier;
-                        if (CombineVoidTiers.Value)
-                        {
-                            // pretend the item is the regular version of the tier
-                            tier = tier switch
-                            {
-                                ItemTier.VoidBoss => ItemTier.Boss,
-                                ItemTier.VoidTier3 => ItemTier.Tier3,
-                                ItemTier.VoidTier2 => ItemTier.Tier2,
-                                ItemTier.VoidTier1 => ItemTier.Tier1,
-                                _ => tier
-                            };
-                        }
-                        itemTierLists[tierMatcher[tier]].Add(def.itemIndex);
-                    }
-                    else
-                    {
-                        ITEMS.Add(def.pickupIndex);
-                    }
+                    itemIndices.Add(def.itemIndex);
 
                 }
                 else if (def.equipmentIndex != EquipmentIndex.None)
@@ -590,33 +565,15 @@ namespace LookingGlass.AutoSortItems
                 }
             }
 
-            if (sortByTier)
+            ItemIndex[] newItemIndices = SortItems(itemIndices.ToArray(), itemIndices.Count, display, seperateScrap, sortByTier, sortByStackSize, descendingStackSize);
+            List<PickupIndex> itemPickups = new List<PickupIndex>();
+            foreach (ItemIndex itemIndex in newItemIndices)
             {
-                bool sortByAcquired = cfgSortByTier.Value != TierSortMode.TierIgnoringAcquiredOrder;
-                for (int i = 0; i < itemTierLists.Count; i++)
-                {
-                    itemTierLists[i] = new List<ItemIndex>(itemTierLists[i].OrderBy((itemIndex) =>
-                        // if sort by acquired enabled, will ignore itemIndex
-                        (sortByAcquired ? 0 : (int)itemIndex)
-                        // if sort by stack size disabled, will ignore stacks
-                        + (!sortByStackSize ? 0 : (descendingStackSize ? -1 : 1) * display.itemStacks[(int)itemIndex] * 20000)).ToArray());
-                }
-
-                if (scrapList.Count >= 0)
-                {
-                    scrapList = scrapList.OrderBy(item => tierMatcher[ItemCatalog.GetItemDef(item).tier]).ToList();
-                }
-                for (int i = 0; i < itemTierLists.Count; i++)
-                {
-                    for (int x = 0; x < itemTierLists[i].Count; x++)
-                    {
-                        ITEMS.Add(PickupCatalog.FindPickupIndex(itemTierLists[i][x]));
-                    }
-                }
-
+                itemPickups.Add(PickupCatalog.FindPickupIndex(itemIndex));
             }
 
-            newArray.AddRange(ITEMS);
+            List<PickupIndex> newArray = new List<PickupIndex>();
+            newArray.AddRange(itemPickups);
             newArray.AddRange(equipment);
             return newArray.ToArray();
         }
