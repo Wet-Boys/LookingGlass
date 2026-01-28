@@ -47,6 +47,7 @@ namespace LookingGlass.AutoSortItems
         }
         internal enum QualitySortOrder
         {
+            Off,
             RareToCommon,
             CommonToRare
         }

@@ -29,10 +29,15 @@ namespace LookingGlass.AutoSortItems
 
             ItemQualityGroup group = QualityCatalog.GetItemQualityGroup(groupIndex);
 
-            qualityKey = (int)QualityCatalog.GetQualityTier(itemIndex);
-            if (QualityItemsOrder.Value == QualitySortOrder.RareToCommon)
+            QualityTier qualityTier = QualityCatalog.GetQualityTier(itemIndex);
+            if (SortQualityItems.Value == QualitySortType.Separated && QualityItemsOrder.Value == QualitySortOrder.Off)
             {
-                qualityKey *= -1;
+                // weird case, just group together all quality items to give somewhat sensible behavior
+                qualityKey = (qualityTier > QualityTier.None) ? 1 : -1;
+            }
+            else if (QualityItemsOrder.Value != QualitySortOrder.Off)
+            {
+                qualityKey = (QualityItemsOrder.Value == QualitySortOrder.CommonToRare) ? (int)qualityTier : -(int)qualityTier;
             }
 
             if (SortQualityItems.Value == QualitySortType.Grouped)
