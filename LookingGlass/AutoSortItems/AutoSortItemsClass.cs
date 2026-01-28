@@ -480,7 +480,7 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        ItemIndex[] SortItems(ItemIndex[] items, int count, ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
+        ItemIndex[] SortItems(ItemIndex[] items, int count, ItemInventoryDisplay display, bool separateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
         {
             List<ItemIndex> allItems = new List<ItemIndex>();
             for (int i = 0; i < count; i++)
@@ -505,7 +505,7 @@ namespace LookingGlass.AutoSortItems
             Tuple<int, int, int, int, int> ItemComparer(ItemIndex itemIndex)
             {
                 int scrapKey = 0;
-                if (seperateScrap && (
+                if (separateScrap && (
                     ItemCatalog.GetItemDef(itemIndex).ContainsTag(ItemTag.Scrap) 
                     || ItemCatalog.GetItemDef(itemIndex).ContainsTag(ItemTag.PriorityScrap) 
                     || itemIndex == DLC1Content.Items.RegeneratingScrapConsumed.itemIndex)) // todo: account for quality regen scrap? maybe?
@@ -553,7 +553,7 @@ namespace LookingGlass.AutoSortItems
             }
         }
 
-        PickupIndex[] SortPickups(PickupIndex[] pickups, int count, ItemInventoryDisplay display, bool seperateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
+        PickupIndex[] SortPickups(PickupIndex[] pickups, int count, ItemInventoryDisplay display, bool separateScrap, bool sortByTier, bool sortByStackSize, bool descendingStackSize)
         {
             List<ItemIndex> itemIndices = new List<ItemIndex>();
             List<PickupIndex> equipment = new List<PickupIndex>();
@@ -572,7 +572,7 @@ namespace LookingGlass.AutoSortItems
                 }
             }
 
-            ItemIndex[] newItemIndices = SortItems(itemIndices.ToArray(), itemIndices.Count, display, seperateScrap, sortByTier, sortByStackSize, descendingStackSize);
+            ItemIndex[] newItemIndices = SortItems(itemIndices.ToArray(), itemIndices.Count, display, separateScrap, sortByTier, sortByStackSize, descendingStackSize);
             List<PickupIndex> itemPickups = new List<PickupIndex>();
             foreach (ItemIndex itemIndex in newItemIndices)
             {
