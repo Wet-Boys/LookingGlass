@@ -131,7 +131,7 @@ namespace LookingGlass.AutoSortItems
             //
             SortPotentials = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Potentials & Fragments", false, "Sorts Void Potentials & Aurelionite Fragments according to Scrapper rules.");
             SortDeathScreen = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Death Screen Items", false, "Sort items on the game over screen & run reports.");
-            sortCraftableItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Crafting Menu", true, "Sort items in the Wandering Chef or any crafting station\n\nTier sorting if Hud is tier sorted.\n\nAll items that cannot be used in any crafting recipe sorted to the bottom");
+            sortCraftableItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Crafting Menu", true, "Sort items in the Wandering Chef or any crafting station, according to scrapper rules (alphabetical sorting not supported). \n\nAll items that cannot be used in any crafting recipe sorted to the bottom");
 
             //
             InitHooks();
@@ -285,8 +285,20 @@ namespace LookingGlass.AutoSortItems
                 {
                     unsorted.Add(options[i].pickupIndex);
                 }
-                // todo: sort out the inconsistent scrapper vs. inventory settings being used here
-                var sorted = new List<PickupIndex>(SortPickups(unsorted.ToArray(), unsorted.Count, display, ScrapSorting.Value != ScrapSortMode.Mixed, SortScrapperTier.Value, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest));
+                bool sortByTier, sortByStackSize, descendingStackSize;
+                if (SortScrapper.Value == ScrapperSortType.MatchHud)
+                {
+                    sortByTier = cfgSortByTier.Value != TierSortMode.Off;
+                    sortByStackSize = cfgSortByStackSize.Value != StackSortType.Off;
+                    descendingStackSize = cfgSortByStackSize.Value == StackSortType.Largest_Smallest;
+                }
+                else
+                {
+                    sortByTier = SortScrapperTier.Value;
+                    sortByStackSize = (SortScrapper.Value == ScrapperSortType.Largest_Smallest || SortScrapper.Value == ScrapperSortType.Smallest_Largest);
+                    descendingStackSize = SortScrapper.Value == ScrapperSortType.Largest_Smallest;
+                }
+                var sorted = new List<PickupIndex>(SortPickups(unsorted.ToArray(), unsorted.Count, display, ScrapSorting.Value != ScrapSortMode.Mixed, sortByTier, sortByStackSize, descendingStackSize));
 
 
                 List<PickupIndex> ingredients = new List<PickupIndex>();
