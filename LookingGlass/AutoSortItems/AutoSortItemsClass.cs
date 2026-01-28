@@ -67,8 +67,6 @@ namespace LookingGlass.AutoSortItems
 
         public static AutoSortItemsClass instance;
         RoR2.UI.ItemInventoryDisplay display;
-        List<List<ItemIndex>> itemTierLists = new List<List<ItemIndex>>();
-        List<ItemIndex> scrapList = new List<ItemIndex>();
         Dictionary<ItemTier, int> tierMatcher = new Dictionary<ItemTier, int>();
         private static Hook overrideHook;
         bool initialized = false;
@@ -418,28 +416,25 @@ namespace LookingGlass.AutoSortItems
                     {
                         initialized = true;
                         tierMatcher.Clear();
-                        itemTierLists.Clear();
+                        int num = 0;
                         foreach (string tierString in TierOrder.Value.Split(' '))
                         {
                             if (Enum.TryParse(tierString, out ItemTier tier) && !tierMatcher.ContainsKey(tier))
                             {
-                                tierMatcher.Add(tier, itemTierLists.Count);
-                                itemTierLists.Add(new List<ItemIndex>());
+                                tierMatcher.Add(tier, num++);
                             }
                         }
                         foreach (var tierDef in RoR2.ContentManagement.ContentManager.itemTierDefs)
                         {
                             if (!tierMatcher.ContainsKey(tierDef.tier)) // use default ordering for any not present in the setting
                             {
-                                tierMatcher.Add(tierDef.tier, itemTierLists.Count);
-                                itemTierLists.Add(new List<ItemIndex>());
+                                tierMatcher.Add(tierDef.tier, num++);
                             }
                         }
                         // apparently this is just not in itemTierDefs? wack
                         if (!tierMatcher.ContainsKey(ItemTier.NoTier))
                         {
-                            tierMatcher.Add(ItemTier.NoTier, itemTierLists.Count);
-                            itemTierLists.Add(new List<ItemIndex>());
+                            tierMatcher.Add(ItemTier.NoTier, num++);
                         }
                         //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
                     }
