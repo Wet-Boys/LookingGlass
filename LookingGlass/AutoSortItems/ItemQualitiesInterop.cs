@@ -1,12 +1,12 @@
 ﻿using static LookingGlass.AutoSortItems.AutoSortItemsClass;
 using ItemQualities;
-using static ItemQualities.Utilities.Extensions.InventoryExtensions;
 using RoR2;
 using RoR2.UI;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Linq;
+using HG;
 
 namespace LookingGlass.AutoSortItems
 {
@@ -42,16 +42,21 @@ namespace LookingGlass.AutoSortItems
 
             if (SortQualityItems.Value == QualitySortType.Grouped)
             {
+                // you might look at these and think "surely there is a better way to do this"
+                // as far as i can tell, there is not
                 if (sortByStackSize)
                 {
-                    stackSizeKey = display.inventory.GetItemCountsEffective(groupIndex).TotalCount;
+                    stackSizeKey = ArrayUtils.GetSafe(display.itemStacks, (int)group.BaseItemIndex)
+                        + ArrayUtils.GetSafe(display.itemStacks, (int)group.UncommonItemIndex)
+                        + ArrayUtils.GetSafe(display.itemStacks, (int)group.RareItemIndex)
+                        + ArrayUtils.GetSafe(display.itemStacks, (int)group.EpicItemIndex)
+                        + ArrayUtils.GetSafe(display.itemStacks, (int)group.LegendaryItemIndex);
                 }
+
                 if (sortByAcquired)
                 {
-                    // this sucks a lot but it's the least sucky way i could think of that meets all the following criteria:
-                    // - actually preserves order (i.e. groups with the first one you found)
-                    // - accounts for any quality being found first
-                    // - isn't Complete ass performance-wise
+                    // grabbing all of them and taking the min is necessary to preserve acquisition order
+                    // (we can't just assume you got the base version first, for instance)
                     int[] itemOrders =
                     [
                         acquiredOrder.GetValueOrDefault(group.BaseItemIndex, int.MaxValue),
