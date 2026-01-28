@@ -53,6 +53,8 @@ namespace LookingGlass
         public static byte[] logo;
         public static Sprite logo2;
 
+        internal bool ItemQualitiesLoaded = false;
+
         public void Awake()
         {
             Log.Init(Logger);
@@ -78,6 +80,7 @@ namespace LookingGlass
             {
             }
 
+            ItemQualitiesLoaded = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Gorakh.ItemQualities");
 
             statsDisplayClass = new StatsDisplayClass(); //More important config to have in first slot?
             autoSortItems = new AutoSortItemsClass();

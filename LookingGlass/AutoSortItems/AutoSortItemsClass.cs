@@ -45,6 +45,11 @@ namespace LookingGlass.AutoSortItems
             Grouped,
             Separated
         }
+        internal enum QualitySortOrder
+        {
+            RareToCommon,
+            CommonToRare
+        }
 
         public static ConfigEntry<ScrapSortMode> ScrapSorting;
         public static ConfigEntry<TierSortMode> cfgSortByTier;
@@ -53,6 +58,7 @@ namespace LookingGlass.AutoSortItems
         public static ConfigEntry<StackSortType> cfgSortByStackSize;
 
         public static ConfigEntry<QualitySortType> SortQualityItems;
+        public static ConfigEntry<QualitySortOrder> QualityItemsOrder;
 
         public static ConfigEntry<CommandSortType> SortCommand;
         public static ConfigEntry<ScrapperSortType> SortScrapper;
@@ -70,6 +76,8 @@ namespace LookingGlass.AutoSortItems
         Dictionary<ItemTier, int> tierMatcher = new Dictionary<ItemTier, int>();
         private static Hook overrideHook;
         bool initialized = false;
+
+        bool ItemQualitiesLoaded => BasePlugin.instance.ItemQualitiesLoaded;
 
         public enum CommandSortType
         {
@@ -111,7 +119,8 @@ namespace LookingGlass.AutoSortItems
 
             cfgSortByStackSize = BasePlugin.instance.Config.Bind("Auto Sort Items", "Stack Size Sort", StackSortType.Largest_Smallest, "Sorts by Stack Size");
 
-            SortQualityItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Quality Items", QualitySortType.Grouped, "Sorts quality items from ItemQualities mod");
+            SortQualityItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Quality Items", QualitySortType.Grouped, "Sorts quality items from ItemQualities mod\n\n\"Grouped\" keeps all versions of a given item together\n\"Separated\" separates out qualities similar to tiers");
+            QualityItemsOrder = BasePlugin.instance.Config.Bind("Auto Sort Items", "Quality Items Order", QualitySortOrder.RareToCommon, "How qualities from ItemQualities mod should be ordered if quality sorting is on");
 
             SortCommand = BasePlugin.instance.Config.Bind("Auto Sort Items", "Command Sorting", CommandSortType.Off, "Sorts Command menus by stack count or alphabetically.\n\n");
             //Most people would be accustomed to the vanilla sort order, so shouldn't mess with that.
@@ -127,6 +136,8 @@ namespace LookingGlass.AutoSortItems
             TierOrder.SettingChanged += SettingsChanged;
             CombineVoidTiers.SettingChanged += SettingsChanged;
             cfgSortByStackSize.SettingChanged += SettingsChanged;
+            SortQualityItems.SettingChanged += SettingsChanged;
+            QualityItemsOrder.SettingChanged += SettingsChanged;
 
             //
             SortPotentials = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Potentials & Fragments", false, "Sorts Void Potentials & Aurelionite Fragments according to Scrapper rules.");
@@ -149,17 +160,18 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new ChoiceOption(SortScrapper, new ChoiceConfig() { restartRequired = false, /*checkIfDisabled = CheckNotScrapperSortTierAlphabetical*/ }));
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
 
-            // only show this config if itemqualities is enabled
-            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Gorakh.ItemQualities"))
-            {
-                ModSettingsManager.AddOption(new ChoiceOption(SortQualityItems, new ChoiceConfig() { restartRequired = false }));
-            }
-
 
             ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit }));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Ascending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use ascending tiers", "Set", SetAscendingTiers));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Descending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use descending tiers", "Set", SetDescendingTiers));
             ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
+
+            // hide these configs if itemqualities isn't loaded
+            if (ItemQualitiesLoaded)
+            {
+                ModSettingsManager.AddOption(new ChoiceOption(SortQualityItems, new ChoiceConfig() { restartRequired = false }));
+                ModSettingsManager.AddOption(new ChoiceOption(QualityItemsOrder, new ChoiceConfig() { restartRequired = false, checkIfDisabled = CheckQualitySort }));
+            }
 
 
             ModSettingsManager.AddOption(new CheckBoxOption(SortPotentials, new CheckBoxConfig() { restartRequired = false }));
@@ -171,6 +183,11 @@ namespace LookingGlass.AutoSortItems
         private static bool CheckTierSort()
         {
             return cfgSortByTier.Value == TierSortMode.Off;
+        }
+
+        private static bool CheckQualitySort()
+        {
+            return SortQualityItems.Value == QualitySortType.Off;
         }
 
         private static bool CheckNotScrapperSortTierAlphabetical()
@@ -508,7 +525,8 @@ namespace LookingGlass.AutoSortItems
                 if (separateScrap && (
                     ItemCatalog.GetItemDef(itemIndex).ContainsTag(ItemTag.Scrap) 
                     || ItemCatalog.GetItemDef(itemIndex).ContainsTag(ItemTag.PriorityScrap) 
-                    || itemIndex == DLC1Content.Items.RegeneratingScrapConsumed.itemIndex)) // todo: account for quality regen scrap? maybe?
+                    || itemIndex == DLC1Content.Items.RegeneratingScrapConsumed.itemIndex)
+                    || (ItemQualitiesLoaded && ItemQualitiesInterop.IsConsumedRegenScrap(itemIndex)))
                 {
                     scrapKey = (ScrapSorting.Value == ScrapSortMode.End) ? 1 : -1;
                 }
@@ -535,12 +553,21 @@ namespace LookingGlass.AutoSortItems
                 int stackSizeKey = 0;
                 if (sortByStackSize)
                 {
-                    stackSizeKey = display.itemStacks[(int)itemIndex] * (descendingStackSize ? -1 : 1);
+                    stackSizeKey = display.itemStacks[(int)itemIndex];
                 }
 
                 int itemIndexKey = sortByAcquired ? acquiredOrder[itemIndex] : (int)itemIndex;
 
-                int qualityKey = 0; // todo :)
+                int qualityKey = 0;
+                if (ItemQualitiesLoaded && SortQualityItems.Value != QualitySortType.Off)
+                {
+                    ItemQualitiesInterop.HandleQualityItems(itemIndex, display, sortByStackSize, sortByAcquired, acquiredOrder,
+                        ref stackSizeKey, ref itemIndexKey, ref qualityKey);
+                }
+                if (descendingStackSize)
+                {
+                    stackSizeKey *= -1;
+                }
 
                 if (SortQualityItems.Value == QualitySortType.Separated)
                 {
