@@ -120,7 +120,7 @@ namespace LookingGlass.AutoSortItems
 
             cfgSortByStackSize = BasePlugin.instance.Config.Bind("Auto Sort Items", "Stack Size Sort", StackSortType.Largest_Smallest, "Sorts by Stack Size");
 
-            SortQualityItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Quality Items", QualitySortType.Grouped, "Sorts quality items from ItemQualities mod\n\n\"Grouped\" keeps all versions of a given item together\n\"Separated\" separates out qualities similar to tiers");
+            SortQualityItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Quality Items", QualitySortType.Grouped, "Sorts quality items from ItemQualities mod\n\n\"Grouped\" keeps all versions of a given item together, similar to the mod's own grouping\n\"Separated\" separates out qualities, similar to tier sorting");
             QualityItemsOrder = BasePlugin.instance.Config.Bind("Auto Sort Items", "Quality Items Order", QualitySortOrder.RareToCommon, "How qualities from ItemQualities mod should be ordered if quality sorting is on");
 
             SortCommand = BasePlugin.instance.Config.Bind("Auto Sort Items", "Command Sorting", CommandSortType.Off, "Sorts Command menus by stack count or alphabetically.\n\n");
