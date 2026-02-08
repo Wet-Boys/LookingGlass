@@ -37,7 +37,7 @@ namespace LookingGlass.AutoSortItems
             }
             else if (QualityItemsOrder.Value != QualitySortOrder.Off)
             {
-                qualityKey = (QualityItemsOrder.Value == QualitySortOrder.CommonToRare) ? (int)qualityTier : -(int)qualityTier;
+                qualityKey = (int)qualityTier;
             }
 
             if (SortQualityItems.Value == QualitySortType.Grouped)

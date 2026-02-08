@@ -559,11 +559,16 @@ namespace LookingGlass.AutoSortItems
 
                 int itemIndexKey = sortByAcquired ? acquiredOrder[itemIndex] : (int)itemIndex;
 
-                int qualityKey = 0;
+                // -1 is the default None quality
+                int qualityKey = -1;
                 if (ItemQualitiesLoaded && SortQualityItems.Value != QualitySortType.Off)
                 {
                     ItemQualitiesInterop.HandleQualityItems(itemIndex, display, sortByStackSize, sortByAcquired, acquiredOrder,
                         ref stackSizeKey, ref itemIndexKey, ref qualityKey);
+                    if (QualityItemsOrder.Value == QualitySortOrder.RareToCommon)
+                    {
+                        qualityKey *= -1;
+                    }
                 }
                 if (descendingStackSize)
                 {
