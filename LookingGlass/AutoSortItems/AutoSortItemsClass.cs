@@ -22,9 +22,9 @@ namespace LookingGlass.AutoSortItems
     {
         internal enum ScrapSortMode
         {
+            Off,
             Start,
             End,
-            Mixed
         }
 
         internal enum TierSortMode
@@ -426,7 +426,7 @@ namespace LookingGlass.AutoSortItems
                         }
                         //Log.Debug($"tierMatcher: {Utils.DictToString(tierMatcher)}");
                     }
-                    self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Mixed, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest);
+                    self.itemOrder = SortItems(self.itemOrder, self.itemOrderCount, self, ScrapSorting.Value != ScrapSortMode.Off, cfgSortByTier.Value != TierSortMode.Off, cfgSortByStackSize.Value >= StackSortType.Largest_Smallest, cfgSortByStackSize.Value == StackSortType.Largest_Smallest);
                 }
                 catch (Exception e)
                 {

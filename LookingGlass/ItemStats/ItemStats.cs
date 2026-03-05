@@ -54,7 +54,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world, shop or pinter");
             droneStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Drone Info On Ping", true, "Shows drone descriptions when you ping a drone in the world or shop");
             StatsOnPingByOtherPlayer = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats On Ping By Other Player", false, "Shows item and drone descriptions when another player pings an item/drone in the world");
-            itemStatsShowHidden = BasePlugin.instance.Config.Bind<bool>("Misc", "Show Hidden Items", false, "Shows item descriptions for hidden items in Multishops.\n\nThis is cheating.");
+            itemStatsShowHidden = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats on pinging hidden items", false, "Shows item descriptions for hidden items in Multishops.");
             //Why is there just a random cheating config in this mod lol.
 
             itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
@@ -68,8 +68,8 @@ namespace LookingGlass.ItemStatsNameSpace
             //Config that people are likelier to turn off should be higher up in Risk Menu
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescInHud, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(droneStatsOnPing, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { category = "Item Info", name = "Item Info on ping", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(droneStatsOnPing, new CheckBoxConfig() { category = "Item Info", name = "Drone Info on ping", restartRequired = false }));
             ModSettingsManager.AddOption(new CheckBoxOption(StatsOnPingByOtherPlayer, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
 
             ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { category = "Item Info", restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
@@ -815,8 +815,13 @@ namespace LookingGlass.ItemStatsNameSpace
             }
             if (pickupIndex != PickupIndex.none)
             {
-                CharacterMasterNotificationQueue.PushPickupNotification(characterMaster, pickupIndex, isTemp, droneTier);
-                PutLastNotificationFirst(characterMaster);
+                PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
+                //Filter out LunarCoins and other weird pickups without notifications
+                if (pickupDef.itemIndex != ItemIndex.None || pickupDef.equipmentIndex != EquipmentIndex.None || pickupDef.droneIndex != DroneIndex.None)
+                {
+                    CharacterMasterNotificationQueue.PushPickupNotification(characterMaster, pickupIndex, isTemp, droneTier);
+                    PutLastNotificationFirst(characterMaster);
+                }
             }
         }
 

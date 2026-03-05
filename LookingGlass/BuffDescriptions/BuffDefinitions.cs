@@ -228,8 +228,8 @@ namespace LookingGlass.BuffDescriptions
             RegisterBuff(en, DLC2Content.Buffs.CookingRolled, "Cooking", cookingDesc);
             RegisterBuff(en, DLC2Content.Buffs.CookingOiled, "Cooking", cookingDesc);
 
-            RegisterBuff(en, DLC2Content.Buffs.EnergizedCore, "Energized Core", "$Lunar Tampering stat changes will be three times as effective.");
-            RegisterBuff(en, DLC2Content.Buffs.lunarruin, "Lunar Ruin", "$Increase damage taken by 10% per buff. Decrease healing by 20%");
+            RegisterBuff(en, DLC2Content.Buffs.EnergizedCore, "Energized Core", $"Lunar Tampering stat changes will be three times as effective.");
+            RegisterBuff(en, DLC2Content.Buffs.lunarruin, "Lunar Ruin", $"Increase damage taken by 10% per buff. Decrease healing by 20%");
             //
             // Other
             RegisterBuff(en, DLC2Content.Buffs.DisableAllSkills, "Skills Disabled", $"Your skills and equipment are disabled.");

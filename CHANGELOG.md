@@ -1,3 +1,8 @@
+## 1.15.2
+Fixed 'Show_Only_On_Tab' setting not working.  
+'Close windows on input' no longer closes on: Enter, F2, BackQuote  
+Added config to make internal buffs visible.  
+
 ## 1.15.1
 Readded 'orig(self)' to item counters.  
 Fixed issue where having some modded item tiers breaks the item counter.  

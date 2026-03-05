@@ -820,7 +820,7 @@ namespace LookingGlass.StatsDisplay
                         {
                             statTracker.gameObject.SetActive(false);
                         }
-                        else if (statsDisplay.Value >= StatsDisplayEnum.Only_Show_On_Main && scoreBoardOpen)
+                        else if (statsDisplay.Value == StatsDisplayEnum.Only_Show_On_Main && scoreBoardOpen)
                         {
                             statTracker.gameObject.SetActive(false);
                         }
@@ -1051,7 +1051,7 @@ namespace LookingGlass.StatsDisplay
                 {
                     statTracker.gameObject.SetActive(false);
                 }
-                else if (statsDisplay.Value >= StatsDisplayEnum.Only_Show_On_Main && scoreBoardOpen)
+                else if (statsDisplay.Value == StatsDisplayEnum.Only_Show_On_Main && scoreBoardOpen)
                 {
                     statTracker.gameObject.SetActive(false);
                 }
