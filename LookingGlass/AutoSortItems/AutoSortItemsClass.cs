@@ -316,7 +316,7 @@ namespace LookingGlass.AutoSortItems
                     sortByStackSize = (SortScrapper.Value == ScrapperSortType.Largest_Smallest || SortScrapper.Value == ScrapperSortType.Smallest_Largest);
                     descendingStackSize = SortScrapper.Value == ScrapperSortType.Largest_Smallest;
                 }
-                var sorted = new List<PickupIndex>(SortPickups(unsorted.ToArray(), unsorted.Count, display, ScrapSorting.Value != ScrapSortMode.Mixed, sortByTier, sortByStackSize, descendingStackSize));
+                var sorted = new List<PickupIndex>(SortPickups(unsorted.ToArray(), unsorted.Count, display, ScrapSorting.Value != ScrapSortMode.Off, sortByTier, sortByStackSize, descendingStackSize));
 
 
                 List<PickupIndex> ingredients = new List<PickupIndex>();
