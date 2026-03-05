@@ -31,6 +31,12 @@
     </PackageReference>
     <PackageReference Include="Rune580.Mods.RiskOfRain2.RiskOfOptions" Version="2.8.3" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="ItemQualities">
+      <HintPath>..\lib-stripped\ItemQualities-nstrip.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
   
  
   

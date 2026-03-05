@@ -29,6 +29,7 @@ using UnityEngine;
 namespace LookingGlass
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("com.Gorakh.ItemQualities", BepInDependency.DependencyFlags.SoftDependency)]
     public class BasePlugin : BaseUnityPlugin
     {
         internal static BasePlugin instance;
@@ -51,6 +52,8 @@ namespace LookingGlass
         internal PickupNotifDurationClass pickupNotifDurationClass;
         public static byte[] logo;
         public static Sprite logo2;
+
+        internal bool ItemQualitiesLoaded = false;
 
         public void Awake()
         {
@@ -77,6 +80,7 @@ namespace LookingGlass
             {
             }
 
+            ItemQualitiesLoaded = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Gorakh.ItemQualities");
 
             statsDisplayClass = new StatsDisplayClass(); //More important config to have in first slot?
             autoSortItems = new AutoSortItemsClass();
