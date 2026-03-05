@@ -2,6 +2,7 @@
 Fixed 'Show_Only_On_Tab' setting not working.  
 'Close windows on input' no longer closes on: Enter, F2, BackQuote  
 Added config to make internal buffs visible.  
+Added item sorting support for the Quality mod.  
 
 ## 1.15.1
 Readded 'orig(self)' to item counters.  
