@@ -11,6 +11,7 @@ using LookingGlass.HiddenItems;
 using LookingGlass.HidePickupNotifs;
 using LookingGlass.ItemCounters;
 using LookingGlass.ItemStatsNameSpace;
+using LookingGlass.LookingGlassLanguage;
 using LookingGlass.PickupNotifsDuration;
 using LookingGlass.ResizeCommandWindow;
 using LookingGlass.StatsDisplay;
@@ -54,11 +55,14 @@ namespace LookingGlass
         public static Sprite logo2;
 
         internal bool ItemQualitiesLoaded = false;
+        const string ModDescriptionFallback = "Stat info, item stacking info, skill and equipment cooldown info, and much more ui related things.";
 
         public void Awake()
         {
             Log.Init(Logger);
             instance = this;
+            LookingGlassLanguageAPI.Init(Info.Location);
+            Language.onCurrentLanguageChanged += RefreshRiskOfOptionsLocalization;
             try
             {
                 string folderName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Info.Location), "icons");
@@ -107,7 +111,13 @@ namespace LookingGlass
 
             statsDisplayClass.CheckForOldDefaultSettingsThatNeedToBeUpdated();
 
-            ModSettingsManager.SetModDescription("Stat info, item stacking info, skill and equipment cooldown info, and much more ui related things.");
+            RefreshRiskOfOptionsLocalization();
+        }
+
+        void RefreshRiskOfOptionsLocalization()
+        {
+            ModSettingsManager.SetModDescription(LookingGlassLanguageAPI.GetString("MOD_DESCRIPTION", ModDescriptionFallback));
+            LookingGlassLanguageAPI.RefreshRiskOfOptionsTokens();
         }
 
         private void FixedUpdate()

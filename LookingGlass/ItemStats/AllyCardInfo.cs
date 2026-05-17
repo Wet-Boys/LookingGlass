@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
@@ -23,8 +24,8 @@ namespace LookingGlass
         }
         public void Setup()
         {
-            allyInfoConfig = BasePlugin.instance.Config.Bind<bool>("Misc", "Ally Info", true, "Hovering over ally cards shows info if they are a Drone.");
-            ModSettingsManager.AddOption(new CheckBoxOption(allyInfoConfig, new CheckBoxConfig() { restartRequired = false }));
+            allyInfoConfig = BasePlugin.instance.Config.Bind<bool>("Misc", "Ally Info", true, LookingGlassLanguageAPI.ConfigDescription("Ally Info", "Hovering over ally cards shows info if they are a Drone."));
+            ModSettingsManager.AddOption(new CheckBoxOption(allyInfoConfig, new CheckBoxConfig() { category = LookingGlassLanguageAPI.ConfigCategory("Misc"), name = LookingGlassLanguageAPI.ConfigName(allyInfoConfig.Definition.Key), restartRequired = false }));
 
             var targetMethod = typeof(AllyCardController).GetMethod(nameof(AllyCardController.UpdateInfo), BindingFlags.NonPublic | BindingFlags.Instance);
             var destMethod = typeof(AllyCardInfo).GetMethod(nameof(AddAllyTooltips), BindingFlags.Public | BindingFlags.Instance);

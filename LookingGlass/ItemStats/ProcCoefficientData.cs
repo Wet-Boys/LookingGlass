@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using LookingGlass.LookingGlassLanguage;
+using System.Collections.Generic;
 
 namespace LookingGlass.ItemStatsNameSpace
 {
@@ -7,6 +8,7 @@ namespace LookingGlass.ItemStatsNameSpace
         //Shouldn't this be public so people can add to it??
         public static readonly Dictionary<string, float> skills = new Dictionary<string, float>();
         public static readonly Dictionary<string, string> skillsAdditional = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> skillsAdditionalTokens = new Dictionary<string, string>();
 
         public static float GetProcCoefficient(string name)
         {
@@ -14,7 +16,21 @@ namespace LookingGlass.ItemStatsNameSpace
         }
         public static string GetExtraInfo(string name)
         {
-            return skillsAdditional.TryGetValue(name, out var value) ? value : "";
+            if (!skillsAdditional.TryGetValue(name, out var value))
+            {
+                return "";
+            }
+
+            return skillsAdditionalTokens.TryGetValue(name, out string token) ? L(token, value) : value;
+        }
+        private static string L(string token, string fallback)
+        {
+            return LookingGlassLanguageAPI.GetString(token, fallback);
+        }
+        private static void AddExtra(string name, string token, string fallback)
+        {
+            skillsAdditional.Add(name, fallback);
+            skillsAdditionalTokens.Add(name, token);
         }
         public static bool hasProcCoefficient(string name)
         {
@@ -42,7 +58,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("CROCO_SECONDARY_NAME", 1f);
             skills.Add("CROCO_SECONDARY_ALT_NAME", 1f);
             skills.Add("CROCO_UTILITY_NAME", 1f); // Leap: 1.0 Pool: 0.1
-            skillsAdditional.Add("CROCO_UTILITY_NAME", " + <style=cIsDamage>0.1</style> Pool</style>"); //No \n
+            AddExtra("CROCO_UTILITY_NAME", "SKILL_EXTRA_CROCO_UTILITY", " + <style=cIsDamage>0.1</style> <style=cSub>Pool</style>"); //No \n
             skills.Add("CROCO_UTILITY_ALT1_NAME", 1f);
             skills.Add("CROCO_SPECIAL_NAME", 1f);
 
@@ -51,10 +67,10 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("MAGE_PRIMARY_LIGHTNING_NAME", 1f);
             skills.Add("MAGE_SECONDARY_ICE_NAME", 1f);
             skills.Add("MAGE_SECONDARY_LIGHTNING_NAME", 1f);
-            skillsAdditional.Add("MAGE_SECONDARY_LIGHTNING_NAME", " + <style=cIsDamage>0.3</style> Tendrils</style>"); //No \n
+            AddExtra("MAGE_SECONDARY_LIGHTNING_NAME", "SKILL_EXTRA_MAGE_SECONDARY_LIGHTNING", " + <style=cIsDamage>0.3</style> <style=cSub>Tendrils</style>"); //No \n
             skills.Add("MAGE_UTILITY_ICE_NAME", 1f);
             skills.Add("MAGE_SPECIAL_FIRE_NAME", 1f);
-            skillsAdditional.Add("MAGE_SPECIAL_FIRE_NAME", "\nTicks: <style=cIsDamage>22 * AttackSpeed</style>");
+            AddExtra("MAGE_SPECIAL_FIRE_NAME", "SKILL_EXTRA_MAGE_SPECIAL_FIRE", "\nTicks: <style=cIsDamage>22 * AttackSpeed</style>");
             skills.Add("MAGE_SPECIAL_LIGHTNING_NAME", 1f);
 
             // Bandit
@@ -104,7 +120,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("HUNTRESS_UTILITY_NAME", -1f);
             skills.Add("HUNTRESS_UTILITY_ALT1_NAME", -1f);
             skills.Add("HUNTRESS_SPECIAL_NAME", 0.2f);
-            skillsAdditional.Add("HUNTRESS_SPECIAL_NAME", "\nTicks: <style=cIsDamage>19</style>");
+            AddExtra("HUNTRESS_SPECIAL_NAME", "SKILL_EXTRA_HUNTRESS_SPECIAL", "\nTicks: <style=cIsDamage>19</style>");
             skills.Add("HUNTRESS_SPECIAL_ALT1_NAME", 1f);
 
             // Loader <3
@@ -127,10 +143,10 @@ namespace LookingGlass.ItemStatsNameSpace
 
             // MUL-T
             skills.Add("TOOLBOT_PRIMARY_NAME", 0.6f);
-            skillsAdditional.Add("TOOLBOT_PRIMARY_NAME", "\nNails/s: <style=cIsDamage>12 * AttackSpeed</style>");
+            AddExtra("TOOLBOT_PRIMARY_NAME", "SKILL_EXTRA_TOOLBOT_PRIMARY", "\nNails/s: <style=cIsDamage>12 * AttackSpeed</style>");
             skills.Add("TOOLBOT_PRIMARY_ALT1_NAME", 1f);
             skills.Add("TOOLBOT_PRIMARY_ALT2_NAME", 1f);
-            skillsAdditional.Add("TOOLBOT_PRIMARY_ALT2_NAME", "\nBlast Radius: <style=cIsDamage>7m</style>");
+            AddExtra("TOOLBOT_PRIMARY_ALT2_NAME", "SKILL_EXTRA_TOOLBOT_PRIMARY_ALT2", "\nBlast Radius: <style=cIsDamage>7m</style>");
             skills.Add("TOOLBOT_PRIMARY_ALT3_NAME", 1f);
             skills.Add("TOOLBOT_SECONDARY_NAME", 1f);
             skills.Add("TOOLBOT_UTILITY_NAME", 1f);
@@ -142,7 +158,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("TREEBOT_PRIMARY_NAME", 0.5f);
             skills.Add("TREEBOT_SECONDARY_NAME", 1f);
             skills.Add("TREEBOT_SECONDARY_ALT1_NAME", 0.5f);
-            skillsAdditional.Add("TREEBOT_SECONDARY_ALT1_NAME", "\nTicks: <style=cIsDamage>19</style>");
+            AddExtra("TREEBOT_SECONDARY_ALT1_NAME", "SKILL_EXTRA_TREEBOT_SECONDARY_ALT1", "\nTicks: <style=cIsDamage>19</style>");
             skills.Add("TREEBOT_UTILITY_NAME", 0f);
             skills.Add("TREEBOT_UTILITY_ALT1_NAME", 0.5f);
             skills.Add("TREEBOT_SPECIAL_NAME", 1f);
@@ -150,9 +166,9 @@ namespace LookingGlass.ItemStatsNameSpace
 
             // Heretic
             skills.Add("SKILL_LUNAR_PRIMARY_REPLACEMENT_NAME", 1f); //0.1 initial hit
-            skillsAdditional.Add("SKILL_LUNAR_PRIMARY_REPLACEMENT_NAME", " + <style=cIsDamage>0.1</style> <style=cSub>Stick</style>");
+            AddExtra("SKILL_LUNAR_PRIMARY_REPLACEMENT_NAME", "SKILL_EXTRA_LUNAR_PRIMARY_REPLACEMENT", " + <style=cIsDamage>0.1</style> <style=cSub>Stick</style>");
             skills.Add("SKILL_LUNAR_SECONDARY_REPLACEMENT_NAME", 0.2f); //1 on explosion, 0.2 on rapid hits.
-            skillsAdditional.Add("SKILL_LUNAR_SECONDARY_REPLACEMENT_NAME", " + <style=cIsDamage>1</style> <style=cSub>Explosion</style>");
+            AddExtra("SKILL_LUNAR_SECONDARY_REPLACEMENT_NAME", "SKILL_EXTRA_LUNAR_SECONDARY_REPLACEMENT", " + <style=cIsDamage>1</style> <style=cSub>Explosion</style>");
             skills.Add("SKILL_LUNAR_UTILITY_REPLACEMENT_NAME", -1f);
             skills.Add("SKILL_LUNAR_SPECIAL_REPLACEMENT_NAME", 1f);
             skills.Add("HERETIC_DEFAULT_SKILL_NAME", -1f);
@@ -178,9 +194,9 @@ namespace LookingGlass.ItemStatsNameSpace
             // TODO differentiate between corrupted and normal
             // Corrupt skills do not have different name tokens
             skills.Add("VOIDSURVIVOR_PRIMARY_NAME", 1f);
-            skillsAdditional.Add("VOIDSURVIVOR_PRIMARY_NAME", "\nCorrupted Proc: <style=cIsVoid>0.625</style>");
+            AddExtra("VOIDSURVIVOR_PRIMARY_NAME", "SKILL_EXTRA_VOIDSURVIVOR_PRIMARY", "\nCorrupted Proc: <style=cIsVoid>0.625</style>");
             skills.Add("VOIDSURVIVOR_SECONDARY_NAME", 1f);
-            skillsAdditional.Add("VOIDSURVIVOR_SECONDARY_NAME", "\nCorrupted Proc: <style=cIsVoid>1.0</style>");
+            AddExtra("VOIDSURVIVOR_SECONDARY_NAME", "SKILL_EXTRA_VOIDSURVIVOR_SECONDARY", "\nCorrupted Proc: <style=cIsVoid>1.0</style>");
             skills.Add("VOIDSURVIVOR_UTILITY_NAME", -1f);
             skills.Add("VOIDSURVIVOR_SPECIAL_NAME", -1f);
             skills.Add("CORRUPTED_VOIDSURVIVOR_PRIMARY_NAME", 0.625f);
@@ -198,13 +214,13 @@ namespace LookingGlass.ItemStatsNameSpace
 
             // False son
             skills.Add("FALSESON_PRIMARY_NAME", 1f);        //
-            skillsAdditional.Add("FALSESON_PRIMARY_NAME", "\nMid-Air Charged Proc: <style=cHumanObjective>1.5</style>");
+            AddExtra("FALSESON_PRIMARY_NAME", "SKILL_EXTRA_FALSESON_PRIMARY", "\nMid-Air Charged Proc: <style=cHumanObjective>1.5</style>");
             skills.Add("FALSESON_SECONDARY_NAME", 1f);      //Lunar Spikes
             skills.Add("FALSESON_SECONDARY_ALT1_NAME", 1f); //
             skills.Add("FALSESON_UTILITY_NAME", 1f);        //Step of the Brothers
             skills.Add("FALSESON_UTILITY_ALT1_NAME", 0f);   //
             skills.Add("FALSESON_SPECIAL_NAME", 0.45f);     //
-            skillsAdditional.Add("FALSESON_SPECIAL_NAME", "\nTicks: <style=cIsDamage>32</style>, Scales with <style=cIsHealing>Growth</style>"); //??
+            AddExtra("FALSESON_SPECIAL_NAME", "SKILL_EXTRA_FALSESON_SPECIAL", "\nTicks: <style=cIsDamage>32</style>, Scales with <style=cIsHealing>Growth</style>"); //??
             skills.Add("FALSESON_SPECIAL_ALT1_NAME", 1f);   //
 
             // Chef
@@ -217,12 +233,12 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("CHEF_SPECIAL_NAME", 1f);        //Oil Puddle 0.1
             skills.Add("CHEF_SPECIAL_ALT1_NAME", 1f);
 
-            skillsAdditional.Add("CHEF_PRIMARY_NAME", " + Recall: <style=cIsDamage>1.5</style>\nBoosted Proc: <style=cHumanObjective>2.25</style>");
-            skillsAdditional.Add("CHEF_SECONDARY_NAME", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
-            skillsAdditional.Add("CHEF_SECONDARY_ALT_NAME", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
-            skillsAdditional.Add("CHEF_UTILITY_NAME", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
-            skillsAdditional.Add("CHEF_UTILITY_ALT_NAME", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
-            skillsAdditional.Add("CHEF_SPECIAL_NAME", " + <style=cIsDamage>0.1</style> <style=cSub>Oil</style>");
+            AddExtra("CHEF_PRIMARY_NAME", "SKILL_EXTRA_CHEF_PRIMARY", " + Recall: <style=cIsDamage>1.5</style>\nBoosted Proc: <style=cHumanObjective>2.25</style>");
+            AddExtra("CHEF_SECONDARY_NAME", "SKILL_EXTRA_CHEF_SECONDARY", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
+            AddExtra("CHEF_SECONDARY_ALT_NAME", "SKILL_EXTRA_CHEF_SECONDARY_ALT", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
+            AddExtra("CHEF_UTILITY_NAME", "SKILL_EXTRA_CHEF_UTILITY", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
+            AddExtra("CHEF_UTILITY_ALT_NAME", "SKILL_EXTRA_CHEF_UTILITY_ALT", "\nBoosted Proc: <style=cHumanObjective>1.0</style>");
+            AddExtra("CHEF_SPECIAL_NAME", "SKILL_EXTRA_CHEF_SPECIAL", " + <style=cIsDamage>0.1</style> <style=cSub>Oil</style>");
 
             #endregion
 
@@ -234,7 +250,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("DRONETECH_UTILITY_NAME", -1f);
             skills.Add("DRONETECH_UTILITY_ALT_NAME", 1f);
             skills.Add("DRONETECH_SPECIAL_NAME", 1f);
-            skillsAdditional.Add("DRONETECH_SPECIAL_NAME", "\nNanobug Proc: <style=cIsDamage>0.5</style>");
+            AddExtra("DRONETECH_SPECIAL_NAME", "SKILL_EXTRA_DRONETECH_SPECIAL", "\nNanobug Proc: <style=cIsDamage>0.5</style>");
             skills.Add("DRONETECH_SPECIAL_ALT_NAME", 1f);
 
             //Drifter

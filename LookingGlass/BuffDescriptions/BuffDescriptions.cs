@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
@@ -27,8 +28,8 @@ namespace LookingGlass.BuffDescriptions
         }
         public void Setup()
         {
-            buffDescriptions = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Descriptions", true, "Gives descriptions to buffs (All vanilla by default, modded buffs need to be setup)");
-            buffDescriptionsFontSize = BasePlugin.instance.Config.Bind<float>("Buff Info", "Buff Font Size", 100f, "Changes the font size of buff descriptions");
+            buffDescriptions = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Descriptions", true, LookingGlassLanguageAPI.ConfigDescription("Buff Descriptions", "Gives descriptions to buffs (All vanilla by default, modded buffs need to be setup)"));
+            buffDescriptionsFontSize = BasePlugin.instance.Config.Bind<float>("Buff Info", "Buff Font Size", 100f, LookingGlassLanguageAPI.ConfigDescription("Buff Font Size", "Changes the font size of buff descriptions"));
 
             var targetMethod = typeof(BuffIcon).GetMethod(nameof(BuffIcon.UpdateIcon), BindingFlags.Public | BindingFlags.Instance);
             var destMethod = typeof(BuffDescriptionsClass).GetMethod(nameof(BuffIconUpdateIcon), BindingFlags.NonPublic | BindingFlags.Instance);
@@ -60,8 +61,9 @@ namespace LookingGlass.BuffDescriptions
         }
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(buffDescriptions, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new SliderOption(buffDescriptionsFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
+            string buffInfoCategory = LookingGlassLanguageAPI.ConfigCategory("Buff Info");
+            ModSettingsManager.AddOption(new CheckBoxOption(buffDescriptions, new CheckBoxConfig() { category = buffInfoCategory, name = LookingGlassLanguageAPI.ConfigName(buffDescriptions.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new SliderOption(buffDescriptionsFontSize, new SliderConfig() { category = buffInfoCategory, name = LookingGlassLanguageAPI.ConfigName(buffDescriptionsFontSize.Definition.Key), restartRequired = false, min = 1, max = 300 }));
         }
         void BuffIconUpdateIcon(Action<BuffIcon> orig, BuffIcon self)
         {
@@ -96,10 +98,10 @@ namespace LookingGlass.BuffDescriptions
                 {
                     //Always update color
                     toolTip.titleColor = self.buffDef.buffColor == Color.white ? Color.gray : self.buffDef.buffColor;
-                    if (Language.currentLanguage.stringsByToken.ContainsKey($"LG_TOKEN_NAME_{self.buffDef.name}"))
+                    if (LookingGlassLanguageAPI.HasToken($"BUFF_NAME_{self.buffDef.name}") || LookingGlassLanguageAPI.HasToken($"NAME_{self.buffDef.name}"))
                     {
-                        string name = Language.GetString($"LG_TOKEN_NAME_{self.buffDef.name}");
-                        string desc = Language.GetString($"LG_TOKEN_DESCRIPTION_{self.buffDef.name}");
+                        string name = LookingGlassLanguageAPI.GetString($"BUFF_NAME_{self.buffDef.name}", LookingGlassLanguageAPI.GetString($"NAME_{self.buffDef.name}", self.buffDef.name));
+                        string desc = LookingGlassLanguageAPI.GetString($"BUFF_DESCRIPTION_{self.buffDef.name}", LookingGlassLanguageAPI.GetString($"DESCRIPTION_{self.buffDef.name}", string.Empty));
                         toolTip.overrideTitleText = $"<size={buffDescriptionsFontSize.Value}%>{name}</size>";
                         toolTip.overrideBodyText = $"<size={buffDescriptionsFontSize.Value}%>{desc}</size>";
                     }

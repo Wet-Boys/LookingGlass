@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
@@ -24,14 +25,15 @@ namespace LookingGlass.ResizeCommandWindow
         }
         public void Setup()
         {
-            resize = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Resize Command Window", true, "Resizes the command window to fit modded items");
-            opacity = BasePlugin.instance.Config.Bind<float>("Command Settings", "Command Window Opacity", 80f, "Changes the Opacity of the regular command window");
+            resize = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Resize Command Window", true, LookingGlassLanguageAPI.ConfigDescription("Resize Command Window", "Resizes the command window to fit modded items"));
+            opacity = BasePlugin.instance.Config.Bind<float>("Command Settings", "Command Window Opacity", 80f, LookingGlassLanguageAPI.ConfigDescription("Command Window Opacity", "Changes the Opacity of the regular command window"));
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(resize, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new SliderOption(opacity, new SliderConfig() { restartRequired = false }));
+            string commandCategory = LookingGlassLanguageAPI.ConfigCategory("Command Settings");
+            ModSettingsManager.AddOption(new CheckBoxOption(resize, new CheckBoxConfig() { category = commandCategory, name = LookingGlassLanguageAPI.ConfigName(resize.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new SliderOption(opacity, new SliderConfig() { category = commandCategory, name = LookingGlassLanguageAPI.ConfigName(opacity.Definition.Key), restartRequired = false }));
 
             new Hook(
                 typeof(PickupPickerPanel).GetMethod(nameof(PickupPickerPanel.SetPickupOptions), BindingFlags.Public | BindingFlags.Instance),

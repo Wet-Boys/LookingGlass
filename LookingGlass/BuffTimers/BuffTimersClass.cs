@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using LookingGlass.StatsDisplay;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
@@ -30,16 +31,17 @@ namespace LookingGlass.BuffTimers
             var targetMethod = typeof(BuffDisplay).GetMethod(nameof(BuffDisplay.UpdateLayout), BindingFlags.Public | BindingFlags.Instance);
             var destMethod = typeof(BuffTimersClass).GetMethod(nameof(UpdateLayout), BindingFlags.NonPublic | BindingFlags.Instance);
             overrideHook = new Hook(targetMethod, destMethod, this);
-            buffTimers = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Timers", true, "Enables buff timers. These are not networked in the base game, please install NetworkedTimedBuffs if you want clients to see them aswell.");
-            buffTimerDecimal = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Timers Decimal", true, "Display buff timers with 1 decimal. 1.4 instead of rounding up to 2.");
-            buffTimersFontSize = BasePlugin.instance.Config.Bind<float>("Buff Info", "Buff Timers Font Size", 80f, "Changes the font size of buff timers");
+            buffTimers = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Timers", true, LookingGlassLanguageAPI.ConfigDescription("Buff Timers", "Enables buff timers. These are not networked in the base game, please install NetworkedTimedBuffs if you want clients to see them aswell."));
+            buffTimerDecimal = BasePlugin.instance.Config.Bind<bool>("Buff Info", "Buff Timers Decimal", true, LookingGlassLanguageAPI.ConfigDescription("Buff Timers Decimal", "Display buff timers with 1 decimal. 1.4 instead of rounding up to 2."));
+            buffTimersFontSize = BasePlugin.instance.Config.Bind<float>("Buff Info", "Buff Timers Font Size", 80f, LookingGlassLanguageAPI.ConfigDescription("Buff Timers Font Size", "Changes the font size of buff timers"));
         }
 
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(buffTimers, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(buffTimerDecimal, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new SliderOption(buffTimersFontSize, new SliderConfig() { restartRequired = false, min = 1, max = 300 }));
+            string buffInfoCategory = LookingGlassLanguageAPI.ConfigCategory("Buff Info");
+            ModSettingsManager.AddOption(new CheckBoxOption(buffTimers, new CheckBoxConfig() { category = buffInfoCategory, name = LookingGlassLanguageAPI.ConfigName(buffTimers.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(buffTimerDecimal, new CheckBoxConfig() { category = buffInfoCategory, name = LookingGlassLanguageAPI.ConfigName(buffTimerDecimal.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new SliderOption(buffTimersFontSize, new SliderConfig() { category = buffInfoCategory, name = LookingGlassLanguageAPI.ConfigName(buffTimersFontSize.Definition.Key), restartRequired = false, min = 1, max = 300 }));
 
         }
         void UpdateLayout(Action<BuffDisplay> orig, BuffDisplay self)

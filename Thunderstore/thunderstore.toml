@@ -40,6 +40,14 @@ target = "/"
 source = "./icons/looking-glass-icon-static.png"
 target = "plugins/LookingGlass/icons/"
 
+[[build.copy]]
+source = "../LookingGlass/Languages/en"
+target = "plugins/LookingGlass/Languages/en/"
+
+[[build.copy]]
+source = "../LookingGlass/Languages/zh-CN"
+target = "plugins/LookingGlass/Languages/zh-CN/"
+
 [publish]
 communities = [ "riskofrain2" ]
 

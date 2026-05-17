@@ -1,4 +1,5 @@
 ﻿using LookingGlass.DPSMeterStuff;
+using LookingGlass.LookingGlassLanguage;
 using RoR2;
 using RoR2.Networking;
 using UnityEngine;
@@ -20,6 +21,13 @@ namespace LookingGlass.StatsDisplay
             string voidString = StatsDisplayClass.builtInColors.Value ? "<style=cIsVoid>" : "";
             string gray = StatsDisplayClass.builtInColors.Value ? "<style=cStack>" : "";
             string styleString = StatsDisplayClass.builtInColors.Value ? "</style>" : "";
+            string notAvailable = LookingGlassLanguageAPI.GetString("MISC_NOT_AVAILABLE", "N/A");
+            string hpPerSecond = LookingGlassLanguageAPI.GetString("UNIT_HP_PER_SECOND", "hp/s");
+            string secondsCompact = LookingGlassLanguageAPI.GetString("UNIT_SECONDS_COMPACT", "s");
+            string millisecondsCompact = LookingGlassLanguageAPI.GetString("UNIT_MILLISECONDS_COMPACT", "ms");
+            string trueString = LookingGlassLanguageAPI.GetString("MISC_TRUE", "True");
+            string falseString = LookingGlassLanguageAPI.GetString("MISC_FALSE", "False");
+            string FormatBool(bool value) => value ? trueString : falseString;
             //NumberFormatInfo floatPrecision = new NumberFormatInfo();
             //floatPrecision.NumberDecimalDigits = StatsDisplayClass.floatPrecision.Value;
             floatPrecision = "0." + new string('#', StatsDisplayClass.floatPrecision.Value);
@@ -65,7 +73,7 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("lvl1_regen", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseRegen).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("regenRaw", cachedUserBody => { return $"{healingString}{(cachedUserBody.regen).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("regen", cachedUserBody => { return $"{healingString}{((Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f : cachedUserBody.regen) * (float)(1 + cachedUserBody.inventory.GetItemCountEffective(RoR2Content.Items.IncreaseHealing))).ToString(floatPrecision)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("regenHp", cachedUserBody => { return $"{healingString}{((Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f : cachedUserBody.regen) * (float)(1 + cachedUserBody.inventory.GetItemCountEffective(RoR2Content.Items.IncreaseHealing))).ToString(floatPrecision)} hp/s{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("regenHp", cachedUserBody => { return $"{healingString}{((Run.instance.selectedDifficulty >= DifficultyIndex.Eclipse5 ? cachedUserBody.regen / 2f : cachedUserBody.regen) * (float)(1 + cachedUserBody.inventory.GetItemCountEffective(RoR2Content.Items.IncreaseHealing))).ToString(floatPrecision)} {hpPerSecond}{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("lvl1_maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.baseMaxHealth)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("maxHealth", cachedUserBody => { return $"{healingString}{(cachedUserBody.maxHealth)}{styleString}"; });
@@ -85,7 +93,7 @@ namespace LookingGlass.StatsDisplay
             {
                 if (!cachedUserBody.healthComponent)
                 {
-                    return $"{healingString}N/A{styleString}";
+                    return $"{healingString}{notAvailable}{styleString}";
                 }
                 return $"{healingString}{((cachedUserBody.healthComponent.combinedHealth) / (100f / (100f + cachedUserBody.armor))).ToString(floatPrecision)}{styleString}";
             });
@@ -93,7 +101,7 @@ namespace LookingGlass.StatsDisplay
             {
                 if (!cachedUserBody.healthComponent)
                 {
-                    return $"{healingString}N/A{styleString}";
+                    return $"{healingString}{notAvailable}{styleString}";
                 }
                 return $"{healingString}{((cachedUserBody.healthComponent.fullCombinedHealth) / (100f / (100f + cachedUserBody.armor))).ToString(floatPrecision)}{styleString}";
             });
@@ -102,7 +110,7 @@ namespace LookingGlass.StatsDisplay
             {
                 if (!cachedUserBody.healthComponent)
                 {
-                    return $"{healingString}N/A{styleString}";
+                    return $"{healingString}{notAvailable}{styleString}";
                 }
                 return $"{healingString}{(cachedUserBody.healthComponent.combinedHealthFraction * 100f).ToString(floatPrecision)}{styleString}";
             });
@@ -114,11 +122,12 @@ namespace LookingGlass.StatsDisplay
             {
                 if (!cachedUserBody.healthComponent)
                 {
-                    return $"{healingString}N/A{styleString}";
+                    return $"{healingString}{notAvailable}{styleString}";
                 }
                 //Does not account for Barrier being able to put you back into OSP range.$
                 //But that is very minimal to be frank
-                return $"{healingString}{(cachedUserBody.oneShotProtectionFraction * cachedUserBody.healthComponent.fullCombinedHealth - cachedUserBody.healthComponent.missingCombinedHealth) > 0}{styleString}";
+                bool hasProtection = (cachedUserBody.oneShotProtectionFraction * cachedUserBody.healthComponent.fullCombinedHealth - cachedUserBody.healthComponent.missingCombinedHealth) > 0;
+                return $"{healingString}{FormatBool(hasProtection)}{styleString}";
             });
 
             //Curse Penalty is a technical stat so not really usefull v
@@ -143,7 +152,7 @@ namespace LookingGlass.StatsDisplay
                     cachedUserBody.characterMotor ? cachedUserBody.characterMotor.velocity.magnitude.ToString(floatPrecision) :
                     // rigidbody.velocity is illegal in unity debug build
                     cachedUserBody.rigidbody ? cachedUserBody.rigidbody.velocity.magnitude.ToString(floatPrecision) :
-                    "N/A";
+                    notAvailable;
                 return $"{utilityString}{velocity}{styleString}";
             });
 
@@ -155,7 +164,7 @@ namespace LookingGlass.StatsDisplay
             {
                 if (!cachedUserBody.characterMotor)
                 {
-                    return $"{utilityString}N/A{styleString}";
+                    return $"{utilityString}{notAvailable}{styleString}";
                 }
                 return $"{utilityString}{(cachedUserBody.maxJumpCount - cachedUserBody.characterMotor.jumpCount)}{styleString}";
             });
@@ -178,9 +187,9 @@ namespace LookingGlass.StatsDisplay
                 int stackCount = cachedUserBody.inventory.GetItemCountEffective(DLC1Content.Items.BearVoid);
                 if (stackCount == 0)
                 {
-                    return $"{utilityString}N/A{styleString}";
+                    return $"{utilityString}{notAvailable}{styleString}";
                 }
-                return $"{utilityString}{(15 * Mathf.Pow(.9f, stackCount)).ToString(floatPrecision)}s{styleString}";
+                return $"{utilityString}{(15 * Mathf.Pow(.9f, stackCount)).ToString(floatPrecision)}{secondsCompact}{styleString}";
             });
 
             //
@@ -196,13 +205,13 @@ namespace LookingGlass.StatsDisplay
 
 
             #region Portal / Teleporter Stuff
-            StatsDisplayClass.statDictionary.Add("mountainShrines", cachedUserBody => { return $"{utilityString}{((TeleporterInteraction.instance is not null ? TeleporterInteraction.instance._shrineBonusStacks : "N/A"))}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("mountainShrines", cachedUserBody => { return $"{utilityString}{((TeleporterInteraction.instance is not null ? TeleporterInteraction.instance._shrineBonusStacks : notAvailable))}{styleString}"; });
 
-            StatsDisplayClass.statDictionary.Add("shopPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking.shopPortal.ToString() : "N/A")}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{damageString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking.goldPortal.ToString() : "N/A")}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking.msPortal.ToString() : "N/A")}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("voidPortal", cachedUserBody => { return $"{voidString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking._voidPortal.ToString() : "N/A")}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("greenPortal", cachedUserBody => { return $"{healingString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking._greenPortal.ToString() : "N/A")}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("shopPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking.shopPortal) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{damageString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking.goldPortal) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking.msPortal) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("voidPortal", cachedUserBody => { return $"{voidString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking._voidPortal) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("greenPortal", cachedUserBody => { return $"{healingString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking._greenPortal) : notAvailable)}{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("portals", cachedUserBody => BasePlugin.instance.portalTracking.ReturnAllAvailablePortals());
 
@@ -238,11 +247,11 @@ namespace LookingGlass.StatsDisplay
             StatsDisplayClass.statDictionary.Add("experience", cachedUserBody => { return $"{utilityString}{(cachedUserBody.experience).ToString(floatPrecision)}{styleString}"; });
             StatsDisplayClass.statDictionary.Add("level", cachedUserBody => { return $"{utilityString}{(cachedUserBody.level)}{styleString}"; });
 
-            StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{damageString}{(Run.instance ? Run.instance.difficultyCoefficient.ToString(floatPrecision) : "N/A")}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("stage", cachedUserBody => { return $"{utilityString}{Language.GetString(Stage.instance ? Stage.instance.sceneDef.nameToken : "N/A")}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("difficultyCoefficient", cachedUserBody => { return $"{damageString}{(Run.instance ? Run.instance.difficultyCoefficient.ToString(floatPrecision) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("stage", cachedUserBody => { return $"{utilityString}{(Stage.instance ? Language.GetString(Stage.instance.sceneDef.nameToken) : notAvailable)}{styleString}"; });
 
             //Does this need saftey checks at all?
-            StatsDisplayClass.statDictionary.Add("ping", cachedUserBody => { return $"{gray}{(NetworkServer.active ? "0" : RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection).ToString())}ms{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("ping", cachedUserBody => { return $"{gray}{(NetworkServer.active ? "0" : RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection).ToString())}{millisecondsCompact}{styleString}"; });
 
 
             //StatsDisplayClass.statDictionary.Add("time", cachedUserBody => { return $"{utilityString}{RttManager.GetConnectionRTTInMilliseconds(NetworkManagerSystem.singleton.client.connection)}{styleString}"; });

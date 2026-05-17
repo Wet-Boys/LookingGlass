@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
@@ -45,8 +46,8 @@ namespace LookingGlass.DPSMeterStuff
         }
         public void Setup()
         {
-            disableDPSMeter = BasePlugin.instance.Config.Bind<bool>("Misc", "Disable Damage tracking", false, "Disables DPS & Combo & Kill tracking.\n\nIncase you are not interested in these features & stats and are looking for optimization.");
-            dpsDuration = BasePlugin.instance.Config.Bind<float>("Misc", "DPS Tracking Duration", 5f, "Duration during which Combos & DPS is added together");
+            disableDPSMeter = BasePlugin.instance.Config.Bind<bool>("Misc", "Disable Damage tracking", false, LookingGlassLanguageAPI.ConfigDescription("Disable Damage tracking", "Disables DPS & Combo & Kill tracking.\n\nIncase you are not interested in these features & stats and are looking for optimization."));
+            dpsDuration = BasePlugin.instance.Config.Bind<float>("Misc", "DPS Tracking Duration", 5f, LookingGlassLanguageAPI.ConfigDescription("DPS Tracking Duration", "Duration during which Combos & DPS is added together"));
             dpsDuration.SettingChanged += DpsDuration_SettingChanged;
             DPS_MAX_TIME = dpsDuration.Value;
             SetupRiskOfOptions();
@@ -55,9 +56,9 @@ namespace LookingGlass.DPSMeterStuff
                 return;
             }
 
-            maxComboConfigEntry = BasePlugin.instance.Config.Bind<float>("Stats", "Max Combo", 0, "What are you gonna do, cheat the number?");
+            maxComboConfigEntry = BasePlugin.instance.Config.Bind<float>("Stats", "Max Combo", 0, LookingGlassLanguageAPI.ConfigDescription("Max Combo", "What are you gonna do, cheat the number?"));
             maxCombo = maxComboConfigEntry.Value;
-            maxKillComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Kill Combo", 0, "What are you gonna do, cheat the number?");
+            maxKillComboConfigEntry = BasePlugin.instance.Config.Bind<ulong>("Stats", "Max Kill Combo", 0, LookingGlassLanguageAPI.ConfigDescription("Max Kill Combo", "What are you gonna do, cheat the number?"));
             maxKillCombo = maxKillComboConfigEntry.Value;
 
 
@@ -79,8 +80,9 @@ namespace LookingGlass.DPSMeterStuff
 
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new SliderOption(dpsDuration, new SliderConfig() { restartRequired = false, min = 3, max = 10f, FormatString = "{0:0}s" }));
-            ModSettingsManager.AddOption(new CheckBoxOption(disableDPSMeter, new CheckBoxConfig() { restartRequired = true }));
+            string miscCategory = LookingGlassLanguageAPI.ConfigCategory("Misc");
+            ModSettingsManager.AddOption(new SliderOption(dpsDuration, new SliderConfig() { category = miscCategory, name = LookingGlassLanguageAPI.ConfigName(dpsDuration.Definition.Key), restartRequired = false, min = 3, max = 10f, FormatString = "{0:0}s" }));
+            ModSettingsManager.AddOption(new CheckBoxOption(disableDPSMeter, new CheckBoxConfig() { category = miscCategory, name = LookingGlassLanguageAPI.ConfigName(disableDPSMeter.Definition.Key), restartRequired = true }));
 
         }
 

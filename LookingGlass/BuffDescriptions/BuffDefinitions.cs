@@ -7,12 +7,12 @@ namespace LookingGlass.BuffDescriptions
     {
         internal static void SetupEnglishDefs()
         {
-            string utilityString = "<style=\"cIsUtility>";
-            string damageString = "<style=\"cIsDamage>";
-            string healingString = "<style=\"cIsHealing>";
-            string healthString = "<style=\"cIsHealth>";
-            string voidString = "<style=\"cIsVoid>";
-            string shrineString = "<style=\"cShrine>";
+            string utilityString = "<style=cIsUtility>";
+            string damageString = "<style=cIsDamage>";
+            string healingString = "<style=cIsHealing>";
+            string healthString = "<style=cIsHealth>";
+            string voidString = "<style=cIsVoid>";
+            string shrineString = "<style=cShrine>";
             string styleString = "</style>";
 
             //Stop using "health" for "healing" related things

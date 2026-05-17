@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using HarmonyLib;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
@@ -27,8 +28,8 @@ namespace LookingGlass.EquipTimerFix
         public static ConfigEntry<bool> permanentSkillCooldownText;
         public void Setup()
         {
-            permanentEquipCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Equip", true, "Makes the cooldown indicator for the equip slot permanent and not just when you have 0 stock.");
-            permanentSkillCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Skills", true, "Makes the cooldown indicator for skills permanent and not just when you have 0 stock.");
+            permanentEquipCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Equip", true, LookingGlassLanguageAPI.ConfigDescription("Permanent Cooldown Indicator For Equip", "Makes the cooldown indicator for the equip slot permanent and not just when you have 0 stock."));
+            permanentSkillCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Skills", true, LookingGlassLanguageAPI.ConfigDescription("Permanent Cooldown Indicator For Skills", "Makes the cooldown indicator for skills permanent and not just when you have 0 stock."));
 
             new ILHook(
               typeof(SkillIcon).GetMethod(nameof(SkillIcon.Update), BindingFlags.NonPublic | BindingFlags.Instance),
@@ -115,8 +116,9 @@ namespace LookingGlass.EquipTimerFix
 
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(permanentEquipCooldownText, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(permanentSkillCooldownText, new CheckBoxConfig() { restartRequired = false }));
+            string miscCategory = LookingGlassLanguageAPI.ConfigCategory("Misc");
+            ModSettingsManager.AddOption(new CheckBoxOption(permanentEquipCooldownText, new CheckBoxConfig() { category = miscCategory, name = LookingGlassLanguageAPI.ConfigName(permanentEquipCooldownText.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(permanentSkillCooldownText, new CheckBoxConfig() { category = miscCategory, name = LookingGlassLanguageAPI.ConfigName(permanentSkillCooldownText.Definition.Key), restartRequired = false }));
         }
 
 
