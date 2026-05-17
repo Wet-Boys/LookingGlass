@@ -221,8 +221,9 @@ namespace LookingGlass.LookingGlassLanguage
                 }
 
                 localizedCategory ??= ConfigCategory(configEntry.Definition.Section);
-                AddRiskOfOptionsLanguageEntry(addLanguageEntry, InvokeStringMethod(option, "GetNameToken"), ConfigName(configEntry.Definition.Key));
-                AddRiskOfOptionsLanguageEntry(addLanguageEntry, InvokeStringMethod(option, "GetDescriptionToken"), ConfigDescription(configEntry.Definition.Key, configEntry.Description.Description));
+                AddRiskOfOptionsLanguageEntry(addLanguageEntry, InvokeStringMethod(option, "GetNameToken"), ResolveConfigName(option, configEntry));
+                AddRiskOfOptionsLanguageEntry(addLanguageEntry, InvokeStringMethod(option, "GetDescriptionToken"), ResolveConfigDescription(option, configEntry));
+                RefreshRiskOfOptionsChoiceNames(option, configEntry, addLanguageEntry);
             }
 
             localizedCategory ??= ConfigCategory(GetStringField(category, "name"));
@@ -249,6 +250,42 @@ namespace LookingGlass.LookingGlassLanguage
                 addLanguageEntry,
                 InvokeStringMethod(option, "GetButtonLabelToken"),
                 ResolveKnownLocalizedString(GetStringProperty(config, "ButtonText")));
+        }
+
+        static string ResolveConfigName(object option, ConfigEntryBase configEntry)
+        {
+            string configuredName = GetStringProperty(option, "Name");
+            string resolvedName = ResolveKnownLocalizedString(configuredName, Token("CONFIG_"), "_NAME");
+            return string.Equals(resolvedName, configuredName, StringComparison.Ordinal)
+                ? ConfigName(configEntry.Definition.Key)
+                : resolvedName;
+        }
+
+        static string ResolveConfigDescription(object option, ConfigEntryBase configEntry)
+        {
+            string configuredDescription = GetStringProperty(option, "Description") ?? configEntry.Description.Description;
+            string resolvedDescription = ResolveKnownLocalizedString(configuredDescription, Token("CONFIG_"), "_DESCRIPTION");
+            return string.Equals(resolvedDescription, configuredDescription, StringComparison.Ordinal)
+                ? ConfigDescription(configEntry.Definition.Key, configEntry.Description.Description)
+                : resolvedDescription;
+        }
+
+        static void RefreshRiskOfOptionsChoiceNames(object option, ConfigEntryBase configEntry, MethodInfo addLanguageEntry)
+        {
+            string[] nameTokens = option?.GetType().GetMethod("GetNameTokens", riskOfOptionsFlags)?.Invoke(option, Array.Empty<object>()) as string[];
+            object value = option?.GetType().GetProperty("Value", riskOfOptionsFlags)?.GetValue(option);
+            if (nameTokens == null || value == null || !value.GetType().IsEnum)
+            {
+                return;
+            }
+
+            string[] names = Enum.GetNames(value.GetType());
+            int count = Math.Min(nameTokens.Length, names.Length);
+            string choicePrefix = "CONFIG_CHOICE_" + ToTokenSegment(configEntry.Definition.Key) + "_";
+            for (int i = 0; i < count; i++)
+            {
+                AddRiskOfOptionsLanguageEntry(addLanguageEntry, nameTokens[i], GetString(choicePrefix + ToTokenSegment(names[i]), PrettyEnumName(names[i])));
+            }
         }
 
         static ConfigEntryBase GetConfigEntry(object option)
@@ -328,6 +365,11 @@ namespace LookingGlass.LookingGlassLanguage
         {
             string withoutTags = tagsRegex.Replace(value ?? string.Empty, string.Empty).Trim();
             return tokenCharsRegex.Replace(withoutTags.ToUpperInvariant(), "_").Trim('_');
+        }
+
+        static string PrettyEnumName(string value)
+        {
+            return string.Join(" ", (value ?? string.Empty).Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries));
         }
 
         static bool TryGetFileString(string fullToken, out string value)
