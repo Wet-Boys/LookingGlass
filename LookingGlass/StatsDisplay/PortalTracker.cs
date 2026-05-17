@@ -1,4 +1,5 @@
 ﻿using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RoR2;
 using System;
@@ -85,7 +86,7 @@ namespace LookingGlass
         {
             if (!TeleporterInteraction.instance)
             {
-                return "<style=cStack>None</style>";
+                return $"<style=cStack>{LookingGlassLanguageAPI.GetString("PORTAL_NONE", "None")}</style>";
             }
             else
             {
@@ -94,46 +95,46 @@ namespace LookingGlass
                 if (shopPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cLunarObjective>Bazaar </style>";
+                    ActivePortals += $"<style=cLunarObjective>{LookingGlassLanguageAPI.GetString("PORTAL_BAZAAR", "Bazaar")} </style>";
                 }
                 if (goldPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cIsDamage>Gold </style>";
+                    ActivePortals += $"<style=cIsDamage>{LookingGlassLanguageAPI.GetString("PORTAL_GOLD", "Gold")} </style>";
                 }
                 if (_accessNode)
                 {
                     portals++;
-                    ActivePortals += "<style=cIsHealth>Node </style>";
+                    ActivePortals += $"<style=cIsHealth>{LookingGlassLanguageAPI.GetString("PORTAL_NODE", "Node")} </style>";
                 }
                 if (_acPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cIsUtility>Encrypted </style>";
+                    ActivePortals += $"<style=cIsUtility>{LookingGlassLanguageAPI.GetString("PORTAL_ENCRYPTED", "Encrypted")} </style>";
                 }
                 if (_greenPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cIsHealing>Storm </style>";
+                    ActivePortals += $"<style=cIsHealing>{LookingGlassLanguageAPI.GetString("PORTAL_STORM", "Storm")} </style>";
                 }
                 if (_voidPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cIsVoid>Void </style>";
+                    ActivePortals += $"<style=cIsVoid>{LookingGlassLanguageAPI.GetString("PORTAL_VOID", "Void")} </style>";
                 }
                 if (msPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cIsUtility>Celestial </style>";
+                    ActivePortals += $"<style=cIsUtility>{LookingGlassLanguageAPI.GetString("PORTAL_CELESTIAL", "Celestial")} </style>";
                 }
                 if (_artifactPortal)
                 {
                     portals++;
-                    ActivePortals += "<style=cIsDeath>Artifact </style>";
+                    ActivePortals += $"<style=cIsDeath>{LookingGlassLanguageAPI.GetString("PORTAL_ARTIFACT", "Artifact")} </style>";
                 }
                 if (portals == 0)
                 {
-                    return "<style=cStack>None</style>";
+                    return $"<style=cStack>{LookingGlassLanguageAPI.GetString("PORTAL_NONE", "None")}</style>";
                 }
                 return $"<size={(int)(7f / (7f + portals) * 100f)}%>{ActivePortals}</size>";
             }

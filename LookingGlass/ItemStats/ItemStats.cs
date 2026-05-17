@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using LookingGlass.StatsDisplay;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -21,6 +22,8 @@ namespace LookingGlass.ItemStatsNameSpace
 {
     internal class ItemStats : BaseThing
     {
+        static string L(string token, string fallback) => LookingGlassLanguageAPI.GetString(token, fallback);
+
         public static ConfigEntry<bool> fullDescInHud;
         public static ConfigEntry<bool> itemStatsCalculations;
         public static ConfigEntry<bool> fullDescOnPickup;
@@ -45,41 +48,42 @@ namespace LookingGlass.ItemStatsNameSpace
         {
             InitHooks();
             ItemCatalog.availability.CallWhenAvailable(ItemDefinitions.RegisterAll);
-            fullDescInHud = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Description in Hud", true, "Shows full item descriptions on mouseover");
-            itemStatsCalculations = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats Calculations", true, "Gives calculations for vanilla items and modded items which have added specific support. (Sadly, items are not designed in a way to allow this to be automatic)");
+            fullDescInHud = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Description in Hud", true, LookingGlassLanguageAPI.ConfigDescription("Full Description in Hud", "Shows full item descriptions on mouseover"));
+            itemStatsCalculations = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats Calculations", true, LookingGlassLanguageAPI.ConfigDescription("Item Stats Calculations", "Gives calculations for vanilla items and modded items which have added specific support. (Sadly, items are not designed in a way to allow this to be automatic)"));
 
             //Not a big fan, sometimes too much text to read at once.
             //Some items have pickup as flavor text and just check with tab if you need the full v
-            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Descriptions On Pickup", false, "Shows full item/equipment/drone descriptions on pickup or purchase");
-            itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, "Shows item descriptions when you ping an item in the world, shop or pinter");
-            droneStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Drone Info On Ping", true, "Shows drone descriptions when you ping a drone in the world or shop");
-            StatsOnPingByOtherPlayer = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats On Ping By Other Player", false, "Shows item and drone descriptions when another player pings an item/drone in the world");
-            itemStatsShowHidden = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats on pinging hidden items", false, "Shows item descriptions for hidden items in Multishops.");
+            fullDescOnPickup = BasePlugin.instance.Config.Bind<bool>("Misc", "Full Descriptions On Pickup", false, LookingGlassLanguageAPI.ConfigDescription("Full Descriptions On Pickup", "Shows full item/equipment/drone descriptions on pickup or purchase"));
+            itemStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Item Stats On Ping", true, LookingGlassLanguageAPI.ConfigDescription("Item Stats On Ping", "Shows item descriptions when you ping an item in the world, shop or pinter"));
+            droneStatsOnPing = BasePlugin.instance.Config.Bind<bool>("Misc", "Drone Info On Ping", true, LookingGlassLanguageAPI.ConfigDescription("Drone Info On Ping", "Shows drone descriptions when you ping a drone in the world or shop"));
+            StatsOnPingByOtherPlayer = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats On Ping By Other Player", false, LookingGlassLanguageAPI.ConfigDescription("Stats On Ping By Other Player", "Shows item and drone descriptions when another player pings an item/drone in the world"));
+            itemStatsShowHidden = BasePlugin.instance.Config.Bind<bool>("Misc", "Stats on pinging hidden items", false, LookingGlassLanguageAPI.ConfigDescription("Stats on pinging hidden items", "Shows item descriptions for hidden items in Multishops."));
             //Why is there just a random cheating config in this mod lol.
 
-            itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, "Changes the font size of item stats");
-            capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, "Caps displayed chances at 100%. May interact weirdly with luck if turned off");
-            abilityProcCoefficients = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Proc Coefficients", true, "Shows ability cooldowns.\nShow ability proc coefficients on supported survivors");
-            cfgShowItemProcsOnSkillIcons = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Item Procs", true, "Shows item proc chances multiplied by the proc coefficient of the ability, in the abilities info box.");
+            itemStatsFontSize = BasePlugin.instance.Config.Bind<float>("Misc", "Item Stats Font Size", 100f, LookingGlassLanguageAPI.ConfigDescription("Item Stats Font Size", "Changes the font size of item stats"));
+            capChancePercentage = BasePlugin.instance.Config.Bind<bool>("Misc", "Cap Chance Percentage", true, LookingGlassLanguageAPI.ConfigDescription("Cap Chance Percentage", "Caps displayed chances at 100%. May interact weirdly with luck if turned off"));
+            abilityProcCoefficients = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Proc Coefficients", true, LookingGlassLanguageAPI.ConfigDescription("Ability Proc Coefficients", "Shows ability cooldowns.\nShow ability proc coefficients on supported survivors"));
+            cfgShowItemProcsOnSkillIcons = BasePlugin.instance.Config.Bind<bool>("Misc", "Ability Item Procs", true, LookingGlassLanguageAPI.ConfigDescription("Ability Item Procs", "Shows item proc chances multiplied by the proc coefficient of the ability, in the abilities info box."));
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
         {
             //Config that people are likelier to turn off should be higher up in Risk Menu
-            ModSettingsManager.AddOption(new CheckBoxOption(fullDescInHud, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { category = "Item Info", name = "Item Info on ping", restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(droneStatsOnPing, new CheckBoxConfig() { category = "Item Info", name = "Drone Info on ping", restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(StatsOnPingByOtherPlayer, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+            string itemInfoCategory = LookingGlassLanguageAPI.ConfigCategory("Item Info");
+            ModSettingsManager.AddOption(new CheckBoxOption(fullDescInHud, new CheckBoxConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName(fullDescInHud.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(fullDescOnPickup, new CheckBoxConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName(fullDescOnPickup.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsOnPing, new CheckBoxConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName("Item Info on ping"), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(droneStatsOnPing, new CheckBoxConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName("Drone Info on ping"), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(StatsOnPingByOtherPlayer, new CheckBoxConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName(StatsOnPingByOtherPlayer.Definition.Key), restartRequired = false }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { category = "Item Info", restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
-            ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { category = "Item Info", restartRequired = false, min = 1, max = 300 }));
-            ModSettingsManager.AddOption(new CheckBoxOption(capChancePercentage, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsCalculations, new CheckBoxConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName(itemStatsCalculations.Definition.Key), restartRequired = false, checkIfDisabled = ItemStatsDisabled }));
+            ModSettingsManager.AddOption(new SliderOption(itemStatsFontSize, new SliderConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName(itemStatsFontSize.Definition.Key), restartRequired = false, min = 1, max = 300 }));
+            ModSettingsManager.AddOption(new CheckBoxOption(capChancePercentage, new CheckBoxConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName(capChancePercentage.Definition.Key), restartRequired = false }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(abilityProcCoefficients, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(cfgShowItemProcsOnSkillIcons, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = AbilityProcsEnabled }));
+            ModSettingsManager.AddOption(new CheckBoxOption(abilityProcCoefficients, new CheckBoxConfig() { name = LookingGlassLanguageAPI.ConfigName(abilityProcCoefficients.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(cfgShowItemProcsOnSkillIcons, new CheckBoxConfig() { name = LookingGlassLanguageAPI.ConfigName(cfgShowItemProcsOnSkillIcons.Definition.Key), restartRequired = false, checkIfDisabled = AbilityProcsEnabled }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsShowHidden, new CheckBoxConfig() { category = "Item Info", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(itemStatsShowHidden, new CheckBoxConfig() { category = itemInfoCategory, name = LookingGlassLanguageAPI.ConfigName(itemStatsShowHidden.Definition.Key), restartRequired = false }));
 
         }
         private static bool ItemStatsDisabled()
@@ -205,7 +209,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 //Why was there a "In Proc Dict" check for this?
                 //Maybe could do if cooldown == 0 then dont show but it's fine
                 var cooldown = CalculateSkillCooldown(targetSkill);
-                desc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + cooldown.ToString("0.00") + "s</style>");
+                desc.Append("\n\n").Append(L("ITEMSTAT_SKILL_COOLDOWN", "Skill Cooldown: ")).Append("<style=\"cIsUtility\">").Append(cooldown.ToString("0.00")).Append(L("UNIT_SECONDS_COMPACT", "s")).Append("</style>");
 
                 if (cooldown != targetSkill.skillDef.baseRechargeInterval)
                 {
@@ -213,8 +217,8 @@ namespace LookingGlass.ItemStatsNameSpace
                     String cooldownReductionFormatted = ((1 - (self.targetSkill.finalRechargeInterval / self.targetSkill.skillDef.baseRechargeInterval)) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
                     //String itemBasedCDRFormatted = ((1 - self.targetSkill.cooldownScale) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
 
-                    desc.Append(" <style=\"cStack\">(Base: " + self.targetSkill.skillDef.baseRechargeInterval + ")</style>");
-                    desc.Append($"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>");
+                    desc.Append(" <style=\"cStack\">").Append(L("ITEMSTAT_BASE_FORMAT", "(Base: {0})").Replace("{0}", self.targetSkill.skillDef.baseRechargeInterval.ToString())).Append("</style>");
+                    desc.Append($"\n{L("ITEMSTAT_COOLDOWN_REDUCTION", "Cooldown Reduction: ")}<style=\"cIsUtility>{cooldownReductionFormatted}%</style>");
                 }
 
                 bool blacklistedSkill = false;
@@ -225,7 +229,7 @@ namespace LookingGlass.ItemStatsNameSpace
                     //So it doesn't say like "10% ATG" on Mando Slide
                     if (!blacklistedSkill)
                     {
-                        desc.Append("\nProc Coefficient: <style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(targetSkill.skillNameToken).ToString("0.0##") + "</color>");
+                        desc.Append($"\n{L("ITEMSTAT_PROC_COEFFICIENT", "Proc Coefficient: ")}<style=cIsDamage>" + ProcCoefficientData.GetProcCoefficient(targetSkill.skillNameToken).ToString("0.0##") + "</color>");
                     }
                     //If -1, show nothing
                     //If 0, show that it has 0 Proc Coeff for clarity
@@ -263,7 +267,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                     if (healing)
                                     {
                                         //IDK BetterUI showed this and like behemoth ig?
-                                        desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]).ToString("0.#")).Append(" HP</style>");
+                                        desc.Append((itemStats.calculateValuesNew(body.master.luck, itemCount, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]).ToString("0.#")).Append(" ").Append(L("UNIT_HP", "HP")).Append("</style>");
                                     }
                                     else
                                     {
@@ -279,7 +283,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                     {
                                         desc.Append(" <style=cStack>(");
                                         desc.Append(Mathf.CeilToInt(1 / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
-                                        desc.Append(" to cap)</style>");
+                                        desc.Append(" ").Append(L("ITEMSTAT_TO_CAP", "to cap")).Append(")</style>");
                                     }
                                     else if (itemStats.chanceScaling == ItemStatsDef.ChanceScaling.RunicLens)
                                     {
@@ -287,7 +291,7 @@ namespace LookingGlass.ItemStatsNameSpace
                                         //But that's not really possible
                                         desc.Append(" <style=cStack>(");
                                         desc.Append(Mathf.CeilToInt(0.75f / itemStats.calculateValuesNew(0f, 1, ProcCoefficientData.GetProcCoefficient(self.targetSkill.skillNameToken))[0]));
-                                        desc.Append(" to cap)</style>");
+                                        desc.Append(" ").Append(L("ITEMSTAT_TO_CAP", "to cap")).Append(")</style>");
                                     }
 
                                 }
@@ -320,13 +324,13 @@ namespace LookingGlass.ItemStatsNameSpace
                         if (abilityProcCoefficients.Value)
                         {
                             StringBuilder newDesc = new StringBuilder(Language.GetString(skill.skillDescriptionToken));
-                            newDesc.Append("\n\nSkill Cooldown: <style=\"cIsUtility\">" + skill.baseRechargeInterval.ToString("0.00") + "s</style>");
+                            newDesc.Append("\n\n").Append(L("ITEMSTAT_SKILL_COOLDOWN", "Skill Cooldown: ")).Append("<style=\"cIsUtility\">").Append(skill.baseRechargeInterval.ToString("0.00")).Append(L("UNIT_SECONDS_COMPACT", "s")).Append("</style>");
                             if (ProcCoefficientData.hasProcCoefficient(skill.skillNameToken))
                             {
                                 float proc = ProcCoefficientData.GetProcCoefficient(skill.skillNameToken);
                                 if (proc != -1)
                                 {
-                                    newDesc.Append("\nProc Coefficient: <style=cIsDamage>" + proc.ToString("0.0##") + "</color>");
+                                    newDesc.Append($"\n{L("ITEMSTAT_PROC_COEFFICIENT", "Proc Coefficient: ")}<style=cIsDamage>" + proc.ToString("0.0##") + "</color>");
                                 }
                             }
                             if (ProcCoefficientData.hasExtra(skill.skillNameToken))
@@ -379,13 +383,13 @@ namespace LookingGlass.ItemStatsNameSpace
                 StringBuilder desc = new StringBuilder(Language.GetString(self.currentDisplayData.equipmentDef.descriptionToken));
 
                 String currentCooldownFormatted = (self.currentDisplayData.equipmentDef.cooldown * cooldownScale).ToString(StatsDisplayDefinitions.floatPrecision);
-                desc.Append($"\n\nCooldown: <style=\"cIsUtility>{currentCooldownFormatted}s</style>");
+                desc.Append($"\n\n{L("ITEMSTAT_COOLDOWN", "Cooldown: ")}<style=\"cIsUtility>{currentCooldownFormatted}{L("UNIT_SECONDS_COMPACT", "s")}</style>");
                 if (cooldownScale != 1)
                 {
                     String cooldownReductionFormatted = ((1 - cooldownScale) * 100).ToString(StatsDisplayDefinitions.floatPrecision);
                     desc.Append(
-                    $" <style=\"cStack\">(Base: " + self.currentDisplayData.equipmentDef.cooldown + ")</style>" +
-                    $"\nCooldown Reduction: <style=\"cIsUtility>{cooldownReductionFormatted}%</style>"
+                    $" <style=\"cStack\">{L("ITEMSTAT_BASE_FORMAT", "(Base: {0})").Replace("{0}", self.currentDisplayData.equipmentDef.cooldown.ToString())}</style>" +
+                    $"\n{L("ITEMSTAT_COOLDOWN_REDUCTION", "Cooldown Reduction: ")}<style=\"cIsUtility>{cooldownReductionFormatted}%</style>"
                     );
                 }
                 desc.Append(GetEquipmentExtras(self.targetInventory.GetComponent<CharacterMaster>(), self.currentDisplayData.equipmentDef.equipmentIndex));
@@ -451,11 +455,11 @@ namespace LookingGlass.ItemStatsNameSpace
                     {
                         if (newItemCount == 0 || forceNew)
                         {
-                            itemDescription += $"\nWith this item, you will have:";
+                            itemDescription += "\n" + L("ITEMSTAT_WITH_THIS_ITEM", "With this item, you will have:");
                         }
                         else
                         {
-                            itemDescription += $"\nWith another stack, you will have:";
+                            itemDescription += "\n" + L("ITEMSTAT_WITH_ANOTHER_STACK", "With another stack, you will have:");
                         }
                         newItemCount++;
                     }
@@ -547,11 +551,11 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 if (white)
                 {
-                    input += $"\n<color=\"white\">{statsDef.descriptions[i]}</color>";
+                    input += $"\n<color=\"white\">{LookingGlassLanguageAPI.GetItemStatLabel(statsDef.descriptions[i])}</color>";
                 }
                 else
                 {
-                    input += $"\n{statsDef.descriptions[i]}";
+                    input += $"\n{LookingGlassLanguageAPI.GetItemStatLabel(statsDef.descriptions[i])}";
                 }
                 switch (statsDef.valueTypes[i])
                 {
@@ -613,22 +617,22 @@ namespace LookingGlass.ItemStatsNameSpace
                 switch (statsDef.measurementUnits[i])
                 {
                     case ItemStatsDef.MeasurementUnits.Meters:
-                        input += $"\">{values[i]:0.##}m</style>";
+                        input += $"\">{LookingGlassLanguageAPI.Format("UNIT_METERS_FORMAT", "{0:0.##}m", values[i])}</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.Percentage:
                         input += $"\">{values[i] * 100:0.##}%</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.FlatHealth:
-                        input += $"\">{values[i]:0.##} HP</style>";
+                        input += $"\">{values[i]:0.##} {L("UNIT_HP", "HP")}</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.PercentHealth:
-                        input += $"\">{values[i] * 100:0.##}% HP</style>";
+                        input += $"\">{values[i] * 100:0.##}% {L("UNIT_HP", "HP")}</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.FlatHealing:
-                        input += $"\">{values[i]:0.##} HP/s</style>";
+                        input += $"\">{values[i]:0.##} {L("UNIT_HP_PER_SECOND", "HP/s")}</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.PercentHealing:
-                        input += $"\">{values[i] * 100:0.##}% HP/s</style>";
+                        input += $"\">{values[i] * 100:0.##}% {L("UNIT_HP_PER_SECOND", "HP/s")}</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.Number:
                         input += $"\">{values[i]:0.##}</style>";
@@ -640,7 +644,7 @@ namespace LookingGlass.ItemStatsNameSpace
                         input += $"\">{values[i]:0.#}$</style>";
                         break;
                     case ItemStatsDef.MeasurementUnits.Seconds:
-                        input += $"\">{values[i]:0.##} seconds</style>";
+                        input += $"\">{values[i]:0.##} {L("UNIT_SECONDS", "seconds")}</style>";
                         break;
                     default:
                         break;

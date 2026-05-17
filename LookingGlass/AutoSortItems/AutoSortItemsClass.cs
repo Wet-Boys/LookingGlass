@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.Components.Options;
@@ -113,23 +114,23 @@ namespace LookingGlass.AutoSortItems
         {
 
             instance = this;
-            ScrapSorting = BasePlugin.instance.Config.Bind<ScrapSortMode>("Auto Sort Items", "Scrap Sorting", ScrapSortMode.Start, "Where scrap should be sorted");
-            cfgSortByTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Tier Sort", TierSortMode.Tier, "Sorts by Tier");
-            TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar FoodTier VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier", "How the tiers should be ordered");
-            CombineVoidTiers = BasePlugin.instance.Config.Bind("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
+            ScrapSorting = BasePlugin.instance.Config.Bind<ScrapSortMode>("Auto Sort Items", "Scrap Sorting", ScrapSortMode.Start, LookingGlassLanguageAPI.ConfigDescription("Scrap Sorting", "Where scrap should be sorted"));
+            cfgSortByTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Tier Sort", TierSortMode.Tier, LookingGlassLanguageAPI.ConfigDescription("Tier Sort", "Sorts by Tier"));
+            TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar FoodTier VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier", LookingGlassLanguageAPI.ConfigDescription("Tier Order", "How the tiers should be ordered"));
+            CombineVoidTiers = BasePlugin.instance.Config.Bind("Auto Sort Items", "Combine Normal And Void Tiers", false, LookingGlassLanguageAPI.ConfigDescription("Combine Normal And Void Tiers", "Considers void tiers to be the same as their normal counterparts"));
 
-            cfgSortByStackSize = BasePlugin.instance.Config.Bind("Auto Sort Items", "Stack Size Sort", StackSortType.Largest_Smallest, "Sorts by Stack Size");
+            cfgSortByStackSize = BasePlugin.instance.Config.Bind("Auto Sort Items", "Stack Size Sort", StackSortType.Largest_Smallest, LookingGlassLanguageAPI.ConfigDescription("Stack Size Sort", "Sorts by Stack Size"));
 
-            SortQualityItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Quality Items", QualitySortType.Grouped, "Sorts quality items from ItemQualities mod\n\n\"Grouped\" keeps all versions of a given item together, similar to the mod's own grouping\n\"Separated\" separates out qualities, similar to tier sorting");
-            QualityItemsOrder = BasePlugin.instance.Config.Bind("Auto Sort Items", "Quality Items Order", QualitySortOrder.RareToCommon, "How qualities from ItemQualities mod should be ordered if quality sorting is on");
+            SortQualityItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Quality Items", QualitySortType.Grouped, LookingGlassLanguageAPI.ConfigDescription("Sort Quality Items", "Sorts quality items from ItemQualities mod\n\n\"Grouped\" keeps all versions of a given item together, similar to the mod's own grouping\n\"Separated\" separates out qualities, similar to tier sorting"));
+            QualityItemsOrder = BasePlugin.instance.Config.Bind("Auto Sort Items", "Quality Items Order", QualitySortOrder.RareToCommon, LookingGlassLanguageAPI.ConfigDescription("Quality Items Order", "How qualities from ItemQualities mod should be ordered if quality sorting is on"));
 
-            SortCommand = BasePlugin.instance.Config.Bind("Auto Sort Items", "Command Sorting", CommandSortType.Off, "Sorts Command menus by stack count or alphabetically.\n\n");
+            SortCommand = BasePlugin.instance.Config.Bind("Auto Sort Items", "Command Sorting", CommandSortType.Off, LookingGlassLanguageAPI.ConfigDescription("Command Sorting", "Sorts Command menus by stack count or alphabetically.\n\n"));
             //Most people would be accustomed to the vanilla sort order, so shouldn't mess with that.
             //Additionally sorting Void Potentials is just kind of, who cares.
 
 
-            SortScrapper = BasePlugin.instance.Config.Bind("Auto Sort Items", "Scrapper Sorting", ScrapperSortType.MatchHud, "Sorts Scrapper by stack count or alphetically.\n\nMatchHud will automatically use tier sorting and stacking sorting of the regular hud.");
-            SortScrapperTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Scrapper by Tier", true, "Sorts Scrapper by tier"); //While this should be on by default, because your hud is sorted by tier and you'd expect those two to correlate
+            SortScrapper = BasePlugin.instance.Config.Bind("Auto Sort Items", "Scrapper Sorting", ScrapperSortType.MatchHud, LookingGlassLanguageAPI.ConfigDescription("Scrapper Sorting", "Sorts Scrapper by stack count or alphetically.\n\nMatchHud will automatically use tier sorting and stacking sorting of the regular hud."));
+            SortScrapperTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Scrapper by Tier", true, LookingGlassLanguageAPI.ConfigDescription("Sort Scrapper by Tier", "Sorts Scrapper by tier")); //While this should be on by default, because your hud is sorted by tier and you'd expect those two to correlate
                                                                                                                                             //The scrapper sorting should match, whatever is shown in the Hud, so they can see like ah yeah X item is between YZ and it's the same in the scrapper.
 
             ScrapSorting.SettingChanged += SettingsChanged;
@@ -141,9 +142,9 @@ namespace LookingGlass.AutoSortItems
             QualityItemsOrder.SettingChanged += SettingsChanged;
 
             //
-            SortPotentials = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Potentials & Fragments", false, "Sorts Void Potentials & Aurelionite Fragments according to Scrapper rules.");
-            SortDeathScreen = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Death Screen Items", false, "Sort items on the game over screen & run reports.");
-            sortCraftableItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Crafting Menu", true, "Sort items in the Wandering Chef or any crafting station, according to scrapper rules (alphabetical sorting not supported). \n\nAll items that cannot be used in any crafting recipe sorted to the bottom");
+            SortPotentials = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Potentials & Fragments", false, LookingGlassLanguageAPI.ConfigDescription("Sort Potentials & Fragments", "Sorts Void Potentials & Aurelionite Fragments according to Scrapper rules."));
+            SortDeathScreen = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Death Screen Items", false, LookingGlassLanguageAPI.ConfigDescription("Sort Death Screen Items", "Sort items on the game over screen & run reports."));
+            sortCraftableItems = BasePlugin.instance.Config.Bind("Auto Sort Items", "Sort Crafting Menu", true, LookingGlassLanguageAPI.ConfigDescription("Sort Crafting Menu", "Sort items in the Wandering Chef or any crafting station, according to scrapper rules (alphabetical sorting not supported). \n\nAll items that cannot be used in any crafting recipe sorted to the bottom"));
 
             //
             InitHooks();
@@ -152,32 +153,33 @@ namespace LookingGlass.AutoSortItems
 
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new ChoiceOption(ScrapSorting, new ChoiceConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new ChoiceOption(cfgSortByTier, new ChoiceConfig() { restartRequired = false }));
+            string autoSortCategory = LookingGlassLanguageAPI.ConfigCategory("Auto Sort Items");
 
-            ModSettingsManager.AddOption(new ChoiceOption(cfgSortByStackSize, new ChoiceConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new ChoiceOption(ScrapSorting, new ChoiceConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(ScrapSorting.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new ChoiceOption(cfgSortByTier, new ChoiceConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(cfgSortByTier.Definition.Key), restartRequired = false }));
 
-            ModSettingsManager.AddOption(new ChoiceOption(SortCommand, new ChoiceConfig() { restartRequired = false, /*checkIfDisabled = CheckNotCommandSortAlphabetical*/ }));
-            ModSettingsManager.AddOption(new ChoiceOption(SortScrapper, new ChoiceConfig() { restartRequired = false, /*checkIfDisabled = CheckNotScrapperSortTierAlphabetical*/ }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
+            ModSettingsManager.AddOption(new ChoiceOption(cfgSortByStackSize, new ChoiceConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(cfgSortByStackSize.Definition.Key), restartRequired = false }));
 
+            ModSettingsManager.AddOption(new ChoiceOption(SortCommand, new ChoiceConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(SortCommand.Definition.Key), restartRequired = false, /*checkIfDisabled = CheckNotCommandSortAlphabetical*/ }));
+            ModSettingsManager.AddOption(new ChoiceOption(SortScrapper, new ChoiceConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(SortScrapper.Definition.Key), restartRequired = false, /*checkIfDisabled = CheckNotScrapperSortTierAlphabetical*/ }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(SortScrapperTier.Definition.Key), restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
 
-            ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit }));
-            ModSettingsManager.AddOption(new GenericButtonOption("Use Ascending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use ascending tiers", "Set", SetAscendingTiers));
-            ModSettingsManager.AddOption(new GenericButtonOption("Use Descending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use descending tiers", "Set", SetDescendingTiers));
-            ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(TierOrder.Definition.Key), restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit }));
+            ModSettingsManager.AddOption(new GenericButtonOption(LookingGlassLanguageAPI.GetString("CONFIG_USE_ASCENDING_TIERS_PRESET_NAME", "Use Ascending Tiers Preset"), autoSortCategory, LookingGlassLanguageAPI.GetString("CONFIG_USE_ASCENDING_TIERS_PRESET_DESCRIPTION", "Sets the Tier Order option to use ascending tiers"), LookingGlassLanguageAPI.GetString("MISC_SET", "Set"), SetAscendingTiers));
+            ModSettingsManager.AddOption(new GenericButtonOption(LookingGlassLanguageAPI.GetString("CONFIG_USE_DESCENDING_TIERS_PRESET_NAME", "Use Descending Tiers Preset"), autoSortCategory, LookingGlassLanguageAPI.GetString("CONFIG_USE_DESCENDING_TIERS_PRESET_DESCRIPTION", "Sets the Tier Order option to use descending tiers"), LookingGlassLanguageAPI.GetString("MISC_SET", "Set"), SetDescendingTiers));
+            ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(CombineVoidTiers.Definition.Key), restartRequired = false, checkIfDisabled = CheckTierSort }));
 
             // hide these configs if itemqualities isn't loaded
             if (ItemQualitiesLoaded)
             {
-                ModSettingsManager.AddOption(new ChoiceOption(SortQualityItems, new ChoiceConfig() { restartRequired = false }));
-                ModSettingsManager.AddOption(new ChoiceOption(QualityItemsOrder, new ChoiceConfig() { restartRequired = false, checkIfDisabled = CheckQualitySort }));
+                ModSettingsManager.AddOption(new ChoiceOption(SortQualityItems, new ChoiceConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(SortQualityItems.Definition.Key), restartRequired = false }));
+                ModSettingsManager.AddOption(new ChoiceOption(QualityItemsOrder, new ChoiceConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(QualityItemsOrder.Definition.Key), restartRequired = false, checkIfDisabled = CheckQualitySort }));
             }
 
 
-            ModSettingsManager.AddOption(new CheckBoxOption(SortPotentials, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(SortDeathScreen, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(sortCraftableItems, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortPotentials, new CheckBoxConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(SortPotentials.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(SortDeathScreen, new CheckBoxConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(SortDeathScreen.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(sortCraftableItems, new CheckBoxConfig() { category = autoSortCategory, name = LookingGlassLanguageAPI.ConfigName(sortCraftableItems.Definition.Key), restartRequired = false }));
 
         }
         //I'm going cross-eyed looking at all these
@@ -201,7 +203,7 @@ namespace LookingGlass.AutoSortItems
             // manually update the tier order option in the menu (which also updates the setting)
             foreach (var controller in UnityEngine.Object.FindObjectsOfType<InputFieldController>())
             {
-                if (controller.name.Contains("Tier Order"))
+                if (controller.name.Contains(TierOrder.Definition.Key) || controller.name.Contains(LookingGlassLanguageAPI.ConfigName(TierOrder.Definition.Key)))
                 {
                     controller.SubmitValue("Lunar FoodTier VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier");
                 }
@@ -211,7 +213,7 @@ namespace LookingGlass.AutoSortItems
         {
             foreach (var controller in UnityEngine.Object.FindObjectsOfType<InputFieldController>())
             {
-                if (controller.name.Contains("Tier Order"))
+                if (controller.name.Contains(TierOrder.Definition.Key) || controller.name.Contains(LookingGlassLanguageAPI.ConfigName(TierOrder.Definition.Key)))
                 {
 
                     controller.SubmitValue("Tier1 VoidTier1 Tier2 VoidTier2 Tier3 VoidTier3 Boss VoidBoss FoodTier Lunar NoTier");

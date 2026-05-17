@@ -3,6 +3,7 @@
 #endif
 using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.Components.Options;
@@ -134,21 +135,15 @@ namespace LookingGlass.StatsDisplay
             + "\n instaKillChance "
             + "\n"
             + "\n lvl1_damage, lvl1_maxHealth";
-        public void Setup()
+
+        static string L(string token, string fallback)
         {
-            //statsDisplay = BasePlugin.instance.Config.Bind<StatsDisplayEnum>("Stats Display", "StatsDisplay", StatsDisplayEnum.AltSecondary, "Enables Stats Display.\n\nSecondary: Will display different text while the Scoreboard is open\n\nOnlyTab: Will display text only while the scoreboard is open. ");
+            return LookingGlassLanguageAPI.GetString(token, fallback);
+        }
 
-            //Could maybe combine into 1 config?
-            statsDisplay = BasePlugin.instance.Config.Bind<StatsDisplayEnum>("Stats Display", "Stats Display", StatsDisplayEnum.Different_On_Tab, "Enables Stats Display in various cases.\n\n-Same stats regardless of scoreboard\n\n-Tab stats on scoreboard for 2 different stat displays\n\n-Only show when Scoreboard is open\n\n-Only show when scoreboard is open and hide everything else when it is open. (In case other mods decide to use that space, to avoid the clutter)");
-
-
-            statsDisplay.SettingChanged += Display_SettingChanged;
-            statsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Stats Display String",
-                //Removing Combo timer just cuz
-                //Removing Luck because not important enough to be primary
-                //Mountain Shrine Secondary only
-                //MaxCombo -> MaxCombo Per Run
-                //MaxCombo -> Seconary Only
+        static string DefaultMainDisplayString()
+        {
+            return L("STATS_DISPLAY_DEFAULT_MAIN",
                 "<margin-left=0.6em>"
                 + "<size=115%>Stats</size>\n"
                 + "Damage: [damage]\n"
@@ -161,44 +156,62 @@ namespace LookingGlass.StatsDisplay
                 + "Kills: [killCount]\n"
                 + "DPS: [dps]\n"
                 + "Combo: [combo]\n"
-                + "</margin>"
-                , $"String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is:{syntaxList}");
-            statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display font size", -1f, "General font size of the stats display menu.\n\nIf set to -1, it will be sized relative to the Objective Header and Objectives. 13.5 on the default hud.");
+                + "</margin>");
+        }
 
-            statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display update interval", 0.25f, "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance for large texts\n\nValues below 0.2 are not recommended for normal play for performance reasons.\n\n");
-            statsDisplayUpdateInterval.SettingChanged += Display_SettingChanged;
-            builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, "Uses the default styling for stats display syntax items.");
-            builtInColors.SettingChanged += BuiltInColors_SettingChanged;
-            statsDisplayOverrideHeight = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Override Stats Display Height", false, "Sets a user-specified height for Stats Display (may be necessary if you get particularly creative with formatting)");
-            statsDisplayOverrideHeightValue = BasePlugin.instance.Config.Bind<int>("Stats Display", "Stats Display Height Value", 7, "Height, in lines of full-size text, for the Stats Display panel");
-            floatPrecision = BasePlugin.instance.Config.Bind<int>("Stats Display", "StatsDisplay Float Precision", 2, "How many decimal points will be used in floating point values");
-            floatPrecision.SettingChanged += BuiltInColors_SettingChanged;
-            secondaryStatsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Secondary Stats Display String",
+        static string DefaultSecondaryDisplayString()
+        {
+            return L("STATS_DISPLAY_DEFAULT_SECONDARY",
                 "<margin-left=0.6em>"
                 + "<size=115%>Stats</size>\n"
                 + "Damage: [damage]\n"
                 + "Attack Speed: [attackSpeed]\n"
                 + "Crit Chance: [critWithLuck]\n"
-                //+ "Crit Stats: [critWithLuck] | [critMultiplier]\n"
                 + "Bleed Chance: [bleedChanceWithLuck]\n"
                 + "Regen: [regen]\n"
                 + "Armor: [armor] | [armorDamageReduction]\n"
                 + "Speed: [speed]\n"
                 + "Jumps: [availableJumps] / [maxJumps]\n"
-                + "Total Kills: [killCountRun]\n" //Kills Primary -> Run Kills Secondary
-                + "Max Combo: [maxComboThisRun]\n" //Combo Primary -> Run Combo Secondary
+                + "Total Kills: [killCountRun]\n"
+                + "Max Combo: [maxComboThisRun]\n"
                 + "Mountain Shrines: [mountainShrines]\n"
                 + "Portals: [portals] \n"
-                + "</margin>"
-                , $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}");
+                + "</margin>");
+        }
+
+        public void Setup()
+        {
+            //statsDisplay = BasePlugin.instance.Config.Bind<StatsDisplayEnum>("Stats Display", "StatsDisplay", StatsDisplayEnum.AltSecondary, "Enables Stats Display.\n\nSecondary: Will display different text while the Scoreboard is open\n\nOnlyTab: Will display text only while the scoreboard is open. ");
+
+            //Could maybe combine into 1 config?
+            statsDisplay = BasePlugin.instance.Config.Bind<StatsDisplayEnum>("Stats Display", "Stats Display", StatsDisplayEnum.Different_On_Tab, L("CONFIG_STATS_DISPLAY_DESCRIPTION", "Enables Stats Display in various cases.\n\n-Same stats regardless of scoreboard\n\n-Tab stats on scoreboard for 2 different stat displays\n\n-Only show when Scoreboard is open\n\n-Only show when scoreboard is open and hide everything else when it is open. (In case other mods decide to use that space, to avoid the clutter)"));
+
+
+            statsDisplay.SettingChanged += Display_SettingChanged;
+            statsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Stats Display String",
+                DefaultMainDisplayString()
+                , L("CONFIG_STATS_DISPLAY_STRING_DESCRIPTION", $"String for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is:{syntaxList}"));
+            statsDisplaySize = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display font size", -1f, L("CONFIG_STATS_DISPLAY_FONT_SIZE_DESCRIPTION", "General font size of the stats display menu.\n\nIf set to -1, it will be sized relative to the Objective Header and Objectives. 13.5 on the default hud."));
+
+            statsDisplayUpdateInterval = BasePlugin.instance.Config.Bind<float>("Stats Display", "Stats Display update interval", 0.25f, L("CONFIG_STATS_DISPLAY_UPDATE_INTERVAL_DESCRIPTION", "The interval at which stats display updates, in seconds. Lower values will increase responsiveness, but may potentially affect performance for large texts\n\nValues below 0.2 are not recommended for normal play for performance reasons.\n\n"));
+            statsDisplayUpdateInterval.SettingChanged += Display_SettingChanged;
+            builtInColors = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Use default colors", true, L("CONFIG_STATS_DISPLAY_USE_DEFAULT_COLORS_DESCRIPTION", "Uses the default styling for stats display syntax items."));
+            builtInColors.SettingChanged += BuiltInColors_SettingChanged;
+            statsDisplayOverrideHeight = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Override Stats Display Height", false, L("CONFIG_STATS_DISPLAY_OVERRIDE_HEIGHT_DESCRIPTION", "Sets a user-specified height for Stats Display (may be necessary if you get particularly creative with formatting)"));
+            statsDisplayOverrideHeightValue = BasePlugin.instance.Config.Bind<int>("Stats Display", "Stats Display Height Value", 7, L("CONFIG_STATS_DISPLAY_HEIGHT_VALUE_DESCRIPTION", "Height, in lines of full-size text, for the Stats Display panel"));
+            floatPrecision = BasePlugin.instance.Config.Bind<int>("Stats Display", "StatsDisplay Float Precision", 2, L("CONFIG_STATS_DISPLAY_FLOAT_PRECISION_DESCRIPTION", "How many decimal points will be used in floating point values"));
+            floatPrecision.SettingChanged += BuiltInColors_SettingChanged;
+            secondaryStatsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Secondary Stats Display String",
+                DefaultSecondaryDisplayString()
+                , L("CONFIG_STATS_DISPLAY_SECONDARY_STRING_DESCRIPTION", $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}"));
             StatsDisplayDefinitions.SetupDefs();
 
             // position override
             Vector2 defaultPos = new Vector2(1810, 1015);
             statsDisplayAttached = BasePlugin.instance.Config.Bind("Stats Display", "Attach To Objective Panel", true,
-                "If enabled, will be attached to below the objective panel, otherwise position can be configured");
+                L("CONFIG_STATS_DISPLAY_ATTACH_TO_OBJECTIVE_PANEL_DESCRIPTION", "If enabled, will be attached to below the objective panel, otherwise position can be configured"));
             detachedPosition = BasePlugin.instance.Config.Bind("Stats Display", "Stats Display Position", defaultPos,
-                $"Position of detached Stats Display.\n[Default: {defaultPos.x:f0}, {defaultPos.y:f0}]");
+                L("CONFIG_STATS_DISPLAY_POSITION_DESCRIPTION", $"Position of detached Stats Display.\n[Default: {defaultPos.x:f0}, {defaultPos.y:f0}]"));
 
             statsDisplayAttached.SettingChanged += Display_SettingChanged;
             detachedPosition.SettingChanged += DetachedPosition_SettingChanged;
@@ -210,21 +223,21 @@ namespace LookingGlass.StatsDisplay
             new Hook(targetMethod, OnDisable);
 
 
-            statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Preset", StatDisplayPreset.Set, "Override current Stat Display settings with a premade preset.Further changes can made from there.\n\n" +
+            statStringPresets = BasePlugin.instance.Config.Bind<StatDisplayPreset>("Stats Display", "Preset", StatDisplayPreset.Set, L("CONFIG_STATS_DISPLAY_PRESET_DESCRIPTION", "Override current Stat Display settings with a premade preset.Further changes can made from there.\n\n" +
                 "Extra: More stats on Tab\n\n" +
                 "Simpler: Dont include DPS, Combo\n\n" +
-                "Minimal: DPS + Jump, Few stats on Tab for mathing or remembering.\n\n");
+                "Minimal: DPS + Jump, Few stats on Tab for mathing or remembering.\n\n"));
 
             statStringPresets.SettingChanged += ApplyPresets;
 
 
-            movePurchaseText = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Move Purchase Text", true, "Move purchase text further to the left to avoid clipping with larger Stat Displays, Evolution Inventory, Objectives, etc..");
+            movePurchaseText = BasePlugin.instance.Config.Bind<bool>("Stats Display", "Move Purchase Text", true, L("CONFIG_STATS_DISPLAY_MOVE_PURCHASE_TEXT_DESCRIPTION", "Move purchase text further to the left to avoid clipping with larger Stat Displays, Evolution Inventory, Objectives, etc.."));
             movePurchaseText.SettingChanged += MovePurchase;
 
 
 
 
-            checkIfOldDefaultSettings = BasePlugin.instance.Config.Bind<bool>("Stats", "Check For Old Default Settings v2", true, "Override the stat display with the updated one, if you were using the default one prior to updating.\nNot meant as a config just needs to be tracked.");
+            checkIfOldDefaultSettings = BasePlugin.instance.Config.Bind<bool>("Stats", "Check For Old Default Settings v2", true, L("CONFIG_STATS_CHECK_OLD_DEFAULT_SETTINGS_DESCRIPTION", "Override the stat display with the updated one, if you were using the default one prior to updating.\nNot meant as a config just needs to be tracked."));
             //Run in case some guy doesnt use RiskOfOptions and to check if Old?
             if (!checkIfOldDefaultSettings.Value)
             {
@@ -246,11 +259,11 @@ namespace LookingGlass.StatsDisplay
         public void SetupRiskOfOptions()
         {
 
-            ModSettingsManager.AddOption(new ChoiceOption(statsDisplay, new ChoiceConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new ChoiceOption(statStringPresets, false));
+            ModSettingsManager.AddOption(new ChoiceOption(statsDisplay, new ChoiceConfig() { name = L("CONFIG_STATS_DISPLAY_NAME", "Stats Display"), restartRequired = false }));
+            ModSettingsManager.AddOption(new ChoiceOption(statStringPresets, new ChoiceConfig() { name = L("CONFIG_STATS_DISPLAY_PRESET_NAME", "Preset"), restartRequired = false }));
             ModSettingsManager.AddOption(new StringInputFieldOption(statsDisplayString, new InputFieldConfig()
             {
-                name = "Main Display String",
+                name = L("CONFIG_STATS_DISPLAY_MAIN_STRING_NAME", "Main Display String"),
                 restartRequired = false,
                 lineType = TMP_InputField.LineType.MultiLineNewline,
                 submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit,
@@ -259,7 +272,7 @@ namespace LookingGlass.StatsDisplay
             }));
             ModSettingsManager.AddOption(new StringInputFieldOption(secondaryStatsDisplayString, new InputFieldConfig()
             {
-                name = "Tab Display String",
+                name = L("CONFIG_STATS_DISPLAY_TAB_STRING_NAME", "Tab Display String"),
                 restartRequired = false,
                 lineType = TMP_InputField.LineType.MultiLineNewline,
                 submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit,
@@ -270,25 +283,25 @@ namespace LookingGlass.StatsDisplay
 
 
 
-            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { restartRequired = false, min = -1, max = 24, FormatString = "{0:F1}" }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplaySize, new SliderConfig() { name = L("CONFIG_STATS_DISPLAY_FONT_SIZE_NAME", "Stats Display font size"), restartRequired = false, min = -1, max = 24, FormatString = "{0:F1}" }));
             //ModSettingsManager.AddOption(new StepSliderOption(statsDisplaySize, new StepSliderConfig() { restartRequired = false, min = -1, max = 24, increment = 0.2f,FormatString = "{0:F1}" }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(movePurchaseText, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(movePurchaseText, new CheckBoxConfig() { name = L("CONFIG_STATS_DISPLAY_MOVE_PURCHASE_TEXT_NAME", "Move Purchase Text"), restartRequired = false }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { name = "Update interval", restartRequired = false, min = 0.01f, max = 1f, FormatString = "{0:F2}s" }));
-            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayOverrideHeight, new CheckBoxConfig() { restartRequired = false }));
-            ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { restartRequired = false, min = 0, max = 100 }));
-            ModSettingsManager.AddOption(new IntSliderOption(floatPrecision, new IntSliderConfig() { name = "Float precision", restartRequired = false, min = 0, max = 5 }));
+            ModSettingsManager.AddOption(new CheckBoxOption(builtInColors, new CheckBoxConfig() { name = L("CONFIG_STATS_DISPLAY_USE_DEFAULT_COLORS_NAME", "Use default colors"), restartRequired = false }));
+            ModSettingsManager.AddOption(new SliderOption(statsDisplayUpdateInterval, new SliderConfig() { name = L("CONFIG_STATS_DISPLAY_UPDATE_INTERVAL_NAME", "Update interval"), restartRequired = false, min = 0.01f, max = 1f, FormatString = "{0:F2}s" }));
+            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayOverrideHeight, new CheckBoxConfig() { name = L("CONFIG_STATS_DISPLAY_OVERRIDE_HEIGHT_NAME", "Override Stats Display Height"), restartRequired = false }));
+            ModSettingsManager.AddOption(new IntSliderOption(statsDisplayOverrideHeightValue, new IntSliderConfig() { name = L("CONFIG_STATS_DISPLAY_HEIGHT_VALUE_NAME", "Stats Display Height Value"), restartRequired = false, min = 0, max = 100 }));
+            ModSettingsManager.AddOption(new IntSliderOption(floatPrecision, new IntSliderConfig() { name = L("CONFIG_STATS_DISPLAY_FLOAT_PRECISION_NAME", "Float precision"), restartRequired = false, min = 0, max = 5 }));
 
 
             // position override
-            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayAttached, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(statsDisplayAttached, new CheckBoxConfig() { name = L("CONFIG_STATS_DISPLAY_ATTACH_TO_OBJECTIVE_PANEL_NAME", "Attach To Objective Panel"), restartRequired = false }));
             ModSettingsManager.AddOption(new GenericButtonOption(
-                detachedPosition.Definition.Key,
-                detachedPosition.Definition.Section,
+                L("CONFIG_STATS_DISPLAY_POSITION_NAME", detachedPosition.Definition.Key),
+                L("CONFIG_CATEGORY_STATS_DISPLAY", detachedPosition.Definition.Section),
                 detachedPosition.Description.Description,
-                "Open",
+                L("MISC_OPEN", "Open"),
                 () => CreatePositionWindow(detachedPosition)
             ));
 
@@ -448,7 +461,7 @@ namespace LookingGlass.StatsDisplay
                     //+Has OSP rn ig
                     //AS / MS % for idk nerds
                     new1 = (string)statsDisplayString.DefaultValue;
-                    new2 =
+                    new2 = L("STATS_DISPLAY_PRESET_EXTRA_SECONDARY",
                         "<margin-left=0.6em>"
                         + "<size=115%>Stats</size>\n"
                         + "Damage: [damage] | [damagePercentWithWatch]\n"
@@ -466,7 +479,7 @@ namespace LookingGlass.StatsDisplay
                         + "Total Kills: [killCountRun]\n"
                         + "Ping: [ping]\n"
                         + "Portals: [portals] \n"
-                        + "</margin>";
+                        + "</margin>");
                     break;
                 case StatDisplayPreset.Extra_For_OnlyStats:
                     //+Luck
@@ -479,7 +492,7 @@ namespace LookingGlass.StatsDisplay
                     //
 
                     new1 = string.Empty;
-                    new2 =
+                    new2 = L("STATS_DISPLAY_PRESET_EXTRA_ONLY_STATS_SECONDARY",
                         "<size=16px><line-height=7.5px>"
                         + "\n<align=center>Stats:</align>\r\n\r\n\r\n"
                         + "</line-height></size>"
@@ -502,7 +515,7 @@ namespace LookingGlass.StatsDisplay
                         //+ "Mountain Shrines: [mountainShrines]\n" //Stat lost most of it's relevance with icons stacking in vanilla
                         + "Ping: [ping]\n"
                         + "Portals: [portals] \n"
-                        + "</line-height></margin>";
+                        + "</line-height></margin>");
 
                     //"<size=16px><line-height=7.5px>\r\n<align=center>Stats:</align>\r\n\r\n</line-height></size><margin-left=0.6em>Damage: [damage]\r\nAttack Speed: [attackSpeedPercent]\r\nCrit Stats: [critWithLuck] | [critMultiplier]\r\nBleed Chance: [bleedChanceWithLuck]\r\nRegen: [regenHp]\r\nArmor: [armor] | [armorDamageReduction]\r\nEhp: [effectiveHealth]\r\nSpeed: [speedPercent]\r\nJumps: [availableJumps] / [maxJumps]\r\nLuck: [luck]\r\nCurse: [curseHealthReduction]\r\nTotal Kills: [killCountRun]\r\nMax Combo: [maxComboThisRun]\r\nMountain Shrines: [mountainShrines]\r\nPortals: [portals] \r\n</line-height></margin>"
                     //"<size=16px><line-height=7.5px>\r\n<align=center>Stats:</align>\r\n\r\n\r\n</line-height></size><margin-left=0.6em>Damage: [damage]\r\nAttack Speed: [attackSpeedPercent]\r\nCrit Stats: [critWithLuck] | [critMultiplier]\r\nBleed Chance: [bleedChanceWithLuck]\r\nRegen: [regenHp]\r\nArmor: [armor] | [armorDamageReduction]\r\nEhp: [effectiveHealth]\r\nSpeed: [speedPercent]\r\nJumps: [availableJumps] / [maxJumps]\r\nLuck: [luck]\r\nCurse: [curseHealthReduction]\r\nTotal Kills: [killCountRun]\r\nMax Combo: [maxComboThisRun]\r\nMountain Shrines: [mountainShrines]\r\nPortals: [portals] \r\n</line-height></margin>"
@@ -511,7 +524,7 @@ namespace LookingGlass.StatsDisplay
                 case StatDisplayPreset.Simpler:
                     //No Combo or DPS stuff
                     //
-                    new1 =
+                    new1 = L("STATS_DISPLAY_PRESET_SIMPLER_MAIN",
                          "<line-height=110%>"
                          + "<align=center><size=16px>Stats:</align></size></line-height>" +
                          "<margin-left=0.6em>\n"
@@ -523,8 +536,8 @@ namespace LookingGlass.StatsDisplay
                          + "Speed: [speed]\n"
                          + "Jumps: [availableJumps] / [maxJumps]\n"
                          + "Kills: [killCount]\n"
-                         + "</margin>";
-                    new2 =
+                         + "</margin>");
+                    new2 = L("STATS_DISPLAY_PRESET_SIMPLER_SECONDARY",
                          "<line-height=110%>"
                          + "<align=center><size=16px>Stats:</align></size></line-height>\n"
                          + "<margin-left=0.6em>"
@@ -538,27 +551,27 @@ namespace LookingGlass.StatsDisplay
                          + "Jumps: [availableJumps] / [maxJumps]\n"
                          + "Kills: [killCount]\n"
                          + "Portals: [portals]\n"
-                         + "</margin>";
+                         + "</margin>");
                     break;
 
                 case StatDisplayPreset.Minimal:
-                    new1 =
+                    new1 = L("STATS_DISPLAY_PRESET_MINIMAL_MAIN",
                         "<margin-left=0.6em><line-height=110%>"
                         + "Jumps: [availableJumps] / [maxJumps]\n"
                         + "DPS: [dps] | [percentDps]\n"
-                        + "</line-height></margin>";
-                    new2 =
+                        + "</line-height></margin>");
+                    new2 = L("STATS_DISPLAY_PRESET_MINIMAL_SECONDARY",
                           "<margin-left=0.6em><line-height=110%>"
                           + "Crit Chance: [critWithLuck]\n"
                           + "Bleed Chance: [bleedChanceWithLuck]\n"
                           + "Portal: [portals]"
-                          + "</line-height></margin>";
+                          + "</line-height></margin>");
                     break;
 
                 case StatDisplayPreset.Old:
                     //Do not modify
                     //Ugly BetterUI version
-                    new1 =
+                    new1 = L("STATS_DISPLAY_PRESET_OLD_MAIN",
                         "<size=120%>Stats</size>\n"
                         + "Luck: [luck]\n"
                         + "Damage: [damage]\n"
@@ -573,8 +586,8 @@ namespace LookingGlass.StatsDisplay
                         + "DPS: [dps]\n"
                         + "Combo: [combo]\n"
                         + "Combo Timer: [remainingComboDuration]\n"
-                        + "Max Combo: [maxCombo]";
-                    new2 =
+                        + "Max Combo: [maxCombo]");
+                    new2 = L("STATS_DISPLAY_PRESET_OLD_SECONDARY",
                           "<size=120%>Stats</size>\n"
                           + "Luck: [luck]\n"
                           + "Damage: [damage]\n"
@@ -589,7 +602,7 @@ namespace LookingGlass.StatsDisplay
                           + "Mountain Shrines: [mountainShrines]\n"
                           + "Max Combo: [maxCombo]\n"
                           + "<size=120%>Portals:</size> \n"
-                          + "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>";
+                          + "<size=50%>Gold:[goldPortal] Shop:[shopPortal] Celestial:[msPortal] Void:[voidPortal]</size>");
                     break;
 
                     //Preset to just add LineHeight?
@@ -610,8 +623,8 @@ namespace LookingGlass.StatsDisplay
             //or "RiskOfOptions.ModOptions" instance
             //So fuck it just do this
             // GameObject option1 = GameObject.Find("/MainMenu/MENU: Settings/MainSettings/SettingsPanelTitle(Clone)/SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Stats Display String");
-            GameObject option1 = GameObject.Find("SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Main Display String");
-            GameObject option2 = GameObject.Find("SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, Tab Display String");
+            GameObject option1 = GameObject.Find($"SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, {L("CONFIG_STATS_DISPLAY_MAIN_STRING_NAME", "Main Display String")}");
+            GameObject option2 = GameObject.Find($"SafeArea/SubPanelArea/SettingsSubPanel, (Mod Options)/Options Panel(Clone)/Scroll View/Viewport/VerticalLayout/Mod Option Input Field, {L("CONFIG_STATS_DISPLAY_TAB_STRING_NAME", "Tab Display String")}");
 
             if (!option1)
             {
@@ -940,7 +953,7 @@ namespace LookingGlass.StatsDisplay
 
             // close button
             GameObject closeButton = UnityEngine.Object.Instantiate(Addressables.LoadAssetAsync<GameObject>("RoR2/Base/UI/GenericMenuButton.prefab").WaitForCompletion(), windowRect);
-            closeButton.GetComponent<LanguageTextMeshController>().token = "Close";
+            closeButton.GetComponent<LanguageTextMeshController>().token = LookingGlassLanguageAPI.Token("MISC_CLOSE");
             closeButton.AddComponent<LayoutElement>().minHeight = 32;
             closeButton.GetComponentInChildren<HGButton>().onClick.AddListener(Close);
 

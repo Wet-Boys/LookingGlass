@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
@@ -26,8 +27,8 @@ namespace LookingGlass.HiddenItems
         public static ConfigEntry<bool> noHiddenBuffs;
         public void Setup()
         {
-            noHiddenItems = BasePlugin.instance.Config.Bind<bool>("Misc", "Unhide Internal Items", false, "Makes normally hidden items visible. (Drizzle/MonsoonHelper)");
-            noHiddenBuffs = BasePlugin.instance.Config.Bind<bool>("Misc", "Unhide Internal Buffs", false, "Makes normally hidden buffs visible.");
+            noHiddenItems = BasePlugin.instance.Config.Bind<bool>("Misc", "Unhide Internal Items", false, LookingGlassLanguageAPI.ConfigDescription("Unhide Internal Items", "Makes normally hidden items visible. (Drizzle/MonsoonHelper)"));
+            noHiddenBuffs = BasePlugin.instance.Config.Bind<bool>("Misc", "Unhide Internal Buffs", false, LookingGlassLanguageAPI.ConfigDescription("Unhide Internal Buffs", "Makes normally hidden buffs visible."));
             noHiddenItems.SettingChanged += SettingsChanged;
             noHiddenBuffs.SettingChanged += SettingsChanged;
         }
@@ -35,8 +36,9 @@ namespace LookingGlass.HiddenItems
        
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(noHiddenItems, new CheckBoxConfig() { restartRequired = false}));
-            ModSettingsManager.AddOption(new CheckBoxOption(noHiddenBuffs, new CheckBoxConfig() { restartRequired = false}));
+            string miscCategory = LookingGlassLanguageAPI.ConfigCategory("Misc");
+            ModSettingsManager.AddOption(new CheckBoxOption(noHiddenItems, new CheckBoxConfig() { category = miscCategory, name = LookingGlassLanguageAPI.ConfigName(noHiddenItems.Definition.Key), restartRequired = false}));
+            ModSettingsManager.AddOption(new CheckBoxOption(noHiddenBuffs, new CheckBoxConfig() { category = miscCategory, name = LookingGlassLanguageAPI.ConfigName(noHiddenBuffs.Definition.Key), restartRequired = false}));
             ItemCatalog.availability.CallWhenAvailable(CallLate);   
         }
         private void CallLate()

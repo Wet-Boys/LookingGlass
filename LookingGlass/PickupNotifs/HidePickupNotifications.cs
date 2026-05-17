@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
@@ -21,13 +22,13 @@ namespace LookingGlass.HidePickupNotifs
         }
         public void Setup()
         {
-            disablePickupNotifications = BasePlugin.instance.Config.Bind<bool>("Misc", "Disable Pickup Notifications", false, "Disable item pickup notifications");
+            disablePickupNotifications = BasePlugin.instance.Config.Bind<bool>("Misc", "Disable Pickup Notifications", false, LookingGlassLanguageAPI.ConfigDescription("Disable Pickup Notifications", "Disable item pickup notifications"));
             InitHooks();
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(disablePickupNotifications, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(disablePickupNotifications, new CheckBoxConfig() { category = LookingGlassLanguageAPI.ConfigCategory("Misc"), name = LookingGlassLanguageAPI.ConfigName(disablePickupNotifications.Definition.Key), restartRequired = false }));
         }
         void InitHooks()
         {

@@ -11,6 +11,7 @@ using LookingGlass.HiddenItems;
 using LookingGlass.HidePickupNotifs;
 using LookingGlass.ItemCounters;
 using LookingGlass.ItemStatsNameSpace;
+using LookingGlass.LookingGlassLanguage;
 using LookingGlass.PickupNotifsDuration;
 using LookingGlass.ResizeCommandWindow;
 using LookingGlass.StatsDisplay;
@@ -59,6 +60,7 @@ namespace LookingGlass
         {
             Log.Init(Logger);
             instance = this;
+            LookingGlassLanguageAPI.Init(Info.Location);
             try
             {
                 string folderName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Info.Location), "icons");
@@ -107,7 +109,7 @@ namespace LookingGlass
 
             statsDisplayClass.CheckForOldDefaultSettingsThatNeedToBeUpdated();
 
-            ModSettingsManager.SetModDescription("Stat info, item stacking info, skill and equipment cooldown info, and much more ui related things.");
+            ModSettingsManager.SetModDescription(LookingGlassLanguageAPI.GetString("MOD_DESCRIPTION", "Stat info, item stacking info, skill and equipment cooldown info, and much more ui related things."));
         }
 
         private void FixedUpdate()

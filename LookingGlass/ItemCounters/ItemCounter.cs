@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
@@ -28,10 +29,10 @@ namespace LookingGlass.ItemCounters
         }
         public void Setup()
         {
-            cfg_EffectiveCount = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Include Temp Items In Item Counter Totals", false, "The main item counters will count both permanent and temporary items.");
-            cfg_TotalTempCounter = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Temp Item Total Counter", true, "Counts your temp item total separately");
-            cfg_TieredItemCounters = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Tiered Item Counters", true, "Adds tiered item counters to the scoreboard next to the total item counter.");
-            cfg_TieredTempCounters = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Temp Item Counters By Rarity", false, "Counts your temp items in the scoreboard separately by rarity");
+            cfg_EffectiveCount = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Include Temp Items In Item Counter Totals", false, LookingGlassLanguageAPI.ConfigDescription("Include Temp Items In Item Counter Totals", "The main item counters will count both permanent and temporary items."));
+            cfg_TotalTempCounter = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Temp Item Total Counter", true, LookingGlassLanguageAPI.ConfigDescription("Temp Item Total Counter", "Counts your temp item total separately"));
+            cfg_TieredItemCounters = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Tiered Item Counters", true, LookingGlassLanguageAPI.ConfigDescription("Tiered Item Counters", "Adds tiered item counters to the scoreboard next to the total item counter."));
+            cfg_TieredTempCounters = BasePlugin.instance.Config.Bind<bool>("Item Counters", "Temp Item Counters By Rarity", false, LookingGlassLanguageAPI.ConfigDescription("Temp Item Counters By Rarity", "Counts your temp items in the scoreboard separately by rarity"));
  
             var targetMethod = typeof(ScoreboardStrip).GetMethod(nameof(ScoreboardStrip.UpdateItemCountText), BindingFlags.NonPublic | BindingFlags.Instance);
             new Hook(targetMethod, UpdateItemCountText);
@@ -42,13 +43,14 @@ namespace LookingGlass.ItemCounters
  
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(cfg_EffectiveCount, new CheckBoxConfig() { name = "Count Perm & Temp together for counters", restartRequired = false }));
+            string itemCountersCategory = LookingGlassLanguageAPI.ConfigCategory("Item Counters");
+            ModSettingsManager.AddOption(new CheckBoxOption(cfg_EffectiveCount, new CheckBoxConfig() { category = itemCountersCategory, name = LookingGlassLanguageAPI.ConfigName(cfg_EffectiveCount.Definition.Key), restartRequired = false }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(cfg_TotalTempCounter, new CheckBoxConfig() { name = "Total Temp Items Counter", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(cfg_TotalTempCounter, new CheckBoxConfig() { category = itemCountersCategory, name = LookingGlassLanguageAPI.ConfigName(cfg_TotalTempCounter.Definition.Key), restartRequired = false }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(cfg_TieredItemCounters, new CheckBoxConfig() { restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(cfg_TieredItemCounters, new CheckBoxConfig() { category = itemCountersCategory, name = LookingGlassLanguageAPI.ConfigName(cfg_TieredItemCounters.Definition.Key), restartRequired = false }));
 
-            ModSettingsManager.AddOption(new CheckBoxOption(cfg_TieredTempCounters, new CheckBoxConfig() { name = "Tiered Temp Counters", restartRequired = false, checkIfDisabled = cfgEffective }));
+            ModSettingsManager.AddOption(new CheckBoxOption(cfg_TieredTempCounters, new CheckBoxConfig() { category = itemCountersCategory, name = LookingGlassLanguageAPI.ConfigName(cfg_TieredTempCounters.Definition.Key), restartRequired = false, checkIfDisabled = cfgEffective }));
 
         }
         public bool cfgEffective()

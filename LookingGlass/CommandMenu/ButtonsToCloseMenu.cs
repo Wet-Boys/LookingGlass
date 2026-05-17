@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using HG;
 using LookingGlass.Base;
+using LookingGlass.LookingGlassLanguage;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
@@ -102,12 +103,12 @@ namespace LookingGlass.EscapeToCloseMenu
         }
         public void Setup()
         {
-            turnOffCommandMenu = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Input Disables Command Prompt", true, "Makes any keyboard input other than [Interact] close command/ scrapper / potential / etc. menus.\n\nDoesn't work with controllers because you wouldn't be able to use the menu.");
+            turnOffCommandMenu = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Input Disables Command Prompt", true, LookingGlassLanguageAPI.ConfigDescription("Input Disables Command Prompt", "Makes any keyboard input other than [Interact] close command/ scrapper / potential / etc. menus.\n\nDoesn't work with controllers because you wouldn't be able to use the menu."));
             SetupRiskOfOptions();
         }
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(turnOffCommandMenu, new CheckBoxConfig() { name = "Input closes Command/Pickup menus", restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(turnOffCommandMenu, new CheckBoxConfig() { category = LookingGlassLanguageAPI.ConfigCategory("Command Settings"), name = LookingGlassLanguageAPI.ConfigName(turnOffCommandMenu.Definition.Key), restartRequired = false }));
         }
         public void AddCloser(GameObject panelInstance, NetworkUIPromptController net)
         {

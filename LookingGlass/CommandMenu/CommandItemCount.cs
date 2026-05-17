@@ -2,6 +2,7 @@
 using LookingGlass.AutoSortItems;
 using LookingGlass.Base;
 using LookingGlass.ItemStatsNameSpace;
+using LookingGlass.LookingGlassLanguage;
 using MonoMod.RuntimeDetour;
 using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
@@ -55,10 +56,10 @@ namespace LookingGlass.CommandItemCount
             //var targetMethod4 = typeof(CraftingController).GetMethod(nameof(CraftingController.FilterAvailableOptions), BindingFlags.NonPublic | BindingFlags.Instance);
             // var destMethod4 = typeof(CommandItemCountClass).GetMethod(nameof(SortByCraftableItem), BindingFlags.NonPublic | BindingFlags.Instance);
             //craftingHook = new Hook(targetMethod4, destMethod4, this);
-            commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, "Shows how many items you have in the command and other pickup menus");
-            hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, "Hides the item count if you have none of an item");
-            commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, "Shows tooltips in the command and other pickup menus");
-            showCorruptedItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Show Corrupted Items", true, "Shows when items have been corrupted");
+            commandItemCount = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Item Count", true, LookingGlassLanguageAPI.ConfigDescription("Command Item Count", "Shows how many items you have in the command and other pickup menus"));
+            hideCountIfZero = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Hide Count If Zero", false, LookingGlassLanguageAPI.ConfigDescription("Hide Count If Zero", "Hides the item count if you have none of an item"));
+            commandToolTips = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Command Tooltips", true, LookingGlassLanguageAPI.ConfigDescription("Command Tooltips", "Shows tooltips in the command and other pickup menus"));
+            showCorruptedItems = BasePlugin.instance.Config.Bind<bool>("Command Settings", "Show Corrupted Items", true, LookingGlassLanguageAPI.ConfigDescription("Show Corrupted Items", "Shows when items have been corrupted"));
 
             SetupRiskOfOptions();
         }
@@ -81,10 +82,11 @@ namespace LookingGlass.CommandItemCount
 
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { name = "Item Counts", restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(hideCountIfZero, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckHideCountIfZero }));
-            ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { name = "Pickup Menu Tooltips", restartRequired = false }));
-            ModSettingsManager.AddOption(new CheckBoxOption(showCorruptedItems, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckShowCorruptedItems }));
+            string commandCategory = LookingGlassLanguageAPI.ConfigCategory("Command Settings");
+            ModSettingsManager.AddOption(new CheckBoxOption(commandItemCount, new CheckBoxConfig() { category = commandCategory, name = LookingGlassLanguageAPI.ConfigName(commandItemCount.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(hideCountIfZero, new CheckBoxConfig() { category = commandCategory, name = LookingGlassLanguageAPI.ConfigName(hideCountIfZero.Definition.Key), restartRequired = false, checkIfDisabled = CheckHideCountIfZero }));
+            ModSettingsManager.AddOption(new CheckBoxOption(commandToolTips, new CheckBoxConfig() { category = commandCategory, name = LookingGlassLanguageAPI.ConfigName(commandToolTips.Definition.Key), restartRequired = false }));
+            ModSettingsManager.AddOption(new CheckBoxOption(showCorruptedItems, new CheckBoxConfig() { category = commandCategory, name = LookingGlassLanguageAPI.ConfigName(showCorruptedItems.Definition.Key), restartRequired = false, checkIfDisabled = CheckShowCorruptedItems }));
 
         }
         private static bool CheckHideCountIfZero()
@@ -352,7 +354,7 @@ namespace LookingGlass.CommandItemCount
                     // intentional extra </style> tag because some items have broken descriptions *glares at titanic knurl*
                     stats = $"<size=85%><color=#808080>{Language.GetString(itemDef.descriptionToken)}</color></style></size>";
                     ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(corruption.Items[0]);
-                    stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
+                    stats += $"\n\n{LookingGlassLanguageAPI.Format("MISC_CORRUPTED_BY", "Has been corrupted by: <style=cIsVoid>{0}</style>", Language.GetString(corruptedItemDefinition.nameToken))}\n\n";
                     stats += ItemStats.GetItemDescription(corruptedItemDefinition, corruption.ItemCount, null, withOneMore);
                 }
                 else if (corruption.Type == CorruptionType.Void)
@@ -373,7 +375,7 @@ namespace LookingGlass.CommandItemCount
             {
                 string stats = $"<size=85%><color=#808080>{Language.GetString(itemDef.descriptionToken)}</color></style></size>";
                 ItemDef corruptedItemDefinition = ItemCatalog.GetItemDef(corruption.Items[0]);
-                stats += $"\n\nHas been corrupted by: <style=cIsVoid>{Language.GetString(corruptedItemDefinition.nameToken)}</style>\n\n";
+                stats += $"\n\n{LookingGlassLanguageAPI.Format("MISC_CORRUPTED_BY", "Has been corrupted by: <style=cIsVoid>{0}</style>", Language.GetString(corruptedItemDefinition.nameToken))}\n\n";
                 stats += Language.GetString(corruptedItemDefinition.descriptionToken);
                 content.overrideBodyText = stats;
             }
