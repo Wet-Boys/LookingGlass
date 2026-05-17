@@ -141,10 +141,9 @@ namespace LookingGlass.StatsDisplay
             return LookingGlassLanguageAPI.GetString(token, fallback);
         }
 
-        static string DefaultMainDisplayString()
+        static string DefaultMainDisplayStringFallback()
         {
-            return L("STATS_DISPLAY_DEFAULT_MAIN",
-                "<margin-left=0.6em>"
+            return "<margin-left=0.6em>"
                 + "<size=115%>Stats</size>\n"
                 + "Damage: [damage]\n"
                 + "Attack Speed: [attackSpeed]\n"
@@ -156,13 +155,17 @@ namespace LookingGlass.StatsDisplay
                 + "Kills: [killCount]\n"
                 + "DPS: [dps]\n"
                 + "Combo: [combo]\n"
-                + "</margin>");
+                + "</margin>";
         }
 
-        static string DefaultSecondaryDisplayString()
+        static string DefaultMainDisplayString()
         {
-            return L("STATS_DISPLAY_DEFAULT_SECONDARY",
-                "<margin-left=0.6em>"
+            return L("STATS_DISPLAY_DEFAULT_MAIN", DefaultMainDisplayStringFallback());
+        }
+
+        static string DefaultSecondaryDisplayStringFallback()
+        {
+            return "<margin-left=0.6em>"
                 + "<size=115%>Stats</size>\n"
                 + "Damage: [damage]\n"
                 + "Attack Speed: [attackSpeed]\n"
@@ -176,7 +179,33 @@ namespace LookingGlass.StatsDisplay
                 + "Max Combo: [maxComboThisRun]\n"
                 + "Mountain Shrines: [mountainShrines]\n"
                 + "Portals: [portals] \n"
-                + "</margin>");
+                + "</margin>";
+        }
+
+        static string DefaultSecondaryDisplayString()
+        {
+            return L("STATS_DISPLAY_DEFAULT_SECONDARY", DefaultSecondaryDisplayStringFallback());
+        }
+
+        static string LocalizeBuiltInStatsDisplayString(string value, bool secondary)
+        {
+            string token = secondary ? "STATS_DISPLAY_DEFAULT_SECONDARY" : "STATS_DISPLAY_DEFAULT_MAIN";
+            string fallback = secondary ? DefaultSecondaryDisplayStringFallback() : DefaultMainDisplayStringFallback();
+            return LookingGlassLanguageAPI.IsKnownLocalizedString(token, fallback, value) ? L(token, fallback) : value;
+        }
+
+        void LocalizeBuiltInStatsDisplayStrings()
+        {
+            string localizedMain = LocalizeBuiltInStatsDisplayString(statsDisplayString.Value, false);
+            string localizedSecondary = LocalizeBuiltInStatsDisplayString(secondaryStatsDisplayString.Value, true);
+            if (!string.Equals(statsDisplayString.Value, localizedMain, StringComparison.Ordinal))
+            {
+                statsDisplayString.Value = localizedMain;
+            }
+            if (!string.Equals(secondaryStatsDisplayString.Value, localizedSecondary, StringComparison.Ordinal))
+            {
+                secondaryStatsDisplayString.Value = localizedSecondary;
+            }
         }
 
         public void Setup()
@@ -204,6 +233,8 @@ namespace LookingGlass.StatsDisplay
             secondaryStatsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Secondary Stats Display String",
                 DefaultSecondaryDisplayString()
                 , L("CONFIG_STATS_DISPLAY_SECONDARY_STRING_DESCRIPTION", $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}"));
+            Language.onCurrentLanguageChanged += LocalizeBuiltInStatsDisplayStrings;
+            LocalizeBuiltInStatsDisplayStrings();
             StatsDisplayDefinitions.SetupDefs();
 
             // position override
@@ -1023,7 +1054,8 @@ namespace LookingGlass.StatsDisplay
         {
             Profiler.BeginSample("LookingGlass.StatsDisplay.Regex");
 
-            string statsText = statsDisplay.Value >= StatsDisplayEnum.Different_On_Tab && scoreBoardOpen ? secondaryStatsDisplayString.Value : statsDisplayString.Value;
+            bool useSecondaryStats = statsDisplay.Value >= StatsDisplayEnum.Different_On_Tab && scoreBoardOpen;
+            string statsText = LocalizeBuiltInStatsDisplayString(useSecondaryStats ? secondaryStatsDisplayString.Value : statsDisplayString.Value, useSecondaryStats);
             statsText = statsRegex.Replace(statsText, MatchEvaluator);
 
             Profiler.EndSample();

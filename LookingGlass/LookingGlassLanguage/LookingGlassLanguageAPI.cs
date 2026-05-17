@@ -15,6 +15,14 @@ namespace LookingGlass.LookingGlassLanguage
         const string LanguageFile = "LookingGlass.json";
         static string languageRootPath;
         static readonly Dictionary<string, Dictionary<string, string>> cachedLanguageFiles = new Dictionary<string, Dictionary<string, string>>();
+        static readonly Dictionary<string, string> languageAliases = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["schinese"] = "zh-CN",
+            ["simplifiedchinese"] = "zh-CN",
+            ["zh"] = "zh-CN",
+            ["zh-Hans"] = "zh-CN",
+            ["zh_CN"] = "zh-CN",
+        };
         static readonly Regex tagsRegex = new Regex("<[^>]+>", RegexOptions.Compiled);
         static readonly Regex tokenCharsRegex = new Regex("[^A-Z0-9]+", RegexOptions.Compiled);
 
@@ -83,6 +91,44 @@ namespace LookingGlass.LookingGlassLanguage
             return string.Format(GetString(token, fallback), args);
         }
 
+        public static string GetStringForLanguage(string languageName, string token, string fallback = "")
+        {
+            string fullToken = Token(token);
+            return TryGetFileString(languageName, fullToken, out string fileValue) ? fileValue : fallback;
+        }
+
+        public static bool IsKnownLocalizedString(string token, string fallback, string value)
+        {
+            if (string.Equals(value, fallback, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            string fullToken = Token(token);
+            if (Language.currentLanguage?.stringsByToken.TryGetValue(fullToken, out string currentValue) == true &&
+                string.Equals(value, currentValue, StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            if (string.IsNullOrEmpty(languageRootPath) || !Directory.Exists(languageRootPath))
+            {
+                return false;
+            }
+
+            foreach (string languageDirectory in Directory.GetDirectories(languageRootPath))
+            {
+                string languageName = System.IO.Path.GetFileName(languageDirectory);
+                if (TryGetFileString(languageName, fullToken, out string fileValue) &&
+                    string.Equals(value, fileValue, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static string GetItemStatLabel(string defaultLabel)
         {
             return GetString(GetItemStatToken(defaultLabel), defaultLabel);
@@ -131,6 +177,7 @@ namespace LookingGlass.LookingGlassLanguage
         static bool TryGetFileString(string languageName, string fullToken, out string value)
         {
             value = null;
+            languageName = NormalizeLanguageName(languageName);
             if (string.IsNullOrEmpty(languageRootPath))
             {
                 return false;
@@ -158,6 +205,16 @@ namespace LookingGlass.LookingGlassLanguage
             }
 
             return strings?.TryGetValue(fullToken, out value) == true;
+        }
+
+        static string NormalizeLanguageName(string languageName)
+        {
+            if (string.IsNullOrEmpty(languageName))
+            {
+                return languageName;
+            }
+
+            return languageAliases.TryGetValue(languageName, out string alias) ? alias : languageName;
         }
     }
 }
