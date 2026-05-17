@@ -170,8 +170,14 @@ namespace LookingGlass.LookingGlassLanguage
                 MethodInfo addLanguageEntry = typeof(ModSettingsManager).Assembly
                     .GetType("RiskOfOptions.Lib.LanguageApi")
                     ?.GetMethod("Add", riskOfOptionsFlags);
-                if (optionCollections is not IEnumerable enumerable || addLanguageEntry == null)
+                if (optionCollections is not IEnumerable enumerable)
                 {
+                    Log.Warning("Unable to refresh RiskOfOptions localization: option collection was not found.");
+                    return;
+                }
+                if (addLanguageEntry == null)
+                {
+                    Log.Warning("Unable to refresh RiskOfOptions localization: language API entry point was not found.");
                     return;
                 }
 
