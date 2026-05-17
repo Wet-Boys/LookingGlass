@@ -25,6 +25,9 @@ namespace LookingGlass.StatsDisplay
             string hpPerSecond = LookingGlassLanguageAPI.GetString("UNIT_HP_PER_SECOND", "hp/s");
             string secondsCompact = LookingGlassLanguageAPI.GetString("UNIT_SECONDS_COMPACT", "s");
             string millisecondsCompact = LookingGlassLanguageAPI.GetString("UNIT_MILLISECONDS_COMPACT", "ms");
+            string trueString = LookingGlassLanguageAPI.GetString("MISC_TRUE", "True");
+            string falseString = LookingGlassLanguageAPI.GetString("MISC_FALSE", "False");
+            string FormatBool(bool value) => value ? trueString : falseString;
             //NumberFormatInfo floatPrecision = new NumberFormatInfo();
             //floatPrecision.NumberDecimalDigits = StatsDisplayClass.floatPrecision.Value;
             floatPrecision = "0." + new string('#', StatsDisplayClass.floatPrecision.Value);
@@ -124,7 +127,7 @@ namespace LookingGlass.StatsDisplay
                 //Does not account for Barrier being able to put you back into OSP range.$
                 //But that is very minimal to be frank
                 bool hasProtection = (cachedUserBody.oneShotProtectionFraction * cachedUserBody.healthComponent.fullCombinedHealth - cachedUserBody.healthComponent.missingCombinedHealth) > 0;
-                return $"{healingString}{(hasProtection ? LookingGlassLanguageAPI.GetString("MISC_TRUE", "True") : LookingGlassLanguageAPI.GetString("MISC_FALSE", "False"))}{styleString}";
+                return $"{healingString}{FormatBool(hasProtection)}{styleString}";
             });
 
             //Curse Penalty is a technical stat so not really usefull v
@@ -204,11 +207,11 @@ namespace LookingGlass.StatsDisplay
             #region Portal / Teleporter Stuff
             StatsDisplayClass.statDictionary.Add("mountainShrines", cachedUserBody => { return $"{utilityString}{((TeleporterInteraction.instance is not null ? TeleporterInteraction.instance._shrineBonusStacks : notAvailable))}{styleString}"; });
 
-            StatsDisplayClass.statDictionary.Add("shopPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking.shopPortal.ToString() : notAvailable)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{damageString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking.goldPortal.ToString() : notAvailable)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking.msPortal.ToString() : notAvailable)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("voidPortal", cachedUserBody => { return $"{voidString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking._voidPortal.ToString() : notAvailable)}{styleString}"; });
-            StatsDisplayClass.statDictionary.Add("greenPortal", cachedUserBody => { return $"{healingString}{(TeleporterInteraction.instance ? BasePlugin.instance.portalTracking._greenPortal.ToString() : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("shopPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking.shopPortal) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("goldPortal", cachedUserBody => { return $"{damageString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking.goldPortal) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("msPortal", cachedUserBody => { return $"{utilityString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking.msPortal) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("voidPortal", cachedUserBody => { return $"{voidString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking._voidPortal) : notAvailable)}{styleString}"; });
+            StatsDisplayClass.statDictionary.Add("greenPortal", cachedUserBody => { return $"{healingString}{(TeleporterInteraction.instance ? FormatBool(BasePlugin.instance.portalTracking._greenPortal) : notAvailable)}{styleString}"; });
 
             StatsDisplayClass.statDictionary.Add("portals", cachedUserBody => BasePlugin.instance.portalTracking.ReturnAllAvailablePortals());
 

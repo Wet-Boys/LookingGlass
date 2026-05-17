@@ -208,6 +208,13 @@ namespace LookingGlass.StatsDisplay
             }
         }
 
+        void OnCurrentLanguageChanged()
+        {
+            LocalizeBuiltInStatsDisplayStrings();
+            StatsDisplayDefinitions.SetupDefs();
+            ForceUpdate();
+        }
+
         public void Setup()
         {
             //statsDisplay = BasePlugin.instance.Config.Bind<StatsDisplayEnum>("Stats Display", "StatsDisplay", StatsDisplayEnum.AltSecondary, "Enables Stats Display.\n\nSecondary: Will display different text while the Scoreboard is open\n\nOnlyTab: Will display text only while the scoreboard is open. ");
@@ -233,9 +240,8 @@ namespace LookingGlass.StatsDisplay
             secondaryStatsDisplayString = BasePlugin.instance.Config.Bind<string>("Stats Display", "Secondary Stats Display String",
                 DefaultSecondaryDisplayString()
                 , L("CONFIG_STATS_DISPLAY_SECONDARY_STRING_DESCRIPTION", $"Secondary string for the stats display. You can customize this with Unity Rich Text if you want, see \n https://docs.unity3d.com/Packages/com.unity.textmeshpro@4.0/manual/RichText.html for more info. \nAvailable syntax for the [] stuff is: {syntaxList}"));
-            Language.onCurrentLanguageChanged += LocalizeBuiltInStatsDisplayStrings;
-            LocalizeBuiltInStatsDisplayStrings();
-            StatsDisplayDefinitions.SetupDefs();
+            Language.onCurrentLanguageChanged += OnCurrentLanguageChanged;
+            OnCurrentLanguageChanged();
 
             // position override
             Vector2 defaultPos = new Vector2(1810, 1015);
