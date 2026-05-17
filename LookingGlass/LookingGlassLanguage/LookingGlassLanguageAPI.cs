@@ -210,6 +210,7 @@ namespace LookingGlass.LookingGlassLanguage
                 ConfigEntryBase configEntry = GetConfigEntry(option);
                 if (configEntry == null)
                 {
+                    RefreshRiskOfOptionsConfiguredOption(option, addLanguageEntry);
                     continue;
                 }
 
@@ -220,6 +221,28 @@ namespace LookingGlass.LookingGlassLanguage
 
             localizedCategory ??= ConfigCategory(GetStringField(category, "name"));
             AddRiskOfOptionsLanguageEntry(addLanguageEntry, GetStringProperty(category, "NameToken"), localizedCategory);
+        }
+
+        static void RefreshRiskOfOptionsConfiguredOption(object option, MethodInfo addLanguageEntry)
+        {
+            object config = option?.GetType().GetMethod("GetConfig", riskOfOptionsFlags)?.Invoke(option, Array.Empty<object>());
+            if (config == null)
+            {
+                return;
+            }
+
+            AddRiskOfOptionsLanguageEntry(
+                addLanguageEntry,
+                InvokeStringMethod(option, "GetNameToken"),
+                ResolveKnownLocalizedString(GetStringField(config, "name"), Token("CONFIG_"), "_NAME"));
+            AddRiskOfOptionsLanguageEntry(
+                addLanguageEntry,
+                InvokeStringMethod(option, "GetDescriptionToken"),
+                ResolveKnownLocalizedString(GetStringField(config, "description"), Token("CONFIG_"), "_DESCRIPTION"));
+            AddRiskOfOptionsLanguageEntry(
+                addLanguageEntry,
+                InvokeStringMethod(option, "GetButtonLabelToken"),
+                ResolveKnownLocalizedString(GetStringProperty(config, "ButtonText")));
         }
 
         static ConfigEntryBase GetConfigEntry(object option)
@@ -260,6 +283,41 @@ namespace LookingGlass.LookingGlassLanguage
             }
         }
 
+        static string ResolveKnownLocalizedString(string value, string requiredTokenPrefix = null, string requiredTokenSuffix = null)
+        {
+            if (string.IsNullOrEmpty(value) || string.IsNullOrEmpty(languageRootPath) || !Directory.Exists(languageRootPath))
+            {
+                return value;
+            }
+
+            foreach (string languageDirectory in Directory.GetDirectories(languageRootPath))
+            {
+                string languageName = System.IO.Path.GetFileName(languageDirectory);
+                if (!TryGetLanguageFile(languageName, out Dictionary<string, string> strings))
+                {
+                    continue;
+                }
+
+                foreach (KeyValuePair<string, string> entry in strings)
+                {
+                    if (requiredTokenPrefix != null && !entry.Key.StartsWith(requiredTokenPrefix, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+                    if (requiredTokenSuffix != null && !entry.Key.EndsWith(requiredTokenSuffix, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+                    if (string.Equals(entry.Value, value, StringComparison.Ordinal))
+                    {
+                        return GetString(entry.Key.Substring(TokenPrefix.Length), value);
+                    }
+                }
+            }
+
+            return value;
+        }
+
         public static string ToTokenSegment(string value)
         {
             string withoutTags = tagsRegex.Replace(value ?? string.Empty, string.Empty).Trim();
@@ -287,28 +345,41 @@ namespace LookingGlass.LookingGlassLanguage
                 return false;
             }
 
-            if (!cachedLanguageFiles.TryGetValue(languageName, out Dictionary<string, string> strings))
-            {
-                string path = System.IO.Path.Combine(languageRootPath, languageName, LanguageFile);
-                if (!File.Exists(path))
-                {
-                    cachedLanguageFiles[languageName] = null;
-                    return false;
-                }
+            return TryGetLanguageFile(languageName, out Dictionary<string, string> strings) && strings.TryGetValue(fullToken, out value);
+        }
 
-                try
-                {
-                    strings = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path, Encoding.UTF8));
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e);
-                    strings = null;
-                }
-                cachedLanguageFiles[languageName] = strings;
+        static bool TryGetLanguageFile(string languageName, out Dictionary<string, string> strings)
+        {
+            strings = null;
+            languageName = NormalizeLanguageName(languageName);
+            if (string.IsNullOrEmpty(languageRootPath))
+            {
+                return false;
             }
 
-            return strings?.TryGetValue(fullToken, out value) == true;
+            if (cachedLanguageFiles.TryGetValue(languageName, out strings))
+            {
+                return strings != null;
+            }
+
+            string path = System.IO.Path.Combine(languageRootPath, languageName, LanguageFile);
+            if (!File.Exists(path))
+            {
+                cachedLanguageFiles[languageName] = null;
+                return false;
+            }
+
+            try
+            {
+                strings = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(path, Encoding.UTF8));
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
+                strings = null;
+            }
+            cachedLanguageFiles[languageName] = strings;
+            return strings != null;
         }
 
         static string NormalizeLanguageName(string languageName)
