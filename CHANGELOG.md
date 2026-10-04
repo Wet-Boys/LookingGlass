@@ -1,3 +1,6 @@
+## 1.15.3
+Fixed command window blur config not working.  
+
 ## 1.15.2
 Fixed 'Show_Only_On_Tab' setting not working.  
 'Close windows on input' no longer closes on: Enter, F2, BackQuote  
