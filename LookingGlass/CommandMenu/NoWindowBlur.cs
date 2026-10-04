@@ -50,7 +50,7 @@ namespace LookingGlass.CommandWindowBlur
             orig(self, networkUIPromptController, localUser, cameraRigController);
 
             TranslucentImage t = self.panelInstance.gameObject.GetComponentInChildren<TranslucentImage>();
-            if (t is not null)
+            if (t != null)
             {
                 t.enabled = !disable.Value;
             }
