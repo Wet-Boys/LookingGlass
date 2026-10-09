@@ -31,7 +31,7 @@ namespace LookingGlass.EquipTimerFix
             permanentSkillCooldownText = BasePlugin.instance.Config.Bind<bool>("Misc", "Permanent Cooldown Indicator For Skills", true, "Makes the cooldown indicator for skills permanent and not just when you have 0 stock.");
 
             new ILHook(
-              typeof(SkillIcon).GetMethod(nameof(SkillIcon.Update), BindingFlags.NonPublic | BindingFlags.Instance),
+              typeof(SkillIcon).GetMethod(nameof(SkillIcon.LateUpdate), BindingFlags.NonPublic | BindingFlags.Instance),
               Show_Skill_CooldownOverride);
 
             new Hook(AccessTools.PropertyGetter(typeof(EquipmentIcon.DisplayData), nameof(EquipmentIcon.DisplayData.showCooldown)),
@@ -75,8 +75,11 @@ namespace LookingGlass.EquipTimerFix
 
             c.TryGotoNext(MoveType.After,
             x => x.MatchLdfld("RoR2.UI.SkillIcon", "cooldownText"));
+            // The first two locals read after cooldownText are whether the skill has stock and whether it is ready
+            // ("if (hasStock || isReady || isCooldownBlocked) hide the cooldown text"). Their indexes change between
+            // game versions, so match any local.
             if (c.TryGotoNext(MoveType.After,
-                x => x.MatchLdloc(3)))
+                x => x.MatchLdloc(out _)))
             {
                 c.Emit(OpCodes.Ldarg_0);
                 c.EmitDelegate<Func<bool, SkillIcon, bool>>((skill, self) =>
@@ -94,7 +97,7 @@ namespace LookingGlass.EquipTimerFix
             }
 
             if (c.TryGotoNext(MoveType.After,
-                x => x.MatchLdloc(4)))
+                x => x.MatchLdloc(out _)))
             {
                 c.EmitDelegate<Func<bool, bool>>((skill) =>
                 {
