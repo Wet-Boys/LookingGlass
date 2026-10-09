@@ -23,10 +23,10 @@
     </PackageReference>
     <PackageReference Include="BepInEx.Core" Version="5.4.21" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
-    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.1-r.0">
+    <PackageReference Include="RiskOfRain2.GameLibs" Version="1.5.0-r.1">
       <ExcludeAssets></ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33">
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.45">
       <ExcludeAssets></ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Rune580.Mods.RiskOfRain2.RiskOfOptions" Version="2.8.3" />
