@@ -1,3 +1,6 @@
+## 1.16.0
+Minor fix to remove error with Hallowed Concepts. Patch with item descriptions coming later.
+
 ## 1.15.3
 Fixed command window blur config not working.  
 
