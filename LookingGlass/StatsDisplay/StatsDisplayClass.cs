@@ -759,11 +759,11 @@ namespace LookingGlass.StatsDisplay
                                 Transform defaultStrip = objectivePanel.Find("StripContainer/ObjectiveStrip/Label");
                                 if (defaultStrip)
                                 {
-                                    textComponent.fontSize = (labelObject.GetComponent<HGTextMeshProUGUI>().fontSize + defaultStrip.GetComponent<HGTextMeshProUGUI>().fontSize) / 2f;
+                                    textComponent.fontSize = defaultStrip.GetComponent<HGTextMeshProUGUI>().fontSize;
                                 }
                                 else
                                 {
-                                    textComponent.fontSize = (textComponent.fontSize + 11) / 2f;
+                                    textComponent.fontSize = 12;
                                 }
                                 //Increased Padding to match Objectives spacing and general alignment
                                 /*if (matchingLeftPadding.Value)

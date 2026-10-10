@@ -107,7 +107,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
 
             //Actual things
-            var targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), new[] { typeof(ItemIndex), typeof(int), typeof(float) });
+            var targetMethod = typeof(ItemIcon).GetMethod(nameof(ItemIcon.SetItemIndex), new[] { typeof(ItemIcon.SetItemIndexArgs) });
             var destMethod = typeof(ItemStats).GetMethod(nameof(ItemIcon_FullDescriptionAndStats), BindingFlags.NonPublic | BindingFlags.Instance);
             new Hook(targetMethod, destMethod, this);
 
@@ -348,9 +348,9 @@ namespace LookingGlass.ItemStatsNameSpace
         }
 
 
-        void ItemIcon_FullDescriptionAndStats(Action<ItemIcon, ItemIndex, int, float> orig, ItemIcon self, ItemIndex newItemIndex, int newItemCount, float newDurationPercent)
+        void ItemIcon_FullDescriptionAndStats(Action<ItemIcon, ItemIcon.SetItemIndexArgs> orig, ItemIcon self, ItemIcon.SetItemIndexArgs item)
         {
-            orig(self, newItemIndex, newItemCount, newDurationPercent);
+            orig(self, item);
             if (StatsDisplayClass.scoreBoardOpen && fullDescInHud.Value)
             {
                 SetItemDescription(self);
@@ -754,19 +754,16 @@ namespace LookingGlass.ItemStatsNameSpace
             //DroneShop
             //TempShop
 
+            UniquePickup uniquePickup = UniquePickup.none;
 
-            PickupIndex pickupIndex = PickupIndex.none;
-            int droneTier = 0;
-            bool isTemp = false;
             if (newPingInfo.targetGameObject.TryGetComponent<GenericPickupController>(out var Item))
             {
                 if (!itemStatsOnPing.Value)
                 {
                     return;
                 }
-                pickupIndex = Item._pickupState.pickupIndex;
-                isTemp = Item._pickupState.isTempItem;
-                droneTier = Item._pickupState.upgradeValue;
+                uniquePickup = Item.pickup;
+
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<DroneAvailability>(out var Drone))
             {
@@ -774,8 +771,11 @@ namespace LookingGlass.ItemStatsNameSpace
                 {
                     return;
                 }
-                pickupIndex = PickupCatalog.FindPickupIndex(Drone.droneDef.droneIndex);
-                droneTier = newPingInfo.targetGameObject.GetComponent<SummonMasterBehavior>().droneUpgradeCount;
+                uniquePickup = new UniquePickup
+                {
+                    upgradeValue = newPingInfo.targetGameObject.GetComponent<SummonMasterBehavior>().droneUpgradeCount,
+                    pickupIndex = PickupCatalog.FindPickupIndex(Drone.droneDef.droneIndex),
+                };
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<ShopTerminalBehavior>(out var Shop))
             {
@@ -787,7 +787,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 //But they show up as ? because they dont have a display
                 if (itemStatsShowHidden.Value || (!Shop.hidden && Shop.pickupDisplay))
                 {
-                    pickupIndex = Shop.pickup.pickupIndex;
+                    uniquePickup = Shop.pickup;
                 }
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<DroneVendorTerminalBehavior>(out var DroneShop))
@@ -798,7 +798,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 }
                 if (!DroneShop.hidden)
                 {
-                    pickupIndex = DroneShop.CurrentPickupIndex;
+                    uniquePickup = DroneShop.currentPickup; 
                 }
             }
             else if (newPingInfo.targetGameObject.TryGetComponent<PickupDistributorBehavior>(out var TempShop))
@@ -809,37 +809,34 @@ namespace LookingGlass.ItemStatsNameSpace
                 }
                 if (!TempShop.hidden)
                 {
-                    pickupIndex = TempShop.pickup.pickupIndex;
-                    isTemp = TempShop.tempPickups;
+                    uniquePickup = TempShop.pickup;
                 }
             }
-            if (pickupIndex != PickupIndex.none)
+
+            if (uniquePickup.pickupIndex != PickupIndex.none)
             {
-                PickupDef pickupDef = PickupCatalog.GetPickupDef(pickupIndex);
-                //Filter out LunarCoins and other weird pickups without notifications
-                if (pickupDef.itemIndex != ItemIndex.None || pickupDef.equipmentIndex != EquipmentIndex.None || pickupDef.droneIndex != DroneIndex.None)
-                {
-                    CharacterMasterNotificationQueue.PushPickupNotification(characterMaster, pickupIndex, isTemp, droneTier);
-                    PutLastNotificationFirst(characterMaster);
-                }
+                CharacterMasterNotificationQueue.PushPickupNotification(characterMaster, uniquePickup);
+                PutLastNotificationFirst(characterMaster);
             }
         }
 
         internal void PutLastNotificationFirst(CharacterMaster characterMaster, float durationOverride = 5f)
         {
 
-
             //If duration needs to be modified, do here
             CharacterMasterNotificationQueue notificationQueueForMaster = CharacterMasterNotificationQueue.GetNotificationQueueForMaster(characterMaster);
-            var newNotification = notificationQueueForMaster.notifications.Last();
-            newNotification.duration = durationOverride;
-            if (notificationQueueForMaster.notifications.Count > 1)
-            {
-                notificationQueueForMaster.notifications[0].duration = .01f;
-                if (notificationQueueForMaster.notifications.Count > 2)
+            if (notificationQueueForMaster)
+            { 
+                var newNotification = notificationQueueForMaster.notifications.Last();
+                newNotification.duration = durationOverride;
+                if (notificationQueueForMaster.notifications.Count > 1)
                 {
-                    notificationQueueForMaster.notifications.Remove(newNotification);
-                    notificationQueueForMaster.notifications.Insert(1, newNotification);
+                    notificationQueueForMaster.notifications[0].duration = .01f;
+                    if (notificationQueueForMaster.notifications.Count > 2)
+                    {
+                        notificationQueueForMaster.notifications.Remove(newNotification);
+                        notificationQueueForMaster.notifications.Insert(1, newNotification);
+                    }
                 }
             }
         }

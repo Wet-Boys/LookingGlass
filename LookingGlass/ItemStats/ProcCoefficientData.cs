@@ -37,6 +37,7 @@ namespace LookingGlass.ItemStatsNameSpace
             //Could also ig mention like Flamethrower/ArrowRain/RexAltM2 total ticks?
             //That could be neat
 
+            #region Base Game
             // Acrid
             skills.Add("CROCO_PRIMARY_NAME", 1f);
             skills.Add("CROCO_SECONDARY_NAME", 1f);
@@ -45,6 +46,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skillsAdditional.Add("CROCO_UTILITY_NAME", " + <style=cIsDamage>0.1</style> Pool</style>"); //No \n
             skills.Add("CROCO_UTILITY_ALT1_NAME", 1f);
             skills.Add("CROCO_SPECIAL_NAME", 1f);
+            skills.Add("CROCO_SPECIAL_ALT_NAME", 0.4f);
 
             // Artificer
             skills.Add("MAGE_PRIMARY_FIRE_NAME", 1f);
@@ -53,6 +55,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("MAGE_SECONDARY_LIGHTNING_NAME", 1f);
             skillsAdditional.Add("MAGE_SECONDARY_LIGHTNING_NAME", " + <style=cIsDamage>0.3</style> Tendrils</style>"); //No \n
             skills.Add("MAGE_UTILITY_ICE_NAME", 1f);
+            skills.Add("MAGE_UTILITY_ALT_NAME", 0.5f);
             skills.Add("MAGE_SPECIAL_FIRE_NAME", 1f);
             skillsAdditional.Add("MAGE_SPECIAL_FIRE_NAME", "\nTicks: <style=cIsDamage>22 * AttackSpeed</style>");
             skills.Add("MAGE_SPECIAL_LIGHTNING_NAME", 1f);
@@ -76,7 +79,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("CAPTAIN_SUPPLY_HACKING_NAME", 0f);
             skills.Add("CAPTAIN_SUPPLY_EQUIPMENT_RESTOCK_NAME", 0f);
             skills.Add("CAPTAIN_SUPPLY_SHOCKING_NAME", 0f);
-            skills.Add("CAPTAIN_SKILL_USED_UP_NAME", 0f);
+            skills.Add("CAPTAIN_SKILL_USED_UP_NAME", -1f);
             skills.Add("CAPTAIN_SKILL_DISCONNECT_NAME", -1f);
 
             // Commando
@@ -87,9 +90,11 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("COMMANDO_UTILITY_ALT_NAME", -1f);
             skills.Add("COMMANDO_SPECIAL_NAME", 1f);
             skills.Add("COMMANDO_SPECIAL_ALT1_NAME", 1f);
+            skills.Add("COMMANDO_SPECIAL_ALT2_NAME", 1f);
 
             // Engineer
             skills.Add("ENGI_PRIMARY_NAME", 1f);
+            skills.Add("ENGI_PRIMARY_ALT_NAME", 0.7f);
             skills.Add("ENGI_SECONDARY_NAME", 1f);
             skills.Add("ENGI_SPIDERMINE_NAME", 1f);
             skills.Add("ENGI_UTILITY_NAME", -1f);
@@ -101,6 +106,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("HUNTRESS_PRIMARY_NAME", 1f);
             skills.Add("HUNTRESS_PRIMARY_ALT_NAME", 0.7f);
             skills.Add("HUNTRESS_SECONDARY_NAME", 0.8f);
+            skills.Add("HUNTRESS_SECONDARY_ALT_NAME", 1f);
             skills.Add("HUNTRESS_UTILITY_NAME", -1f);
             skills.Add("HUNTRESS_UTILITY_ALT1_NAME", -1f);
             skills.Add("HUNTRESS_SPECIAL_NAME", 0.2f);
@@ -145,6 +151,8 @@ namespace LookingGlass.ItemStatsNameSpace
             skillsAdditional.Add("TREEBOT_SECONDARY_ALT1_NAME", "\nTicks: <style=cIsDamage>19</style>");
             skills.Add("TREEBOT_UTILITY_NAME", 0f);
             skills.Add("TREEBOT_UTILITY_ALT1_NAME", 0.5f);
+            skills.Add("TREEBOT_UTILITY_ALT2_NAME", -1f);
+            skills.Add("TREEBOT_UTILITY_ALT2_2_NAME", -1f);
             skills.Add("TREEBOT_SPECIAL_NAME", 1f);
             skills.Add("TREEBOT_SPECIAL_ALT1_NAME", 1f);
 
@@ -156,7 +164,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("SKILL_LUNAR_UTILITY_REPLACEMENT_NAME", -1f);
             skills.Add("SKILL_LUNAR_SPECIAL_REPLACEMENT_NAME", 1f);
             skills.Add("HERETIC_DEFAULT_SKILL_NAME", -1f);
-
+            #endregion
             #region DLC1
             //DLC1
             // Railgunner
@@ -225,7 +233,6 @@ namespace LookingGlass.ItemStatsNameSpace
             skillsAdditional.Add("CHEF_SPECIAL_NAME", " + <style=cIsDamage>0.1</style> <style=cSub>Oil</style>");
 
             #endregion
-
             #region DLC3
             //Operator
             skills.Add("DRONETECH_PRIMARY_NAME", 1f);
@@ -248,7 +255,8 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("DRIFTER_UTILITY_ALT_NAME", 1f);
             skills.Add("DRIFTER_SPECIAL_NAME", -1f);
             skills.Add("DRIFTER_SPECIAL_ALT_NAME", 1f);
-
+            #endregion
+            #region RemoteOP Drones
             //Remote Operation Drones
             skills.Add("DRONE_GUNNER_PRIMARY_SKILL_NAME", 1f);
             skills.Add("DRONE_HEALING_PRIMARY_SKILL_NAME", -1f);
@@ -266,6 +274,44 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("DRONE_MEGA_SECONDARY_SKILL_NAME", 1f);
 
             #endregion
+            #region DLC4
+            // Enforcer
+            skills.Add("ENFORCER2_PRIMARY_NAME", 1f);
+            skillsAdditional.Add("ENFORCER2_PRIMARY_NAME", "\nDefensive Stance: <style=cIsDamage>0.7</style>");
+            skills.Add("ENFORCER2_SECONDARY_NAME", 1f);
+            skills.Add("ENFORCER2_UTILITY_NAME", 1f);
+            skills.Add("ENFORCER2_SPECIAL_NAME", 1f);
+            
+            skills.Add("ENFORCER2_PRIMARY_ALT_NAME", 1f);
+            skillsAdditional.Add("ENFORCER2_PRIMARY_ALT_NAME", "\nDefensive Stance: <style=cIsDamage>0.7</style>");
+            skills.Add("ENFORCER2_SECONDARY_ALT_NAME", 1f);
+            skills.Add("ENFORCER2_UTILITY_ALT_NAME", 1f);
+            skills.Add("ENFORCER2_SPECIAL_ALT_NAME", 1f);
+
+            //// Acolyte
+            skills.Add("ACOLYTE_PRIMARY_NAME", 0.7f);
+            skills.Add("ACOLYTE_SECONDARY_NAME", 1f);
+            skills.Add("ACOLYTE_SECONDARY_ALT_NAME", 1f);
+            skills.Add("ACOLYTE_UTILITY_NAME", 1f);
+            skills.Add("ACOLYTE_UTILITY_DASH_NAME", 1f);
+            skills.Add("ACOLYTE_UTILITY_ALT_NAME", 1f);
+            skills.Add("ACOLYTE_SPECIAL_NAME", 1f);
+            skills.Add("ACOLYTE_SPECIAL_TRANSFORM_NAME", -1f);
+            skills.Add("ACOLYTE_SPECIAL_ALT_TRANSFORM_NAME", -1f);
+
+            // Lil Reaper
+            skills.Add("LILREAPER_PRIMARY_NAME", 1f);
+            skills.Add("LILREAPER_SECONDARY_NAME", 1f);
+            skills.Add("LILREAPER_UTILITY_NAME", 0.2f); //+1 explode
+            skills.Add("LILREAPER_SPECIAL_NAME", -1f);
+
+            // Lemurian
+            skills.Add("LEMURIAN_BITE_NAME", 1f);
+            skills.Add("LEMURIAN_FIRE_NAME", 1f);
+            //
+            skills.Add("STRUGGLE_SKILL_NAME", 1f);
+            #endregion
+
         }
     }
 

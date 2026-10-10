@@ -61,8 +61,12 @@ namespace LookingGlass.ItemCounters
             orig(self, newMaster);
             if (self.itemCountText != null)
             {
-                self.itemCountText.m_maxFontSize = 30;
+                //Adds more room for the numbers
+                var Rect = (self.itemCountText.transform as RectTransform);
+                Rect.offsetMin = new Vector2(Rect.offsetMin.x - 100f, Rect.offsetMin.y);
+               
                 self.itemCountText.enableAutoSizing = true;
+                self.itemCountText.fontSizeMax = 32;
                 self.previousItemCount = int.MaxValue;
             }
         }
@@ -110,8 +114,8 @@ namespace LookingGlass.ItemCounters
                 return;
             }
 
-            itemCountsPerm = new int[(int)ItemTier.AssignedAtRuntime];
-            itemCountsTemp = new int[(int)ItemTier.AssignedAtRuntime];
+            itemCountsPerm = new int[(int)ItemTier.Hex+1];
+            itemCountsTemp = new int[(int)ItemTier.Hex+1];
 
             int totalItems = NewGetTotalItemStacks(ref self.inventory.permanentItemStacks, itemCountsPerm);
             int tempItems = NewGetTotalItemStacks(ref self.inventory.tempItemsStorage.tempItemStacks, cfg_EffectiveCount.Value ? itemCountsPerm : itemCountsTemp);
@@ -163,6 +167,7 @@ namespace LookingGlass.ItemCounters
                         sb.Append($"</size><size=40%><color=#6FD8F1>[{voidCountT}]</color></size><size=60%> ");
 
                 }
+                //Food
                 if (itemCountsPerm[10] > 0 || itemCountsTemp[10] > 0)
                 {
                     sb.Append($" <color=#FF8000>{itemCountsPerm[10]}</color>");
@@ -170,6 +175,33 @@ namespace LookingGlass.ItemCounters
                         sb.Append($"</size><size=40%><color=#6FD8F1>[{itemCountsTemp[10]}]</color></size><size=60%> ");
 
                 }
+                //Hallowed
+                if (itemCountsPerm[(int)ItemTier.Cursed] > 0 || itemCountsTemp[(int)ItemTier.Cursed] > 0)
+                {
+                    sb.Append($" <color=#9469FC>{itemCountsPerm[(int)ItemTier.Cursed]}</color>");
+                    if (cfg_TieredTempCounters.Value && itemCountsTemp[(int)ItemTier.Cursed] > 0)
+                        sb.Append($"</size><size=40%><color=#6FD8F1>[{itemCountsTemp[(int)ItemTier.Cursed]}]</color></size><size=60%> ");
+
+                }
+              
+                //Hex
+                if (itemCountsPerm[(int)ItemTier.Hex] > 0 || itemCountsTemp[(int)ItemTier.Hex] > 0)
+                {
+                    sb.Append($" <color=#D2FB1F>{itemCountsPerm[(int)ItemTier.Hex]}</color>");
+                    if (cfg_TieredTempCounters.Value && itemCountsTemp[(int)ItemTier.Hex] > 0)
+                        sb.Append($"</size><size=40%><color=#6FD8F1>[{itemCountsTemp[(int)ItemTier.Hex]}]</color></size><size=60%> ");
+
+                }
+
+                //Pages
+                if (itemCountsPerm[(int)ItemTier.Page] > 0 || itemCountsTemp[(int)ItemTier.Page] > 0)
+                {
+                    sb.Append($" <color=#1D88FF>{itemCountsPerm[(int)ItemTier.Page]}</color>");
+                    if (cfg_TieredTempCounters.Value && itemCountsTemp[(int)ItemTier.Page] > 0)
+                        sb.Append($"</size><size=40%><color=#6FD8F1>[{itemCountsTemp[(int)ItemTier.Page]}]</color></size><size=60%> ");
+
+                }
+
                 sb.Append($" </size><size=75%><color=#fff>{totalItems}</color>");
                 if ((cfg_TotalTempCounter.Value) && tempItems > 0)
                 {
