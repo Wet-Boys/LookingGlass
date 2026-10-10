@@ -115,7 +115,7 @@ namespace LookingGlass.AutoSortItems
             instance = this;
             ScrapSorting = BasePlugin.instance.Config.Bind<ScrapSortMode>("Auto Sort Items", "Scrap Sorting", ScrapSortMode.Start, "Where scrap should be sorted");
             cfgSortByTier = BasePlugin.instance.Config.Bind("Auto Sort Items", "Tier Sort", TierSortMode.Tier, "Sorts by Tier");
-            TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order", "Lunar FoodTier VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier", "How the tiers should be ordered");
+            TierOrder = BasePlugin.instance.Config.Bind<string>("Auto Sort Items", "Tier Order V2", "Hex Lunar FoodTier Cursed Page VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier", "How the tiers should be ordered\n\n(\"FoodTier\" is DLC3 meal items, \"Cursed\" is DLC4 Hallowed items)");
             CombineVoidTiers = BasePlugin.instance.Config.Bind("Auto Sort Items", "Combine Normal And Void Tiers", false, "Considers void tiers to be the same as their normal counterparts");
 
             cfgSortByStackSize = BasePlugin.instance.Config.Bind("Auto Sort Items", "Stack Size Sort", StackSortType.Largest_Smallest, "Sorts by Stack Size");
@@ -162,7 +162,7 @@ namespace LookingGlass.AutoSortItems
             ModSettingsManager.AddOption(new CheckBoxOption(SortScrapperTier, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckNotScrapperSortTierAlphabetical }));
 
 
-            ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() { restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit }));
+            ModSettingsManager.AddOption(new StringInputFieldOption(TierOrder, new InputFieldConfig() {name = "Tier Order", restartRequired = false, checkIfDisabled = CheckTierSort, lineType = TMPro.TMP_InputField.LineType.MultiLineSubmit, submitOn = InputFieldConfig.SubmitEnum.OnExitOrSubmit }));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Ascending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use ascending tiers", "Set", SetAscendingTiers));
             ModSettingsManager.AddOption(new GenericButtonOption("Use Descending Tiers Preset", "Auto Sort Items", "Sets the Tier Order option to use descending tiers", "Set", SetDescendingTiers));
             ModSettingsManager.AddOption(new CheckBoxOption(CombineVoidTiers, new CheckBoxConfig() { restartRequired = false, checkIfDisabled = CheckTierSort }));
@@ -203,7 +203,7 @@ namespace LookingGlass.AutoSortItems
             {
                 if (controller.name.Contains("Tier Order"))
                 {
-                    controller.SubmitValue("Lunar FoodTier VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier");
+                    controller.SubmitValue("Hex Lunar FoodTier Cursed Page VoidBoss Boss VoidTier3 Tier3 VoidTier2 Tier2 VoidTier1 Tier1 NoTier");
                 }
             }
         }
@@ -214,7 +214,7 @@ namespace LookingGlass.AutoSortItems
                 if (controller.name.Contains("Tier Order"))
                 {
 
-                    controller.SubmitValue("Tier1 VoidTier1 Tier2 VoidTier2 Tier3 VoidTier3 Boss VoidBoss FoodTier Lunar NoTier");
+                    controller.SubmitValue("Tier1 VoidTier1 Tier2 VoidTier2 Tier3 VoidTier3 Boss VoidBoss Page Cursed FoodTier Lunar Hex NoTier");
                 }
             }
         }
