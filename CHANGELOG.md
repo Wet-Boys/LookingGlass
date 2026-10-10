@@ -1,8 +1,14 @@
-## 1.16.0
+## 1.16.1
 Added stats and proc coefficients for DLC4 items, DLC4 survivors and new base-game abilities.  
 Shrunk default stat display font size from 14 to 12.  
 Increased room for per tier item counts to accomedate new item tiers.  
 Fixed a bug with NoCommandWindowBlur.  
+
+## 1.16.0
+Minor fix to remove error with Hallowed Concepts. Patch with item descriptions coming later.
+
+## 1.15.3
+Fixed command window blur config not working. 
 
 ## 1.15.2
 Fixed 'Show_Only_On_Tab' setting not working.  
