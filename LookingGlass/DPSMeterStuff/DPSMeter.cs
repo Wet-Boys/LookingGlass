@@ -79,7 +79,7 @@ namespace LookingGlass.DPSMeterStuff
 
         public void SetupRiskOfOptions()
         {
-            ModSettingsManager.AddOption(new SliderOption(dpsDuration, new SliderConfig() { restartRequired = false, min = 3, max = 10f, FormatString = "{0:0}s" }));
+            ModSettingsManager.AddOption(new SliderOption(dpsDuration, new SliderConfig() { restartRequired = false, min = 3, max = 30f, FormatString = "{0:0}s" }));
             ModSettingsManager.AddOption(new CheckBoxOption(disableDPSMeter, new CheckBoxConfig() { restartRequired = true }));
 
         }

@@ -41,16 +41,6 @@ namespace LookingGlass.ItemStatsNameSpace
             //Proc Chance -> Color of category of item (Damage -> Damage)
             //Lunar Downside -> ValueType.Death
 
-            //Doesn't seem like organizing it with this would look that good
-            #region Base Game
-            #endregion
-            #region DLC1 SotV
-            #endregion
-            #region DLC2 SotS
-            #endregion
-            #region DLC3 AC
-            #endregion
-
             #region ---------- White Items --------------------------------------------------------------------------------
 
             //Tougher Times
@@ -927,6 +917,9 @@ namespace LookingGlass.ItemStatsNameSpace
 
             // Noxious Thorn
             itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Bleed Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Transfer Count: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
@@ -936,9 +929,10 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
-            itemStat.calculateValuesFlat = (stackCount) =>
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
             {
                 List<float> values = new();
+                values.Add(Utils.CalculateChanceWithLuck(0.1f * procChance, luck));
                 values.Add(stackCount);
                 values.Add(15 + (5 * stackCount));
                 values.Add(0);
@@ -1721,6 +1715,9 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Healing Stored: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Base Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Current Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
@@ -1731,7 +1728,8 @@ namespace LookingGlass.ItemStatsNameSpace
             {
                 List<float> values = new();
                 values.Add(stackCount);
-                values.Add(body.healthComponent.fullCombinedHealth * 0.25f / body.damage);
+                values.Add(2.5f*stackCount);
+                values.Add(body.healthComponent.fullCombinedHealth * 0.25f / body.damage + 2.5f*stackCount);
                 values.Add(0.2f);
                 return values;
             };
@@ -2363,6 +2361,41 @@ namespace LookingGlass.ItemStatsNameSpace
                 return values;
             };
             allItemDefinitions.Add((int)DLC3Content.Items.PowerOrbSphere.itemIndex, itemStat);
+
+            ////HC
+            //Mycelium Cap
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Full Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(8 + 2 * stackCount);
+                values.Add(0.25f);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.MushShot.itemIndex, itemStat);
+
+            //Whispering Fragment
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Spirit Charges per: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(2 + stackCount);
+                values.Add(1f);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.WispOnKill.itemIndex, itemStat);
 
             #endregion
 
@@ -3179,6 +3212,432 @@ namespace LookingGlass.ItemStatsNameSpace
 
             #endregion
 
+            #region ---------- HALLOWED Items -------------------------- 
+            //Corpse Lily
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Blight Amount: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Blight Cooldown: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.descriptions.Add("Growth Rate: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(2 + stackCount);
+                values.Add(5); //Not explained in Desc
+                values.Add(stackCount > 10 ? 1f : 1f / (110f - stackCount * 10f));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.BlightZone.itemIndex, itemStat);
+
+            //Infernal Mark
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Duration: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(5 * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.CausticPheromones.itemIndex, itemStat);
+
+            //Nightmare Demon
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Explosion Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(Utils.CalculateChanceWithLuck(0.2f * procChance, luck));
+                values.Add(6 * stackCount);
+                values.Add(0.5f);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.DreamDemon.itemIndex, itemStat);
+
+            //Stained Scimitar
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Lifesteal: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Max Blades: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(0.01f * stackCount);
+                values.Add(6 * stackCount);
+                values.Add(1);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.GhostBlades.itemIndex, itemStat);
+
+            //Totem of Averice
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Gold Radius: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
+            itemStat.descriptions.Add("Bonus Gold: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(5 * stackCount);
+                values.Add(.5f * stackCount);
+                values.Add(1f);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.GoldenGoose.itemIndex, itemStat);
+
+            //Dream Crucible
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Restoration Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(Utils.CalculateChanceWithLuck(1f - Mathf.Pow(0.9f, (float)stackCount), luck));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.LowHealthOrbSpawner.itemIndex, itemStat);
+
+            //Earthbound Vessel
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Max Extra Jumps: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.descriptions.Add("Cooldown per Jump: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.descriptions.Add("Armor at max Jumps: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(1 + stackCount * 2);
+                values.Add(5f * Util.GetHyperbolicReductionCoefficient(stackCount, 0f, 25f));
+                values.Add(5 * (1 + stackCount * 2));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.RechargeableJump.itemIndex, itemStat);
+
+            //Sanguine Chalice
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Bleed Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Bleed Healing: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Healing);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PercentHealth);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(Utils.CalculateChanceWithLuck(0.1f * procChance, luck));
+                values.Add(0.005f * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.SanguineChalice.itemIndex, itemStat);
+
+            //Ritual Helmet
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Meters per charge: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
+            itemStat.descriptions.Add("Base Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(10 / (1f + 0.1f * (stackCount - 1)));
+                values.Add(2f + stackCount);
+                values.Add(1f);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.SprintDamage.itemIndex, itemStat);
+
+            //Vengeful Spirit
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Spirits: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            //Vengeful Spirit Consumed
+            allItemDefinitions.Add((int)DLC4Content.Items.VengefulSpirit.itemIndex, itemStat);
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Buff Duration: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(15f * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.VengefulSpiritRageMode.itemIndex, itemStat);
+
+            //Vile Censor
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Stun Chance: <style=cIsDamage>0%</style> to <style=cIsDamage>25%</style>.");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PlainString);
+            itemStat.descriptions.Add("Tendril Damage: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Tendril Radius: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
+            itemStat.descriptions.Add("Proc Coefficient: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(0);
+                values.Add(1+stackCount);
+                values.Add(10+4*stackCount);
+                values.Add(1f);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.VileCenser.itemIndex, itemStat);
+            #endregion
+            #region ---------- HEX Items -------------------------- 
+            //Hex of Ossification
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Barrier: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PercentHealth);
+            itemStat.descriptions.Add("Radius: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(1 * stackCount);
+                values.Add(15 + 15 * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.BarrierEnemiesOnKill.itemIndex, itemStat);
+
+            //Hex of Blindness
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Vision Distance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Meters);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(100 / Mathf.Pow(2, stackCount-1)); //+0.75* best fit radius
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.Blindness.itemIndex, itemStat);
+
+            //Hex of Pain
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Health Multiplier: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.PercentHealth);
+            itemStat.descriptions.Add("Curse: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(1/ (1+0.3f * stackCount));
+                values.Add(0.3f * stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.HexCurse.itemIndex, itemStat);
+
+            //Hex of Haunting
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Cooldown: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.descriptions.Add("Maximum Poltergeists: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(60f * Util.GetHyperbolicReductionCoefficient(stackCount, 25f, 25f));
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.HexHaunting.itemIndex, itemStat);
+
+            //Hex of Strife
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Extra Shrine of the Mountain Stacks: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.HexMountain.itemIndex, itemStat);
+
+            //Hex of Rain
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Difficulty Increase: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(0.25f * (float)stackCount / Mathf.Pow(Run.instance ? (float)Run.instance.participatingPlayerCount : 1f, 0.75f)); //Takes from all players combined
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.IncreasedDifficulty.itemIndex, itemStat);
+
+            //Hex of Famine
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Healing Multiplier: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(Util.GetHyperbolicReductionCoefficient(stackCount, 40f, 40f));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.LowerHealing.itemIndex, itemStat);
+
+            //Hex of Mimicry
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Cooldown: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.descriptions.Add("Mimic Bonus Stats: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(60 * Util.GetHyperbolicReductionCoefficient(stackCount, 10f, 10f));
+                values.Add((stackCount - 1) * 0.1f);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.Mimicry.itemIndex, itemStat);
+
+            //Hex of Patience
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Stacking Multiplier: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount * 0.125f);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.OutOfTPRadius.itemIndex, itemStat);
+
+            //Hex of Misfortune
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Chance: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Debuffs: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesNew = (luck, stackCount, procChance) =>
+            {
+                List<float> values = new();
+                values.Add(Utils.CalculateChanceWithLuck(.5f, -luck));
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.RandomDebuffOnInteract.itemIndex, itemStat);
+
+            //Hex of Loss
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Items Disabled: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount * 0.1f);
+                //Maybe a literal item count?
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.RoamingItemDisable.itemIndex, itemStat);
+
+            //Hex of Greed
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Items Shared: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.ShareItemsWithEnemies.itemIndex, itemStat);
+
+            //Hex of Acceleration
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Acceleration Multiplier: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.calculateValuesBody = (body, stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(Util.ConvertAmplificationPercentageIntoReductionNormalizedInverted((float)stackCount * 0.3f - -0.1f));
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.SlipperyGround.itemIndex, itemStat);
+
+            //Hex of Leaping
+            itemStat = new ItemStatsDef();
+            itemStat.descriptions.Add("Restoration Duration: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Death);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Seconds);
+            itemStat.calculateValuesFlat = (stackCount) =>
+            {
+                List<float> values = new();
+                values.Add(stackCount*6);
+                return values;
+            };
+            allItemDefinitions.Add((int)DLC4Content.Items.WeakAssHamstring.itemIndex, itemStat);
+
+            #endregion
 
 
             #region ---------- Equipment -------------------------- 
