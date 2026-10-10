@@ -75,8 +75,11 @@ namespace LookingGlass.EquipTimerFix
 
             c.TryGotoNext(MoveType.After,
             x => x.MatchLdfld("RoR2.UI.SkillIcon", "cooldownText"));
+            // The first two locals read after cooldownText are whether the skill has stock and whether it is ready
+            // ("if (hasStock || isReady || isCooldownBlocked) hide the cooldown text"). Their indexes change between
+            // game versions, so match any local.
             if (c.TryGotoNext(MoveType.After,
-                x => x.MatchLdloc(6)))
+                x => x.MatchLdloc(out _)))
             {
                 c.Emit(OpCodes.Ldarg_0);
                 c.EmitDelegate<Func<bool, SkillIcon, bool>>((skill, self) =>
@@ -94,7 +97,7 @@ namespace LookingGlass.EquipTimerFix
             }
 
             if (c.TryGotoNext(MoveType.After,
-                x => x.MatchLdloc(7)))
+                x => x.MatchLdloc(out _)))
             {
                 c.EmitDelegate<Func<bool, bool>>((skill) =>
                 {
