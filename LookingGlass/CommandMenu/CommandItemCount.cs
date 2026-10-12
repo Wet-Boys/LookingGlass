@@ -179,7 +179,7 @@ namespace LookingGlass.CommandItemCount
 
             for (int i = 0; i < options.Length; i++)
             {
-                ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
+                ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickup.pickupIndex).itemIndex;
 
                 //Equipments can show up too yknow
                 //No need to show a counter for those
@@ -237,7 +237,7 @@ namespace LookingGlass.CommandItemCount
                 withOneMore = withOneMore && options[i].available;
 
                 if (commandToolTips.Value)
-                    CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickupIndex), count, withOneMore, corruption);
+                    CreateToolTip(elements[i].transform, PickupCatalog.GetPickupDef(options[i].pickup.pickupIndex), count, withOneMore, corruption);
 
 
             }
@@ -380,6 +380,9 @@ namespace LookingGlass.CommandItemCount
 
             tooltipProvider.SetContent(content);
 
+            // 1.5.0 Command buttons come with the tooltip disabled
+            tooltipProvider.enabled = true;
+            
             tooltipProvider.AllowTooltipOnNavigationSelect = true;
         }
     }

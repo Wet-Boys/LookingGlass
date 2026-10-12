@@ -231,7 +231,7 @@ namespace LookingGlass.AutoSortItems
                 //bool meal2 = isMealprep && sortCraftableItems.Value;
                 for (int i = 0; i < options.Length; i++)
                 {
-                    ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickupIndex).itemIndex;
+                    ItemIndex itemIndex = PickupCatalog.GetPickupDef(options[i].pickup.pickupIndex).itemIndex;
                     if (itemIndex == ItemIndex.None)
                     {
                         return (options, [-1]); // -1 indicates no sorting
@@ -301,7 +301,7 @@ namespace LookingGlass.AutoSortItems
                 List<PickupIndex> unsorted = new List<PickupIndex>();
                 for (int i = 0; i < options.Length; i++)
                 {
-                    unsorted.Add(options[i].pickupIndex);
+                    unsorted.Add(options[i].pickup.pickupIndex);
                 }
                 bool sortByTier, sortByStackSize, descendingStackSize;
                 if (SortScrapper.Value == ScrapperSortType.MatchHud)
