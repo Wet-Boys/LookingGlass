@@ -1,3 +1,6 @@
+## 1.16.2
+Fix for item tooltips not showing in the Command window.  
+
 ## 1.16.1
 Added stats and proc coefficients for DLC4 items, DLC4 survivors and new base-game abilities.  
 Shrunk default stat display font size from 14 to 12.  
