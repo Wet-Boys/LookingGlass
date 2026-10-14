@@ -135,13 +135,16 @@ namespace LookingGlass.CommandItemCount
 
             bool potentialOrFragment = false;
             bool commandSettings = false;
+            bool dontSort = false;
             CraftingController isMealprep = null;
             if (self.pickerController)
             {
                 commandSettings = self.pickerController.name.StartsWith("CommandCube");
                 //If is a option pickup && not a command pickup
-                potentialOrFragment = !commandSettings && self.pickerController.GetComponent<PickupIndexNetworker>(); 
- 
+                potentialOrFragment = !commandSettings && self.pickerController.GetComponent<PickupIndexNetworker>();
+
+                dontSort = self.pickerController.GetComponent<PickupPickerOptionGrouper>(); //Hallowed Potentials have 3 groups for 3 pickups, sorting the entire order makes it look really strange
+
                 isMealprep = self.pickerController.GetComponent<CraftingController>();
             }
 
@@ -150,9 +153,9 @@ namespace LookingGlass.CommandItemCount
 
             ReadOnlyCollection<MPButton> elements = self.buttonAllocator.elements;
             Inventory inventory = LocalUserManager.GetFirstLocalUser().cachedMasterController.master.inventory;
- 
-            bool dontSort = potentialOrFragment && !AutoSortItemsClass.SortPotentials.Value;
-            dontSort = dontSort | isMealprep && !AutoSortItemsClass.sortCraftableItems.Value;
+
+            dontSort = dontSort | (potentialOrFragment && !AutoSortItemsClass.SortPotentials.Value);
+            dontSort = dontSort | (isMealprep && !AutoSortItemsClass.sortCraftableItems.Value);
             if (!dontSort)
             {
                 // sort the options and record sorting map. Sorting map is used later to make sure the correct item is scrapped/selected when clicking the corrosponding item button.

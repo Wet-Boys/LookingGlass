@@ -3370,6 +3370,9 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Base Damage: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
+            itemStat.descriptions.Add("Max Speed Stacks: ");
+            itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
+            itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
             itemStat.descriptions.Add("Proc Coefficient: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.ProcCoeff);
@@ -3378,6 +3381,7 @@ namespace LookingGlass.ItemStatsNameSpace
                 List<float> values = new();
                 values.Add(10 / (1f + 0.1f * (stackCount - 1)));
                 values.Add(2f + stackCount);
+                values.Add(30 * stackCount);
                 values.Add(1f);
                 return values;
             };

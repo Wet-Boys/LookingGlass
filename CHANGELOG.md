@@ -1,3 +1,7 @@
+## 1.16.3
+Fixed Potential sort config not working unless Crafting sort config was also disabled.  
+Hallowed Potentials will not be sorted anymore at all.
+
 ## 1.16.2
 Fix for item tooltips not showing in the Command window.  
 
