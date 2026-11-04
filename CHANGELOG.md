@@ -1,3 +1,8 @@
+## 1.16.4
+Names and descriptions for DLC4 status effects.  
+Fixed buff timers making % buffs not appear as %.  
+Fixed a buff timer showing on a enemie's buff, when you had that same buff as a timed buff.  
+
 ## 1.16.3
 Fixed Potential sort config not working unless Crafting sort config was also disabled.  
 Hallowed Potentials will not be sorted anymore at all.

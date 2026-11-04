@@ -6,6 +6,7 @@ using RiskOfOptions;
 using RiskOfOptions.OptionConfigs;
 using RiskOfOptions.Options;
 using RoR2.UI;
+using RoR2;
 using System;
 using System.Reflection;
 using TMPro;
@@ -44,33 +45,48 @@ namespace LookingGlass.BuffTimers
         }
         void UpdateLayout(Action<BuffDisplay> orig, BuffDisplay self)
         {
+            //We ideally would make it so the original code runs always and then just insert it there instead of re-doing it.
+
             orig(self);
-            if (self.source && StatsDisplayClass.cachedUserBody && buffTimers.Value)
+            if (self.source && self.source == StatsDisplayClass.cachedUserBody && buffTimers.Value)
             {
                 foreach (var buffIcon in self.buffIconDisplayData)
                 {
                     foreach (var timedBuff in StatsDisplayClass.cachedUserBody.timedBuffs)
                     {
-                        if (timedBuff.buffIndex == buffIcon.buffDef.buffIndex)
+                        if (timedBuff.buffIndex == buffIcon.buffIndex)
                         {
-                            TextMeshProUGUI item = buffIcon.buffIconComponent.GetComponentInChildren<TextMeshProUGUI>();
-                            item.enabled = true;
+                            BuffIcon.sharedStringBuilder.Clear();
                             if (buffTimerDecimal.Value)
                             {
-                                item.text = $"<size={buffTimersFontSize.Value}%>{(timedBuff.timer):0.0}</size>\n";
+                                BuffIcon.sharedStringBuilder.Append($"<size={buffTimersFontSize.Value}%>{(timedBuff.timer):0.0}</size>\n");
                             }
                             else
                             {
-                                item.text = $"<size={buffTimersFontSize.Value}%>{(Mathf.CeilToInt(timedBuff.timer))}</size>\n";
+                                BuffIcon.sharedStringBuilder.Append($"<size={buffTimersFontSize.Value}%>{(Mathf.CeilToInt(timedBuff.timer))}</size>\n");
                             }
-                            if (buffIcon.buffDef.canStack && buffIcon.buffCount > 1)
+
+                            if (buffIcon.buffDef.canStack)
                             {
-                                item.text += $"x{buffIcon.buffCount}";
+                                int value = buffIcon.buffCount + buffIcon.buffDef.displayOffset;
+                                BuffDef.StackingDisplayMethod stackingDisplayMethod = buffIcon.buffDef.stackingDisplayMethod;
+                                if (stackingDisplayMethod != BuffDef.StackingDisplayMethod.Default && stackingDisplayMethod == BuffDef.StackingDisplayMethod.Percentage)
+                                {
+                                    BuffIcon.sharedStringBuilder.AppendInt(value, 1U, uint.MaxValue);
+                                    BuffIcon.sharedStringBuilder.Append("%");
+                                }
+                                else
+                                {
+                                    BuffIcon.sharedStringBuilder.Append("x");
+                                    BuffIcon.sharedStringBuilder.AppendInt(value, 1U, uint.MaxValue);
+                                }
                             }
                             else
                             {
-                                item.text += " ";
+                                BuffIcon.sharedStringBuilder.Append(" "); //Empty space so the timer stays ontop
                             }
+                            buffIcon.buffIconComponent.stackCount.enabled = true;
+                            buffIcon.buffIconComponent.stackCount.SetText(BuffIcon.sharedStringBuilder);
                         }
                     }
                 }

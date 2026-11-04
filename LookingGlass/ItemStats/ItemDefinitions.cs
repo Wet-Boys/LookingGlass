@@ -129,7 +129,7 @@ namespace LookingGlass.ItemStatsNameSpace
             //Bolstering Lantern
             //Changed to no longer increase Radius
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Attack Speed Per Nearby: ");
+            itemStat.descriptions.Add("Attack Speed per nearby: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Max Attack Speed: ");
@@ -202,7 +202,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Chronic Expansion
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Damage Per Kill: ");
+            itemStat.descriptions.Add("Damage per Kill: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Max Damage Increase: ");
@@ -971,7 +971,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Prayer Beads
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Percent Stored Per Buff: ");
+            itemStat.descriptions.Add("Percent Stored per Buff: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Currently stored: ");
@@ -1961,7 +1961,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.descriptions.Add("Max Missiles: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
-            itemStat.descriptions.Add("Gold Per Extra Missile: ");
+            itemStat.descriptions.Add("Gold per Extra Missile: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Gold);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Money);
             itemStat.descriptions.Add("Proc Coefficient: ");
@@ -2075,7 +2075,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Empathy Cores
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Damage Per Ally: ");
+            itemStat.descriptions.Add("Damage per Ally: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Damage);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Percentage);
             itemStat.descriptions.Add("Current Damage Bonus: ");
@@ -2721,7 +2721,7 @@ namespace LookingGlass.ItemStatsNameSpace
 
             //Longstanding Solitude
             itemStat = new ItemStatsDef();
-            itemStat.descriptions.Add("Free Unlocks Per Level: ");
+            itemStat.descriptions.Add("Free Unlocks per Level: ");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.Utility);
             itemStat.measurementUnits.Add(ItemStatsDef.MeasurementUnits.Number);
             itemStat.descriptions.Add("Cost of next Level: ");
@@ -3304,7 +3304,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValuesFlat = (stackCount) =>
             {
                 List<float> values = new();
-                values.Add(5 * stackCount);
+                values.Add(10 * stackCount);
                 values.Add(.5f * stackCount);
                 values.Add(1f);
                 return values;
@@ -3379,7 +3379,7 @@ namespace LookingGlass.ItemStatsNameSpace
             itemStat.calculateValuesFlat = (stackCount) =>
             {
                 List<float> values = new();
-                values.Add(10 / (1f + 0.1f * (stackCount - 1)));
+                values.Add(10 / (1f + 0.1f * (stackCount)));
                 values.Add(2f + stackCount);
                 values.Add(30 * stackCount);
                 values.Add(1f);
@@ -3412,7 +3412,7 @@ namespace LookingGlass.ItemStatsNameSpace
             };
             allItemDefinitions.Add((int)DLC4Content.Items.VengefulSpiritRageMode.itemIndex, itemStat);
 
-            //Vile Censor
+            //Vile Censer
             itemStat = new ItemStatsDef();
             itemStat.descriptions.Add("Stun Chance: <style=cIsDamage>0%</style> to <style=cIsDamage>25%</style>.");
             itemStat.valueTypes.Add(ItemStatsDef.ValueType.None);

@@ -109,7 +109,7 @@ namespace LookingGlass.ItemStatsNameSpace
             skills.Add("HUNTRESS_SECONDARY_ALT_NAME", 1f);
             skills.Add("HUNTRESS_UTILITY_NAME", -1f);
             skills.Add("HUNTRESS_UTILITY_ALT1_NAME", -1f);
-            skills.Add("HUNTRESS_SPECIAL_NAME", 0.2f);
+            skills.Add("HUNTRESS_SPECIAL_NAME", 0.5f);
             skillsAdditional.Add("HUNTRESS_SPECIAL_NAME", "\nTicks: <style=cIsDamage>19</style>");
             skills.Add("HUNTRESS_SPECIAL_ALT1_NAME", 1f);
 
